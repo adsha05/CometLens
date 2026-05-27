@@ -1,0 +1,174 @@
+{
+  "scope": "Synthetic QSR purchase propensity model monitoring only.",
+  "guardrails": [
+    "All observations and customer records are synthetic.",
+    "Metrics and risk labels are deterministic inputs and must not be recalculated.",
+    "Narrative hypotheses must not be presented as causes."
+  ],
+  "model": {
+    "model_name": "qsr_purchase_propensity_xgb",
+    "model_type": "XGBClassifier",
+    "target": "purchase_qsr_next_30d",
+    "feature_count": 15,
+    "risk_level": "High",
+    "risk_reason": "4 high drift features; AUC change +0.0077."
+  },
+  "performance": {
+    "validation": {
+      "auc": 0.7665376344086022,
+      "accuracy": 0.8,
+      "precision": 0.6077586206896551,
+      "recall": 0.31333333333333335,
+      "f1": 0.41348973607038125
+    },
+    "current": {
+      "auc": 0.7742625677586656,
+      "accuracy": 0.8209,
+      "precision": 0.6214511041009464,
+      "recall": 0.2922848664688427,
+      "f1": 0.3975782038345106
+    }
+  },
+  "high_drift_features": [
+    {
+      "feature": "merchant_novelty_rate",
+      "psi": 0.5243228289386243,
+      "ks_pvalue": 7.832455547723241e-188,
+      "mean_change_pct": 30.87154440123748,
+      "drift_level": "High"
+    },
+    {
+      "feature": "fuel_spend_30d",
+      "psi": 0.1233335078557386,
+      "ks_pvalue": 5.958517151059916e-92,
+      "mean_change_pct": 26.09503510368492,
+      "drift_level": "High"
+    },
+    {
+      "feature": "weekend_dining_frequency",
+      "psi": 0.1206373481556674,
+      "ks_pvalue": 1.3150318221648881e-103,
+      "mean_change_pct": -24.39607602697731,
+      "drift_level": "High"
+    },
+    {
+      "feature": "competitor_qsr_share_90d",
+      "psi": 0.0571526473574254,
+      "ks_pvalue": 1.0692263108004232e-32,
+      "mean_change_pct": 11.25750379710215,
+      "drift_level": "High"
+    }
+  ],
+  "top_shap_features": [
+    {
+      "feature": "qsr_spend_30d",
+      "mean_abs_shap_value": 0.5466744650029831
+    },
+    {
+      "feature": "qsr_txn_count_30d",
+      "mean_abs_shap_value": 0.3632551622235957
+    },
+    {
+      "feature": "weekend_dining_frequency",
+      "mean_abs_shap_value": 0.190280622050203
+    },
+    {
+      "feature": "qsr_recency_days",
+      "mean_abs_shap_value": 0.1901246976973951
+    },
+    {
+      "feature": "campaign_exposed",
+      "mean_abs_shap_value": 0.1560927895716883
+    },
+    {
+      "feature": "competitor_qsr_share_90d",
+      "mean_abs_shap_value": 0.1252897863475235
+    },
+    {
+      "feature": "prior_offer_redemption_rate",
+      "mean_abs_shap_value": 0.1000817865008123
+    },
+    {
+      "feature": "fuel_spend_30d",
+      "mean_abs_shap_value": 0.0909156988544298
+    },
+    {
+      "feature": "merchant_novelty_rate",
+      "mean_abs_shap_value": 0.0791695814388054
+    },
+    {
+      "feature": "avg_ticket_size",
+      "mean_abs_shap_value": 0.0712547398859482
+    }
+  ],
+  "cluster_shifts": [
+    {
+      "cluster_name": "Loyal QSR Buyers",
+      "reference_pct": 27.88,
+      "current_pct": 25.869999999999997,
+      "population_shift_pct_points": -2.0100000000000016
+    },
+    {
+      "cluster_name": "Value-Seeking Routine Shoppers",
+      "reference_pct": 23.69,
+      "current_pct": 24.9,
+      "population_shift_pct_points": 1.2099999999999973
+    },
+    {
+      "cluster_name": "Unstable/New Behavior Segment",
+      "reference_pct": 40.44,
+      "current_pct": 41.03,
+      "population_shift_pct_points": 0.5900000000000034
+    },
+    {
+      "cluster_name": "Competitor Switchers",
+      "reference_pct": 7.99,
+      "current_pct": 8.200000000000001,
+      "population_shift_pct_points": 0.2100000000000008
+    }
+  ],
+  "deterministic_feature_suggestions": [
+    {
+      "suggested_feature": "competitor_share_rolling_60d",
+      "reason": "Measure recent movement toward competing QSR merchants with shorter and directional signals.",
+      "linked_evidence": "competitor_qsr_share_90d: High drift (PSI=0.0572, mean change=11.26%); competitor_qsr_share_90d: top-10 SHAP feature (mean |SHAP|=0.1253)",
+      "priority": "High"
+    },
+    {
+      "suggested_feature": "competitor_switching_velocity",
+      "reason": "Measure recent movement toward competing QSR merchants with shorter and directional signals.",
+      "linked_evidence": "competitor_qsr_share_90d: High drift (PSI=0.0572, mean change=11.26%); competitor_qsr_share_90d: top-10 SHAP feature (mean |SHAP|=0.1253)",
+      "priority": "High"
+    },
+    {
+      "suggested_feature": "merchant_confidence_score",
+      "reason": "Capture changing merchant behavior and distinguish genuine novelty from uncertain categorization.",
+      "linked_evidence": "merchant_novelty_rate: High drift (PSI=0.5243, mean change=30.87%)",
+      "priority": "High"
+    },
+    {
+      "suggested_feature": "merchant_descriptor_novelty_rate",
+      "reason": "Capture changing merchant behavior and distinguish genuine novelty from uncertain categorization.",
+      "linked_evidence": "merchant_novelty_rate: High drift (PSI=0.5243, mean change=30.87%)",
+      "priority": "High"
+    },
+    {
+      "suggested_feature": "weekend_dining_recovery_index",
+      "reason": "Track whether reduced weekend dining is recovering or persisting for purchase propensity.",
+      "linked_evidence": "weekend_dining_frequency: High drift (PSI=0.1206, mean change=-24.40%); weekend_dining_frequency: top-10 SHAP feature (mean |SHAP|=0.1903)",
+      "priority": "High"
+    },
+    {
+      "suggested_feature": "cluster_stability_score",
+      "reason": "Account for material movement in customer segment composition between periods.",
+      "linked_evidence": "Loyal QSR Buyers: -2.01 percentage points; Value-Seeking Routine Shoppers: +1.21 percentage points",
+      "priority": "Medium"
+    },
+    {
+      "suggested_feature": "segment_specific_calibration",
+      "reason": "Account for material movement in customer segment composition between periods.",
+      "linked_evidence": "Loyal QSR Buyers: -2.01 percentage points; Value-Seeking Routine Shoppers: +1.21 percentage points",
+      "priority": "Medium"
+    }
+  ]
+}

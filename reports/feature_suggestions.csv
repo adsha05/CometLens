@@ -1,0 +1,8 @@
+suggested_feature,reason,linked_evidence,priority
+competitor_share_rolling_60d,Measure recent movement toward competing QSR merchants with shorter and directional signals.,"competitor_qsr_share_90d: High drift (PSI=0.0572, mean change=11.26%); competitor_qsr_share_90d: top-10 SHAP feature (mean |SHAP|=0.1253)",High
+competitor_switching_velocity,Measure recent movement toward competing QSR merchants with shorter and directional signals.,"competitor_qsr_share_90d: High drift (PSI=0.0572, mean change=11.26%); competitor_qsr_share_90d: top-10 SHAP feature (mean |SHAP|=0.1253)",High
+merchant_confidence_score,Capture changing merchant behavior and distinguish genuine novelty from uncertain categorization.,"merchant_novelty_rate: High drift (PSI=0.5243, mean change=30.87%)",High
+merchant_descriptor_novelty_rate,Capture changing merchant behavior and distinguish genuine novelty from uncertain categorization.,"merchant_novelty_rate: High drift (PSI=0.5243, mean change=30.87%)",High
+weekend_dining_recovery_index,Track whether reduced weekend dining is recovering or persisting for purchase propensity.,"weekend_dining_frequency: High drift (PSI=0.1206, mean change=-24.40%); weekend_dining_frequency: top-10 SHAP feature (mean |SHAP|=0.1903)",High
+cluster_stability_score,Account for material movement in customer segment composition between periods.,Loyal QSR Buyers: -2.01 percentage points; Value-Seeking Routine Shoppers: +1.21 percentage points,Medium
+segment_specific_calibration,Account for material movement in customer segment composition between periods.,Loyal QSR Buyers: -2.01 percentage points; Value-Seeking Routine Shoppers: +1.21 percentage points,Medium

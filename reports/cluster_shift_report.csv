@@ -1,0 +1,5 @@
+cluster,cluster_name,reference_size,current_size,reference_pct,current_pct,population_shift_pct_points
+0,Competitor Switchers,799,820,7.99,8.200000000000001,0.21000000000000085
+1,Unstable/New Behavior Segment,4044,4103,40.44,41.03,0.5900000000000034
+2,Loyal QSR Buyers,2788,2587,27.88,25.869999999999997,-2.0100000000000016
+3,Value-Seeking Routine Shoppers,2369,2490,23.69,24.9,1.2099999999999973
