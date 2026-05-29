@@ -1,0 +1,416 @@
+{
+  "model_metadata": {
+    "model_name": "qsr_purchase_predictor_v3",
+    "artifact_profile": "qsr_purchase_propensity_sample",
+    "domain": "synthetic_purchase_analytics",
+    "supports_generic_contract": true,
+    "model_type": "classification",
+    "target": "purchase_qsr_next_30d",
+    "feature_columns": [
+      "qsr_txn_count_30d",
+      "qsr_spend_30d",
+      "qsr_recency_days",
+      "competitor_qsr_share_90d",
+      "grocery_spend_30d",
+      "fuel_spend_30d",
+      "weekend_dining_frequency",
+      "merchant_novelty_rate",
+      "campaign_exposed"
+    ],
+    "business_use_case": "QSR audience targeting and campaign optimization",
+    "entity_id": "consumer_token",
+    "prediction_column": "propensity_score",
+    "training_window": "2026-01-01_to_2026-03-31_synthetic",
+    "current_window": "2026-04-01_to_2026-04-30_synthetic",
+    "train_auc": 0.812,
+    "validation_auc": 0.776,
+    "current_auc": 0.741,
+    "precision": 0.64,
+    "recall": 0.58,
+    "f1": 0.61
+  },
+  "feature_metadata": {
+    "entity_id": "consumer_token",
+    "target": "purchase_qsr_next_30d",
+    "artifact_profile": "qsr_purchase_propensity_sample",
+    "features": [
+      {
+        "name": "qsr_txn_count_30d",
+        "type": "numeric",
+        "business_definition": "Number of synthetic QSR transactions in the last 30 days.",
+        "synthetic_only": true
+      },
+      {
+        "name": "qsr_spend_30d",
+        "type": "numeric",
+        "business_definition": "Total synthetic QSR spend in the last 30 days.",
+        "synthetic_only": true
+      },
+      {
+        "name": "qsr_recency_days",
+        "type": "numeric",
+        "business_definition": "Days since the synthetic consumer's most recent QSR transaction.",
+        "synthetic_only": true
+      },
+      {
+        "name": "competitor_qsr_share_90d",
+        "type": "numeric",
+        "business_definition": "Share of synthetic QSR activity with competitor QSR merchants over 90 days.",
+        "synthetic_only": true
+      },
+      {
+        "name": "grocery_spend_30d",
+        "type": "numeric",
+        "business_definition": "Total synthetic grocery spend in the last 30 days.",
+        "synthetic_only": true
+      },
+      {
+        "name": "fuel_spend_30d",
+        "type": "numeric",
+        "business_definition": "Total synthetic fuel spend in the last 30 days.",
+        "synthetic_only": true
+      },
+      {
+        "name": "weekend_dining_frequency",
+        "type": "numeric",
+        "business_definition": "Count of synthetic weekend dining events in the last 30 days.",
+        "synthetic_only": true
+      },
+      {
+        "name": "merchant_novelty_rate",
+        "type": "numeric",
+        "business_definition": "Rate of synthetic dining activity at merchants not previously observed for the consumer.",
+        "synthetic_only": true
+      },
+      {
+        "name": "campaign_exposed",
+        "type": "numeric",
+        "business_definition": "Indicator that the synthetic consumer was exposed to a QSR campaign.",
+        "synthetic_only": true
+      }
+    ]
+  },
+  "signal_sentinel_summary": {
+    "overall_risk_level": "High",
+    "data_health_summary": {
+      "train_rows": 200,
+      "current_rows": 200,
+      "feature_count": 9,
+      "missing_value_findings": [
+        {
+          "feature": "qsr_txn_count_30d",
+          "train_missing_rate": 0.0,
+          "current_missing_rate": 0.0,
+          "missing_rate_change_pct_points": 0.0
+        },
+        {
+          "feature": "qsr_spend_30d",
+          "train_missing_rate": 0.0,
+          "current_missing_rate": 0.0,
+          "missing_rate_change_pct_points": 0.0
+        },
+        {
+          "feature": "qsr_recency_days",
+          "train_missing_rate": 0.0,
+          "current_missing_rate": 0.0,
+          "missing_rate_change_pct_points": 0.0
+        },
+        {
+          "feature": "competitor_qsr_share_90d",
+          "train_missing_rate": 0.0,
+          "current_missing_rate": 0.0,
+          "missing_rate_change_pct_points": 0.0
+        },
+        {
+          "feature": "grocery_spend_30d",
+          "train_missing_rate": 0.0,
+          "current_missing_rate": 0.0,
+          "missing_rate_change_pct_points": 0.0
+        },
+        {
+          "feature": "fuel_spend_30d",
+          "train_missing_rate": 0.0,
+          "current_missing_rate": 0.0,
+          "missing_rate_change_pct_points": 0.0
+        },
+        {
+          "feature": "weekend_dining_frequency",
+          "train_missing_rate": 0.0,
+          "current_missing_rate": 0.0,
+          "missing_rate_change_pct_points": 0.0
+        },
+        {
+          "feature": "merchant_novelty_rate",
+          "train_missing_rate": 0.0,
+          "current_missing_rate": 0.0,
+          "missing_rate_change_pct_points": 0.0
+        },
+        {
+          "feature": "campaign_exposed",
+          "train_missing_rate": 0.0,
+          "current_missing_rate": 0.0,
+          "missing_rate_change_pct_points": 0.0
+        }
+      ]
+    },
+    "high_drift_feature_count": 2,
+    "medium_drift_feature_count": 0,
+    "prediction_drift_summary": {
+      "available": true,
+      "row_count": 200,
+      "score_mean": 0.40314833499999997,
+      "score_std": 0.17052763658789752,
+      "score_min": 0.093389,
+      "score_max": 0.851676,
+      "score_p10": 0.2082639,
+      "score_p50": 0.383158,
+      "score_p90": 0.6520653,
+      "predicted_positive_rate": 0.245,
+      "actual_positive_rate": 0.38,
+      "prediction_actual_rate_gap": -0.135
+    },
+    "cluster_findings": [
+      {
+        "cluster": 0,
+        "train_share_pct": 49.0,
+        "current_share_pct": 40.5,
+        "share_change_pct_points": -8.5
+      },
+      {
+        "cluster": 1,
+        "train_share_pct": 23.5,
+        "current_share_pct": 33.0,
+        "share_change_pct_points": 9.5
+      },
+      {
+        "cluster": 2,
+        "train_share_pct": 27.500000000000004,
+        "current_share_pct": 26.5,
+        "share_change_pct_points": -1.0000000000000036
+      }
+    ],
+    "recommended_checks": [
+      "Review high-drift features for data pipeline or behavior-shift explanations.",
+      "Compare prediction score distribution against the model training baseline when train predictions are available.",
+      "Inspect cluster share movement for population-mix changes before high-impact business use."
+    ]
+  },
+  "model_lens_summary": {
+    "top_global_drivers": [
+      {
+        "feature": "qsr_txn_count_30d",
+        "mean_abs_shap_value": 0.5763269066810608,
+        "shap_rank": 1
+      },
+      {
+        "feature": "merchant_novelty_rate",
+        "mean_abs_shap_value": 0.508556067943573,
+        "shap_rank": 2
+      },
+      {
+        "feature": "grocery_spend_30d",
+        "mean_abs_shap_value": 0.46509280800819397,
+        "shap_rank": 3
+      },
+      {
+        "feature": "qsr_recency_days",
+        "mean_abs_shap_value": 0.23915597796440125,
+        "shap_rank": 4
+      },
+      {
+        "feature": "qsr_spend_30d",
+        "mean_abs_shap_value": 0.21993398666381836,
+        "shap_rank": 5
+      },
+      {
+        "feature": "fuel_spend_30d",
+        "mean_abs_shap_value": 0.21283723413944244,
+        "shap_rank": 6
+      },
+      {
+        "feature": "competitor_qsr_share_90d",
+        "mean_abs_shap_value": 0.11285369843244553,
+        "shap_rank": 7
+      },
+      {
+        "feature": "weekend_dining_frequency",
+        "mean_abs_shap_value": 0.08141425251960754,
+        "shap_rank": 8
+      },
+      {
+        "feature": "campaign_exposed",
+        "mean_abs_shap_value": 0.02812393754720688,
+        "shap_rank": 9
+      }
+    ],
+    "high_risk_feature_matrix": [
+      {
+        "feature": "merchant_novelty_rate",
+        "shap_rank": 2,
+        "mean_abs_shap_value": 0.508556067943573,
+        "drift_level": "High",
+        "vif": 1.0263186579908101,
+        "vif_warning": "Low",
+        "combined_risk": "High"
+      },
+      {
+        "feature": "weekend_dining_frequency",
+        "shap_rank": 8,
+        "mean_abs_shap_value": 0.08141425251960754,
+        "drift_level": "High",
+        "vif": 1.047225528065608,
+        "vif_warning": "Low",
+        "combined_risk": "Medium"
+      },
+      {
+        "feature": "qsr_txn_count_30d",
+        "shap_rank": 1,
+        "mean_abs_shap_value": 0.5763269066810608,
+        "drift_level": "Low",
+        "vif": 4.377448566599988,
+        "vif_warning": "Low",
+        "combined_risk": "Low"
+      },
+      {
+        "feature": "grocery_spend_30d",
+        "shap_rank": 3,
+        "mean_abs_shap_value": 0.46509280800819397,
+        "drift_level": "Low",
+        "vif": 1.0357654414275415,
+        "vif_warning": "Low",
+        "combined_risk": "Low"
+      },
+      {
+        "feature": "qsr_recency_days",
+        "shap_rank": 4,
+        "mean_abs_shap_value": 0.23915597796440125,
+        "drift_level": "Low",
+        "vif": 1.0452640010850327,
+        "vif_warning": "Low",
+        "combined_risk": "Low"
+      },
+      {
+        "feature": "qsr_spend_30d",
+        "shap_rank": 5,
+        "mean_abs_shap_value": 0.21993398666381836,
+        "drift_level": "Low",
+        "vif": 4.381871553669761,
+        "vif_warning": "Low",
+        "combined_risk": "Low"
+      },
+      {
+        "feature": "fuel_spend_30d",
+        "shap_rank": 6,
+        "mean_abs_shap_value": 0.21283723413944244,
+        "drift_level": "Low",
+        "vif": 1.045793262156066,
+        "vif_warning": "Low",
+        "combined_risk": "Low"
+      },
+      {
+        "feature": "competitor_qsr_share_90d",
+        "shap_rank": 7,
+        "mean_abs_shap_value": 0.11285369843244553,
+        "drift_level": "Low",
+        "vif": 1.0350657264975056,
+        "vif_warning": "Low",
+        "combined_risk": "Low"
+      },
+      {
+        "feature": "campaign_exposed",
+        "shap_rank": 9,
+        "mean_abs_shap_value": 0.02812393754720688,
+        "drift_level": "Low",
+        "vif": 1.0118711283711297,
+        "vif_warning": "Low",
+        "combined_risk": "Low"
+      }
+    ],
+    "multicollinearity_findings": [
+      {
+        "feature": "qsr_spend_30d",
+        "vif": 4.381871553669761,
+        "vif_level": "Low"
+      },
+      {
+        "feature": "qsr_txn_count_30d",
+        "vif": 4.377448566599988,
+        "vif_level": "Low"
+      },
+      {
+        "feature": "weekend_dining_frequency",
+        "vif": 1.047225528065608,
+        "vif_level": "Low"
+      },
+      {
+        "feature": "fuel_spend_30d",
+        "vif": 1.045793262156066,
+        "vif_level": "Low"
+      },
+      {
+        "feature": "qsr_recency_days",
+        "vif": 1.0452640010850327,
+        "vif_level": "Low"
+      },
+      {
+        "feature": "grocery_spend_30d",
+        "vif": 1.0357654414275415,
+        "vif_level": "Low"
+      },
+      {
+        "feature": "competitor_qsr_share_90d",
+        "vif": 1.0350657264975056,
+        "vif_level": "Low"
+      },
+      {
+        "feature": "merchant_novelty_rate",
+        "vif": 1.0263186579908101,
+        "vif_level": "Low"
+      },
+      {
+        "feature": "campaign_exposed",
+        "vif": 1.0118711283711297,
+        "vif_level": "Low"
+      }
+    ],
+    "overfitting_check": {
+      "metric_name": "auc",
+      "train_auc": 0.812,
+      "validation_auc": 0.776,
+      "delta": 0.03600000000000003,
+      "risk_level": "Medium"
+    }
+  },
+  "key_findings": [
+    "merchant_novelty_rate is a high-drift feature",
+    "merchant_novelty_rate increased in current data",
+    "weekend_dining_frequency is a high-drift feature",
+    "weekend_dining_frequency decreased in current data",
+    "train-validation auc delta indicates medium overfitting risk",
+    "qsr_txn_count_30d is the top global model driver",
+    "predicted-positive rate differs from actual-positive rate by -0.135"
+  ],
+  "available_plots": {
+    "shap_global_bar": {
+      "path": "/Users/adityasharma/Desktop/CometLens/reports/figures/shap_global_bar.png",
+      "exists": true
+    },
+    "shap_beeswarm": {
+      "path": "/Users/adityasharma/Desktop/CometLens/reports/figures/shap_beeswarm.png",
+      "exists": true
+    }
+  },
+  "business_context": {
+    "business_use_case": "QSR audience targeting and campaign optimization",
+    "target": "purchase_qsr_next_30d",
+    "entity_id": "consumer_token",
+    "prediction_column": "propensity_score",
+    "training_window": "2026-01-01_to_2026-03-31_synthetic",
+    "current_window": "2026-04-01_to_2026-04-30_synthetic"
+  },
+  "limitations": [
+    "Synthetic sample data only",
+    "LLM narrative should not be treated as production validation",
+    "Metrics are simulated for MVP demonstration"
+  ]
+}

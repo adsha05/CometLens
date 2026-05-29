@@ -1,4 +1,4 @@
-"""Streamlit dashboard for PurchaseIntel Lens monitoring artifacts."""
+"""Streamlit dashboard for the VyaAI MVP."""
 
 from __future__ import annotations
 
@@ -7,215 +7,216 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
+import streamlit as st
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DATA_DIR = PROJECT_ROOT / "data"
 MODELS_DIR = PROJECT_ROOT / "models"
 REPORTS_DIR = PROJECT_ROOT / "reports"
+FIGURES_DIR = REPORTS_DIR / "figures"
+
+RUN_ORDER = """python src/generate_sample_artifacts.py
+python src/agents/signal_sentinel_agent.py
+python src/agents/model_lens_agent.py
+python src/agents/evidence_store.py
+python src/agents/executive_synthesis_agent.py
+streamlit run app/streamlit_app.py"""
 
 
-def load_json(path: Path) -> tuple[dict[str, Any] | None, str | None]:
-    """Load a JSON artifact, returning a user-facing issue when unavailable."""
+def load_json(path: Path) -> dict[str, Any]:
+    """Load JSON when available."""
     if not path.exists():
-        return None, f"Missing `{path.relative_to(PROJECT_ROOT)}`. Generate its upstream artifact first."
-    try:
-        with path.open("r", encoding="utf-8") as input_file:
-            return json.load(input_file), None
-    except (OSError, json.JSONDecodeError) as error:
-        return None, f"Could not read `{path.relative_to(PROJECT_ROOT)}`: {error}"
+        return {}
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
-def load_csv(path: Path) -> tuple[pd.DataFrame | None, str | None]:
-    """Load a CSV artifact, returning a user-facing issue when unavailable."""
+def records_to_frame(records: list[dict[str, Any]]) -> pd.DataFrame:
+    """Convert JSON records into a DataFrame for display."""
+    if not records:
+        return pd.DataFrame()
+    return pd.DataFrame(records)
+
+
+def missing_file_message(path: Path, label: str) -> None:
+    """Show a helpful message for missing dashboard artifacts."""
+    st.info(f"{label} is missing: `{path}`. Run the pipeline commands below.")
+    st.code(RUN_ORDER, language="bash")
+
+
+def show_image_if_available(path: Path, caption: str) -> None:
+    """Render an image if it exists, otherwise show a helpful notice."""
+    if path.exists():
+        st.image(str(path), caption=caption, width="stretch")
+    else:
+        st.info(f"Plot not available yet: `{path}`")
+
+
+def overview_section() -> None:
+    """Render the VyaAI overview and architecture summary."""
+    st.header("1. Overview")
+    st.write(
+        "VyaAI is an agentic model intelligence MVP for reviewing synthetic tabular model artifacts. "
+        "It does not deploy a production model or use real customer data. Instead, it reads "
+        "feature tables, predictions, model metadata, and feature metadata, then produces "
+        "auditable model-health evidence. The bundled QSR profile is only a demo; the agents "
+        "use metadata-defined target, entity, prediction, and feature columns."
+    )
+    st.subheader("3-Agent Architecture")
+    st.markdown(
+        """
+        - **Agent 01: Mitra** detects feature drift, prediction drift, missing-value shifts, and cluster/context movement.
+        - **Agent 02: Varuna** explains model behavior with a small local XGBoost reviewer model, SHAP, VIF, and overfitting checks.
+        - **Agent 03: Aryaman** converts verified evidence into a consulting-style model health brief.
+        """
+    )
+    with st.expander("Run Order"):
+        st.code(RUN_ORDER, language="bash")
+
+
+def model_metadata_section() -> None:
+    """Render model metadata."""
+    st.header("2. Model Metadata")
+    path = MODELS_DIR / "model_metadata.json"
+    metadata = load_json(path)
+    if not metadata:
+        missing_file_message(path, "Model metadata")
+        return
+
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Model", metadata.get("model_name", "unknown"))
+    col2.metric("Type", metadata.get("model_type", "unknown"))
+    col3.metric("Target", metadata.get("target", "unknown"))
+    st.write(f"**Use case:** {metadata.get('business_use_case', 'Not provided')}")
+
+    metrics = {
+        "Train Metric": metadata.get("train_auc", metadata.get("train_metric")),
+        "Validation Metric": metadata.get("validation_auc", metadata.get("validation_metric")),
+        "Current Metric": metadata.get("current_auc", metadata.get("current_metric")),
+        "Metric Name": metadata.get("metric_name", "auc" if "train_auc" in metadata else "metric"),
+        "Precision": metadata.get("precision"),
+        "Recall": metadata.get("recall"),
+        "F1": metadata.get("f1"),
+    }
+    st.dataframe(pd.DataFrame([metrics]), width="stretch")
+    with st.expander("Raw model metadata"):
+        st.json(metadata)
+
+
+def signal_sentinel_section() -> None:
+    """Render Mitra outputs."""
+    st.header("3. Agent 01: Mitra")
+    path = REPORTS_DIR / "signal_sentinel_output.json"
+    signal = load_json(path)
+    if not signal:
+        missing_file_message(path, "Agent 01: Mitra output")
+        return
+
+    high_drift = signal.get("high_drift_features", [])
+    cluster_findings = signal.get("cluster_findings", [])
+    prediction_summary = signal.get("prediction_drift_summary", {})
+
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Risk Level", signal.get("overall_risk_level", "unknown"))
+    col2.metric("High Drift Features", len(high_drift))
+    col3.metric("Prediction Gap", f"{prediction_summary.get('prediction_actual_rate_gap', 0):+.3f}")
+
+    st.subheader("High Drift Features")
+    high_drift_df = records_to_frame(high_drift)
+    if high_drift_df.empty:
+        st.success("No high-drift features reported.")
+    else:
+        st.dataframe(high_drift_df, width="stretch")
+
+    st.subheader("Cluster Findings")
+    cluster_df = records_to_frame(cluster_findings)
+    if cluster_df.empty:
+        st.info("No cluster findings available.")
+    else:
+        st.dataframe(cluster_df, width="stretch")
+
+    st.subheader("Drift Plot")
+    show_image_if_available(FIGURES_DIR / "drift_top_features.png", "Top drift features by PSI")
+
+
+def model_lens_section() -> None:
+    """Render Varuna outputs."""
+    st.header("4. Agent 02: Varuna")
+    path = REPORTS_DIR / "model_lens_output.json"
+    lens = load_json(path)
+    if not lens:
+        missing_file_message(path, "Agent 02: Varuna output")
+        return
+
+    st.subheader("Top Global Drivers")
+    top_drivers_df = records_to_frame(lens.get("top_global_drivers", []))
+    if top_drivers_df.empty:
+        st.info("Top global drivers are missing.")
+    else:
+        st.dataframe(top_drivers_df, width="stretch")
+
+    st.subheader("High-Risk Feature Matrix")
+    risk_matrix_df = records_to_frame(lens.get("high_risk_feature_matrix", []))
+    if risk_matrix_df.empty:
+        st.info("High-risk feature matrix is missing.")
+    else:
+        st.dataframe(risk_matrix_df, width="stretch")
+
+    st.subheader("VIF And Overfitting Findings")
+    left, right = st.columns(2)
+    with left:
+        vif_df = records_to_frame(lens.get("multicollinearity_findings", []))
+        if vif_df.empty:
+            st.info("VIF report is missing.")
+        else:
+            st.dataframe(vif_df, width="stretch")
+    with right:
+        overfitting = lens.get("overfitting_check", {})
+        if overfitting:
+            st.json(overfitting)
+        else:
+            st.info("Overfitting check is missing.")
+
+    st.subheader("SHAP Plots")
+    col1, col2 = st.columns(2)
+    with col1:
+        show_image_if_available(FIGURES_DIR / "shap_global_bar.png", "SHAP global bar plot")
+    with col2:
+        show_image_if_available(FIGURES_DIR / "shap_beeswarm.png", "SHAP beeswarm plot")
+
+
+def executive_synthesis_section() -> None:
+    """Render Aryaman markdown output."""
+    st.header("5. Agent 03: Aryaman")
+    path = REPORTS_DIR / "executive_model_report.md"
     if not path.exists():
-        return None, f"Missing `{path.relative_to(PROJECT_ROOT)}`. Run the related agent first."
-    try:
-        return pd.read_csv(path), None
-    except (OSError, pd.errors.ParserError) as error:
-        return None, f"Could not read `{path.relative_to(PROJECT_ROOT)}`: {error}"
+        missing_file_message(path, "Executive model report")
+        return
+    st.markdown(path.read_text(encoding="utf-8"))
 
 
-def load_markdown(path: Path) -> tuple[str | None, str | None]:
-    """Load a generated Markdown report."""
-    if not path.exists():
-        return None, f"Missing `{path.relative_to(PROJECT_ROOT)}`. Run the report agent first."
-    try:
-        return path.read_text(encoding="utf-8"), None
-    except OSError as error:
-        return None, f"Could not read `{path.relative_to(PROJECT_ROOT)}`: {error}"
-
-
-def calculate_risk_level(metadata: dict[str, Any], drift_report: pd.DataFrame) -> tuple[str, str]:
-    """Calculate dashboard risk using the report-agent monitoring thresholds."""
-    metrics = metadata["metrics"]
-    validation_auc = float(metrics["validation"]["auc"])
-    current_auc = float(metrics["current"]["auc"])
-    auc_drop = validation_auc - current_auc
-    high_drift_count = int((drift_report["drift_level"] == "High").sum())
-    medium_drift_count = int((drift_report["drift_level"] == "Medium").sum())
-    if high_drift_count >= 3 or auc_drop > 0.05:
-        return "High", f"{high_drift_count} high-drift features; AUC change {current_auc - validation_auc:+.4f}."
-    if medium_drift_count >= 2 or auc_drop > 0.02:
-        return "Medium", f"{medium_drift_count} medium-drift features; AUC change {current_auc - validation_auc:+.4f}."
-    return "Low", f"AUC change {current_auc - validation_auc:+.4f}; no risk threshold exceeded."
-
-
-def render_missing(st: Any, message: str | None) -> None:
-    """Render an artifact issue without interrupting other dashboard sections."""
-    if message:
-        st.info(message)
+def evidence_packet_section() -> None:
+    """Render evidence packet in an expandable JSON viewer."""
+    st.header("6. Evidence Packet")
+    path = REPORTS_DIR / "evidence_packet.json"
+    evidence = load_json(path)
+    if not evidence:
+        missing_file_message(path, "Evidence packet")
+        return
+    with st.expander("View evidence packet JSON", expanded=False):
+        st.json(evidence)
 
 
 def main() -> None:
-    """Render the PurchaseIntel Lens observability dashboard."""
-    try:
-        import plotly.express as px
-        import streamlit as st
-    except ModuleNotFoundError as error:
-        print(
-            f"Dashboard dependency `{error.name}` is not installed. "
-            "Install requirements.txt to run the Streamlit dashboard."
-        )
-        return
+    """Render the complete VyaAI dashboard."""
+    st.set_page_config(page_title="VyaAI MVP", layout="wide")
+    st.title("VyaAI MVP")
+    st.caption("Executive model intelligence for generic tabular model artifact review")
 
-    st.set_page_config(page_title="PurchaseIntel Lens", layout="wide")
-    st.title("PurchaseIntel Lens")
-    st.caption("Synthetic QSR purchase-propensity model observability dashboard")
-
-    metadata, metadata_error = load_json(MODELS_DIR / "model_metadata.json")
-    drift_report, drift_error = load_csv(REPORTS_DIR / "drift_report.csv")
-    shap_importance, shap_error = load_csv(REPORTS_DIR / "shap_global_importance.csv")
-    cluster_shift, cluster_error = load_csv(REPORTS_DIR / "cluster_shift_report.csv")
-    feature_suggestions, suggestion_error = load_csv(REPORTS_DIR / "feature_suggestions.csv")
-    review_report, review_error = load_markdown(REPORTS_DIR / "model_review_report.md")
-    llm_review, llm_review_error = load_markdown(REPORTS_DIR / "llm_model_review.md")
-    llm_artifact, llm_artifact_error = load_json(REPORTS_DIR / "llm_model_review.json")
-    train_features, train_error = load_csv(DATA_DIR / "train_features.csv")
-    current_features, current_error = load_csv(DATA_DIR / "current_features.csv")
-
-    st.header("1. Project Overview")
-    st.write(
-        "PurchaseIntel Lens monitors an XGBoost purchase-propensity model using "
-        "synthetic consumer behavior data. The dashboard summarizes predictive "
-        "performance, explanations, feature drift, customer segments, and follow-up features."
-    )
-    if train_features is not None and current_features is not None:
-        overview_columns = st.columns(3)
-        overview_columns[0].metric("Training Rows", f"{len(train_features):,}")
-        overview_columns[1].metric("Current Rows", f"{len(current_features):,}")
-        overview_columns[2].metric("Model Features", str(len(metadata["feature_list"])) if metadata else "N/A")
-    else:
-        render_missing(st, train_error)
-        render_missing(st, current_error)
-
-    st.header("2. Model Health Summary")
-    if metadata is not None and drift_report is not None:
-        risk_level, risk_reason = calculate_risk_level(metadata, drift_report)
-        high_drift_count = int((drift_report["drift_level"] == "High").sum())
-        health_columns = st.columns(4)
-        health_columns[0].metric("Risk Level", risk_level)
-        health_columns[1].metric("High Drift Features", high_drift_count)
-        health_columns[2].metric("Validation AUC", f"{metadata['metrics']['validation']['auc']:.4f}")
-        health_columns[3].metric("Current AUC", f"{metadata['metrics']['current']['auc']:.4f}")
-        if risk_level == "High":
-            st.error(f"High model monitoring risk: {risk_reason}")
-        elif risk_level == "Medium":
-            st.warning(f"Medium model monitoring risk: {risk_reason}")
-        else:
-            st.success(f"Low model monitoring risk: {risk_reason}")
-    else:
-        render_missing(st, metadata_error)
-        render_missing(st, drift_error)
-
-    st.header("3. Model Performance Metrics")
-    if metadata is not None:
-        performance = pd.DataFrame(metadata["metrics"]).T.reset_index(names="dataset")
-        performance["dataset"] = performance["dataset"].str.title()
-        st.dataframe(performance.style.format({column: "{:.4f}" for column in performance.columns if column != "dataset"}), width="stretch")
-    else:
-        render_missing(st, metadata_error)
-
-    st.header("4. Top SHAP Feature Drivers")
-    if shap_importance is not None:
-        top_shap = shap_importance.nlargest(10, "mean_abs_shap_value").sort_values("mean_abs_shap_value")
-        shap_chart = px.bar(
-            top_shap,
-            x="mean_abs_shap_value",
-            y="feature",
-            orientation="h",
-            title="Top 10 Features by Mean Absolute SHAP Value",
-            labels={"mean_abs_shap_value": "Mean |SHAP Value|", "feature": "Feature"},
-        )
-        st.plotly_chart(shap_chart, width="stretch")
-        st.dataframe(top_shap.sort_values("mean_abs_shap_value", ascending=False), width="stretch")
-    else:
-        render_missing(st, shap_error)
-
-    st.header("5. Drift Report Table")
-    if drift_report is not None:
-        drift_display = drift_report.sort_values("psi", ascending=False)
-        psi_chart = px.bar(
-            drift_display.head(10).sort_values("psi"),
-            x="psi",
-            y="feature",
-            color="drift_level",
-            orientation="h",
-            title="Top PSI Drift Features",
-            labels={"psi": "Population Stability Index", "feature": "Feature"},
-            color_discrete_map={"High": "#d62728", "Medium": "#ff7f0e", "Low": "#2ca02c"},
-        )
-        st.plotly_chart(psi_chart, width="stretch")
-        st.dataframe(drift_display, width="stretch")
-    else:
-        render_missing(st, drift_error)
-
-    st.header("6. Cluster Shift Report")
-    if cluster_shift is not None:
-        cluster_chart = px.bar(
-            cluster_shift.sort_values("population_shift_pct_points"),
-            x="population_shift_pct_points",
-            y="cluster_name",
-            orientation="h",
-            title="Cluster Distribution Shift",
-            labels={"population_shift_pct_points": "Share Change (percentage points)", "cluster_name": "Segment"},
-            color="population_shift_pct_points",
-            color_continuous_scale="RdBu",
-        )
-        st.plotly_chart(cluster_chart, width="stretch")
-        st.dataframe(cluster_shift, width="stretch")
-    else:
-        render_missing(st, cluster_error)
-
-    st.header("7. Feature Suggestions")
-    if feature_suggestions is not None:
-        st.dataframe(feature_suggestions, width="stretch")
-    else:
-        render_missing(st, suggestion_error)
-
-    st.header("8. Model Review Report")
-    if review_report is not None:
-        st.markdown(review_report)
-    else:
-        render_missing(st, review_error)
-
-    st.header("9. AI Narrative Review")
-    st.caption(
-        "Optional LLM interpretation over validated synthetic-data evidence. "
-        "Metrics, drift, clustering, and risk thresholds remain deterministic."
-    )
-    if llm_review is not None and llm_artifact is not None:
-        narrative_columns = st.columns(3)
-        narrative_columns[0].metric("Provider", llm_artifact["provider"])
-        narrative_columns[1].metric("LLM Model", llm_artifact["model"])
-        narrative_columns[2].metric("Evidence Source", "Validated reports")
-        st.markdown(llm_review)
-    else:
-        st.info(
-            "No AI narrative has been generated yet. Start Ollama, pull the configured model, "
-            "then run `python src/agents/narrative_agent.py`."
-        )
-        render_missing(st, llm_review_error)
-        render_missing(st, llm_artifact_error)
+    overview_section()
+    model_metadata_section()
+    signal_sentinel_section()
+    model_lens_section()
+    executive_synthesis_section()
+    evidence_packet_section()
 
 
 if __name__ == "__main__":

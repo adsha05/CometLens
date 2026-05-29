@@ -1,1 +1,1 @@
-"""Analysis agents for PurchaseIntel Lens."""
+"""Analysis agents for VyaAI."""

@@ -1,1 +1,1 @@
-"""Core modules for PurchaseIntel Lens."""
+"""Core modules for VyaAI."""

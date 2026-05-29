@@ -1,5 +1,0 @@
-cluster,cluster_name,size,size_pct,target_rate,avg_prediction_score,top_distinguishing_features
-0,Competitor Switchers,799,7.99,0.03754693366708386,0.03718837176257822,qsr_recency_days=55.5995; qsr_txn_count_30d=1.2666; qsr_spend_30d=17.4739; avg_ticket_size=13.1068; competitor_qsr_share_90d=0.4410
-1,Unstable/New Behavior Segment,4044,40.44,0.11671612265084075,0.11895830142865974,campaign_exposed=0.0000; qsr_spend_30d=40.9493; qsr_txn_count_30d=3.0715; avg_ticket_size=13.4491; weekend_dining_frequency=1.3452
-2,Loyal QSR Buyers,2788,27.88,0.46413199426111906,0.46721000684971314,qsr_spend_30d=113.9241; qsr_txn_count_30d=6.3806; avg_ticket_size=18.0507; weekend_dining_frequency=2.3042; qsr_recency_days=7.0574
-3,Value-Seeking Routine Shoppers,2369,23.69,0.19248628113127902,0.19074753597593921,campaign_exposed=1.0000; qsr_spend_30d=45.3453; avg_ticket_size=13.7113; qsr_txn_count_30d=3.3229; qsr_recency_days=10.3457

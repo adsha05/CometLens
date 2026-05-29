@@ -1,0 +1,346 @@
+{
+  "evidence": {
+    "model_lens": {
+      "agent_name": "Agent 02: Varuna",
+      "model_name": "qsr_purchase_predictor_v3",
+      "top_global_drivers": [
+        {
+          "feature": "qsr_txn_count_30d",
+          "mean_abs_shap_value": 0.5763269066810608,
+          "shap_rank": 1
+        },
+        {
+          "feature": "merchant_novelty_rate",
+          "mean_abs_shap_value": 0.508556067943573,
+          "shap_rank": 2
+        },
+        {
+          "feature": "grocery_spend_30d",
+          "mean_abs_shap_value": 0.46509280800819397,
+          "shap_rank": 3
+        },
+        {
+          "feature": "qsr_recency_days",
+          "mean_abs_shap_value": 0.23915597796440125,
+          "shap_rank": 4
+        },
+        {
+          "feature": "qsr_spend_30d",
+          "mean_abs_shap_value": 0.21993398666381836,
+          "shap_rank": 5
+        },
+        {
+          "feature": "fuel_spend_30d",
+          "mean_abs_shap_value": 0.21283723413944244,
+          "shap_rank": 6
+        },
+        {
+          "feature": "competitor_qsr_share_90d",
+          "mean_abs_shap_value": 0.11285369843244553,
+          "shap_rank": 7
+        },
+        {
+          "feature": "weekend_dining_frequency",
+          "mean_abs_shap_value": 0.08141425251960754,
+          "shap_rank": 8
+        },
+        {
+          "feature": "campaign_exposed",
+          "mean_abs_shap_value": 0.02812393754720688,
+          "shap_rank": 9
+        }
+      ],
+      "high_risk_feature_matrix": [
+        {
+          "feature": "merchant_novelty_rate",
+          "shap_rank": 2,
+          "mean_abs_shap_value": 0.508556067943573,
+          "drift_level": "High",
+          "vif": 1.0263186579908101,
+          "vif_warning": "Low",
+          "combined_risk": "High"
+        },
+        {
+          "feature": "weekend_dining_frequency",
+          "shap_rank": 8,
+          "mean_abs_shap_value": 0.08141425251960754,
+          "drift_level": "High",
+          "vif": 1.047225528065608,
+          "vif_warning": "Low",
+          "combined_risk": "Medium"
+        },
+        {
+          "feature": "qsr_txn_count_30d",
+          "shap_rank": 1,
+          "mean_abs_shap_value": 0.5763269066810608,
+          "drift_level": "Low",
+          "vif": 4.377448566599988,
+          "vif_warning": "Low",
+          "combined_risk": "Low"
+        },
+        {
+          "feature": "grocery_spend_30d",
+          "shap_rank": 3,
+          "mean_abs_shap_value": 0.46509280800819397,
+          "drift_level": "Low",
+          "vif": 1.0357654414275415,
+          "vif_warning": "Low",
+          "combined_risk": "Low"
+        },
+        {
+          "feature": "qsr_recency_days",
+          "shap_rank": 4,
+          "mean_abs_shap_value": 0.23915597796440125,
+          "drift_level": "Low",
+          "vif": 1.0452640010850327,
+          "vif_warning": "Low",
+          "combined_risk": "Low"
+        },
+        {
+          "feature": "qsr_spend_30d",
+          "shap_rank": 5,
+          "mean_abs_shap_value": 0.21993398666381836,
+          "drift_level": "Low",
+          "vif": 4.381871553669761,
+          "vif_warning": "Low",
+          "combined_risk": "Low"
+        },
+        {
+          "feature": "fuel_spend_30d",
+          "shap_rank": 6,
+          "mean_abs_shap_value": 0.21283723413944244,
+          "drift_level": "Low",
+          "vif": 1.045793262156066,
+          "vif_warning": "Low",
+          "combined_risk": "Low"
+        },
+        {
+          "feature": "competitor_qsr_share_90d",
+          "shap_rank": 7,
+          "mean_abs_shap_value": 0.11285369843244553,
+          "drift_level": "Low",
+          "vif": 1.0350657264975056,
+          "vif_warning": "Low",
+          "combined_risk": "Low"
+        },
+        {
+          "feature": "campaign_exposed",
+          "shap_rank": 9,
+          "mean_abs_shap_value": 0.02812393754720688,
+          "drift_level": "Low",
+          "vif": 1.0118711283711297,
+          "vif_warning": "Low",
+          "combined_risk": "Low"
+        }
+      ],
+      "multicollinearity_findings": [
+        {
+          "feature": "qsr_spend_30d",
+          "vif": 4.381871553669761,
+          "vif_level": "Low"
+        },
+        {
+          "feature": "qsr_txn_count_30d",
+          "vif": 4.377448566599988,
+          "vif_level": "Low"
+        },
+        {
+          "feature": "weekend_dining_frequency",
+          "vif": 1.047225528065608,
+          "vif_level": "Low"
+        },
+        {
+          "feature": "fuel_spend_30d",
+          "vif": 1.045793262156066,
+          "vif_level": "Low"
+        },
+        {
+          "feature": "qsr_recency_days",
+          "vif": 1.0452640010850327,
+          "vif_level": "Low"
+        },
+        {
+          "feature": "grocery_spend_30d",
+          "vif": 1.0357654414275415,
+          "vif_level": "Low"
+        },
+        {
+          "feature": "competitor_qsr_share_90d",
+          "vif": 1.0350657264975056,
+          "vif_level": "Low"
+        },
+        {
+          "feature": "merchant_novelty_rate",
+          "vif": 1.0263186579908101,
+          "vif_level": "Low"
+        },
+        {
+          "feature": "campaign_exposed",
+          "vif": 1.0118711283711297,
+          "vif_level": "Low"
+        }
+      ],
+      "overfitting_check": {
+        "metric_name": "auc",
+        "train_auc": 0.812,
+        "validation_auc": 0.776,
+        "delta": 0.03600000000000003,
+        "risk_level": "Medium"
+      },
+      "plots_generated": {
+        "shap_global_bar": "/Users/adityasharma/Desktop/CometLens/reports/figures/shap_global_bar.png",
+        "shap_beeswarm": "/Users/adityasharma/Desktop/CometLens/reports/figures/shap_beeswarm.png"
+      }
+    },
+    "signal_sentinel": {
+      "agent_name": "Agent 01: Mitra",
+      "overall_risk_level": "High",
+      "artifact_contract": {
+        "target": "purchase_qsr_next_30d",
+        "entity_id": "consumer_token",
+        "prediction_column": "propensity_score",
+        "feature_count": 9
+      },
+      "data_health_summary": {
+        "train_rows": 200,
+        "current_rows": 200,
+        "feature_count": 9,
+        "missing_value_findings": [
+          {
+            "feature": "qsr_txn_count_30d",
+            "train_missing_rate": 0.0,
+            "current_missing_rate": 0.0,
+            "missing_rate_change_pct_points": 0.0
+          },
+          {
+            "feature": "qsr_spend_30d",
+            "train_missing_rate": 0.0,
+            "current_missing_rate": 0.0,
+            "missing_rate_change_pct_points": 0.0
+          },
+          {
+            "feature": "qsr_recency_days",
+            "train_missing_rate": 0.0,
+            "current_missing_rate": 0.0,
+            "missing_rate_change_pct_points": 0.0
+          },
+          {
+            "feature": "competitor_qsr_share_90d",
+            "train_missing_rate": 0.0,
+            "current_missing_rate": 0.0,
+            "missing_rate_change_pct_points": 0.0
+          },
+          {
+            "feature": "grocery_spend_30d",
+            "train_missing_rate": 0.0,
+            "current_missing_rate": 0.0,
+            "missing_rate_change_pct_points": 0.0
+          },
+          {
+            "feature": "fuel_spend_30d",
+            "train_missing_rate": 0.0,
+            "current_missing_rate": 0.0,
+            "missing_rate_change_pct_points": 0.0
+          },
+          {
+            "feature": "weekend_dining_frequency",
+            "train_missing_rate": 0.0,
+            "current_missing_rate": 0.0,
+            "missing_rate_change_pct_points": 0.0
+          },
+          {
+            "feature": "merchant_novelty_rate",
+            "train_missing_rate": 0.0,
+            "current_missing_rate": 0.0,
+            "missing_rate_change_pct_points": 0.0
+          },
+          {
+            "feature": "campaign_exposed",
+            "train_missing_rate": 0.0,
+            "current_missing_rate": 0.0,
+            "missing_rate_change_pct_points": 0.0
+          }
+        ]
+      },
+      "high_drift_features": [
+        {
+          "feature": "merchant_novelty_rate",
+          "train_mean": 0.262197,
+          "current_mean": 0.36184550000000004,
+          "mean_change_pct": 38.005202195295915,
+          "psi": 0.5648547367215196,
+          "ks_statistic": 0.26000000000000006,
+          "ks_pvalue": 1.8819204313595185e-06,
+          "wasserstein_distance": 0.0996485,
+          "drift_level": "High"
+        },
+        {
+          "feature": "weekend_dining_frequency",
+          "train_mean": 1.51,
+          "current_mean": 1.125,
+          "mean_change_pct": -25.496688741721858,
+          "psi": 0.31444621273115303,
+          "ks_statistic": 0.20000000000000007,
+          "ks_pvalue": 0.0005551927328074649,
+          "wasserstein_distance": 0.45499999999999996,
+          "drift_level": "High"
+        }
+      ],
+      "medium_drift_features": [],
+      "prediction_drift_summary": {
+        "available": true,
+        "row_count": 200,
+        "score_mean": 0.40314833499999997,
+        "score_std": 0.17052763658789752,
+        "score_min": 0.093389,
+        "score_max": 0.851676,
+        "score_p10": 0.2082639,
+        "score_p50": 0.383158,
+        "score_p90": 0.6520653,
+        "predicted_positive_rate": 0.245,
+        "actual_positive_rate": 0.38,
+        "prediction_actual_rate_gap": -0.135
+      },
+      "cluster_findings": [
+        {
+          "cluster": 0,
+          "train_share_pct": 49.0,
+          "current_share_pct": 40.5,
+          "share_change_pct_points": -8.5
+        },
+        {
+          "cluster": 1,
+          "train_share_pct": 23.5,
+          "current_share_pct": 33.0,
+          "share_change_pct_points": 9.5
+        },
+        {
+          "cluster": 2,
+          "train_share_pct": 27.500000000000004,
+          "current_share_pct": 26.5,
+          "share_change_pct_points": -1.0000000000000036
+        }
+      ],
+      "recommended_checks": [
+        "Review high-drift features for data pipeline or behavior-shift explanations.",
+        "Compare prediction score distribution against the model training baseline when train predictions are available.",
+        "Inspect cluster share movement for population-mix changes before high-impact business use."
+      ]
+    },
+    "executive_synthesis": {
+      "status": "placeholder_complete",
+      "agent": "Agent 03: Aryaman",
+      "available_evidence_sections": [
+        "model_lens",
+        "signal_sentinel"
+      ],
+      "risk_level": "Not assessed",
+      "summary": "VyaAI skeleton is initialized. Deterministic Mitra and Varuna evidence will drive this report once full checks are implemented.",
+      "limitations": [
+        "Synthetic sample data only.",
+        "No LLM-generated metrics.",
+        "Current report is a runnable placeholder."
+      ]
+    }
+  }
+}

@@ -1,0 +1,192 @@
+{
+  "agent_name": "Agent 02: Varuna",
+  "model_name": "qsr_purchase_predictor_v3",
+  "top_global_drivers": [
+    {
+      "feature": "qsr_txn_count_30d",
+      "mean_abs_shap_value": 0.5763269066810608,
+      "shap_rank": 1
+    },
+    {
+      "feature": "merchant_novelty_rate",
+      "mean_abs_shap_value": 0.508556067943573,
+      "shap_rank": 2
+    },
+    {
+      "feature": "grocery_spend_30d",
+      "mean_abs_shap_value": 0.46509280800819397,
+      "shap_rank": 3
+    },
+    {
+      "feature": "qsr_recency_days",
+      "mean_abs_shap_value": 0.23915597796440125,
+      "shap_rank": 4
+    },
+    {
+      "feature": "qsr_spend_30d",
+      "mean_abs_shap_value": 0.21993398666381836,
+      "shap_rank": 5
+    },
+    {
+      "feature": "fuel_spend_30d",
+      "mean_abs_shap_value": 0.21283723413944244,
+      "shap_rank": 6
+    },
+    {
+      "feature": "competitor_qsr_share_90d",
+      "mean_abs_shap_value": 0.11285369843244553,
+      "shap_rank": 7
+    },
+    {
+      "feature": "weekend_dining_frequency",
+      "mean_abs_shap_value": 0.08141425251960754,
+      "shap_rank": 8
+    },
+    {
+      "feature": "campaign_exposed",
+      "mean_abs_shap_value": 0.02812393754720688,
+      "shap_rank": 9
+    }
+  ],
+  "high_risk_feature_matrix": [
+    {
+      "feature": "merchant_novelty_rate",
+      "shap_rank": 2,
+      "mean_abs_shap_value": 0.508556067943573,
+      "drift_level": "High",
+      "vif": 1.0263186579908101,
+      "vif_warning": "Low",
+      "combined_risk": "High"
+    },
+    {
+      "feature": "weekend_dining_frequency",
+      "shap_rank": 8,
+      "mean_abs_shap_value": 0.08141425251960754,
+      "drift_level": "High",
+      "vif": 1.047225528065608,
+      "vif_warning": "Low",
+      "combined_risk": "Medium"
+    },
+    {
+      "feature": "qsr_txn_count_30d",
+      "shap_rank": 1,
+      "mean_abs_shap_value": 0.5763269066810608,
+      "drift_level": "Low",
+      "vif": 4.377448566599988,
+      "vif_warning": "Low",
+      "combined_risk": "Low"
+    },
+    {
+      "feature": "grocery_spend_30d",
+      "shap_rank": 3,
+      "mean_abs_shap_value": 0.46509280800819397,
+      "drift_level": "Low",
+      "vif": 1.0357654414275415,
+      "vif_warning": "Low",
+      "combined_risk": "Low"
+    },
+    {
+      "feature": "qsr_recency_days",
+      "shap_rank": 4,
+      "mean_abs_shap_value": 0.23915597796440125,
+      "drift_level": "Low",
+      "vif": 1.0452640010850327,
+      "vif_warning": "Low",
+      "combined_risk": "Low"
+    },
+    {
+      "feature": "qsr_spend_30d",
+      "shap_rank": 5,
+      "mean_abs_shap_value": 0.21993398666381836,
+      "drift_level": "Low",
+      "vif": 4.381871553669761,
+      "vif_warning": "Low",
+      "combined_risk": "Low"
+    },
+    {
+      "feature": "fuel_spend_30d",
+      "shap_rank": 6,
+      "mean_abs_shap_value": 0.21283723413944244,
+      "drift_level": "Low",
+      "vif": 1.045793262156066,
+      "vif_warning": "Low",
+      "combined_risk": "Low"
+    },
+    {
+      "feature": "competitor_qsr_share_90d",
+      "shap_rank": 7,
+      "mean_abs_shap_value": 0.11285369843244553,
+      "drift_level": "Low",
+      "vif": 1.0350657264975056,
+      "vif_warning": "Low",
+      "combined_risk": "Low"
+    },
+    {
+      "feature": "campaign_exposed",
+      "shap_rank": 9,
+      "mean_abs_shap_value": 0.02812393754720688,
+      "drift_level": "Low",
+      "vif": 1.0118711283711297,
+      "vif_warning": "Low",
+      "combined_risk": "Low"
+    }
+  ],
+  "multicollinearity_findings": [
+    {
+      "feature": "qsr_spend_30d",
+      "vif": 4.381871553669761,
+      "vif_level": "Low"
+    },
+    {
+      "feature": "qsr_txn_count_30d",
+      "vif": 4.377448566599988,
+      "vif_level": "Low"
+    },
+    {
+      "feature": "weekend_dining_frequency",
+      "vif": 1.047225528065608,
+      "vif_level": "Low"
+    },
+    {
+      "feature": "fuel_spend_30d",
+      "vif": 1.045793262156066,
+      "vif_level": "Low"
+    },
+    {
+      "feature": "qsr_recency_days",
+      "vif": 1.0452640010850327,
+      "vif_level": "Low"
+    },
+    {
+      "feature": "grocery_spend_30d",
+      "vif": 1.0357654414275415,
+      "vif_level": "Low"
+    },
+    {
+      "feature": "competitor_qsr_share_90d",
+      "vif": 1.0350657264975056,
+      "vif_level": "Low"
+    },
+    {
+      "feature": "merchant_novelty_rate",
+      "vif": 1.0263186579908101,
+      "vif_level": "Low"
+    },
+    {
+      "feature": "campaign_exposed",
+      "vif": 1.0118711283711297,
+      "vif_level": "Low"
+    }
+  ],
+  "overfitting_check": {
+    "metric_name": "auc",
+    "train_auc": 0.812,
+    "validation_auc": 0.776,
+    "delta": 0.03600000000000003,
+    "risk_level": "Medium"
+  },
+  "plots_generated": {
+    "shap_global_bar": "/Users/adityasharma/Desktop/CometLens/reports/figures/shap_global_bar.png",
+    "shap_beeswarm": "/Users/adityasharma/Desktop/CometLens/reports/figures/shap_beeswarm.png"
+  }
+}

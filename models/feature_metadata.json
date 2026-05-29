@@ -1,0 +1,61 @@
+{
+  "entity_id": "consumer_token",
+  "target": "purchase_qsr_next_30d",
+  "artifact_profile": "qsr_purchase_propensity_sample",
+  "features": [
+    {
+      "name": "qsr_txn_count_30d",
+      "type": "numeric",
+      "business_definition": "Number of synthetic QSR transactions in the last 30 days.",
+      "synthetic_only": true
+    },
+    {
+      "name": "qsr_spend_30d",
+      "type": "numeric",
+      "business_definition": "Total synthetic QSR spend in the last 30 days.",
+      "synthetic_only": true
+    },
+    {
+      "name": "qsr_recency_days",
+      "type": "numeric",
+      "business_definition": "Days since the synthetic consumer's most recent QSR transaction.",
+      "synthetic_only": true
+    },
+    {
+      "name": "competitor_qsr_share_90d",
+      "type": "numeric",
+      "business_definition": "Share of synthetic QSR activity with competitor QSR merchants over 90 days.",
+      "synthetic_only": true
+    },
+    {
+      "name": "grocery_spend_30d",
+      "type": "numeric",
+      "business_definition": "Total synthetic grocery spend in the last 30 days.",
+      "synthetic_only": true
+    },
+    {
+      "name": "fuel_spend_30d",
+      "type": "numeric",
+      "business_definition": "Total synthetic fuel spend in the last 30 days.",
+      "synthetic_only": true
+    },
+    {
+      "name": "weekend_dining_frequency",
+      "type": "numeric",
+      "business_definition": "Count of synthetic weekend dining events in the last 30 days.",
+      "synthetic_only": true
+    },
+    {
+      "name": "merchant_novelty_rate",
+      "type": "numeric",
+      "business_definition": "Rate of synthetic dining activity at merchants not previously observed for the consumer.",
+      "synthetic_only": true
+    },
+    {
+      "name": "campaign_exposed",
+      "type": "numeric",
+      "business_definition": "Indicator that the synthetic consumer was exposed to a QSR campaign.",
+      "synthetic_only": true
+    }
+  ]
+}

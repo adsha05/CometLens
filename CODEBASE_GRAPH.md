@@ -1,98 +1,82 @@
-# PurchaseIntel Lens Codebase Graph
+# VyaAI Codebase Graph
 
 ## Runtime Architecture
 
 ```mermaid
 flowchart TD
-    G["src/generate_synthetic_data.py<br/>Seeded synthetic data generator"]
-    TF["data/train_features.csv<br/>10,000 rows, target + 15 features"]
-    CF["data/current_features.csv<br/>10,000 rows with simulated drift"]
-    T["src/train_model.py<br/>XGBClassifier"]
-    M["models/qsr_xgb_model.joblib"]
-    MD["models/model_metadata.json"]
-    TP["data/train_predictions.csv"]
-    CP["data/current_predictions.csv"]
-    D["src/agents/drift_agent.py<br/>PSI + KS"]
-    E["src/agents/explainability_agent.py<br/>SHAP TreeExplainer"]
-    C["src/agents/cluster_agent.py<br/>StandardScaler + KMeans"]
-    DR["reports/drift_report.csv"]
-    SR["reports/shap_global_importance.csv<br/>reports/top_features.json<br/>SHAP PNG plots"]
-    CR["reports/cluster_shift_report.csv<br/>cluster profiles"]
-    F["src/agents/feature_suggestion_agent.py<br/>Rule-based suggestions"]
-    FR["reports/feature_suggestions.csv"]
-    R["src/agents/report_agent.py<br/>Business report + risk rules"]
-    RR["reports/model_review_report.md"]
-    X["src/agents/llm_context_builder.py<br/>Validated evidence package"]
-    N["src/agents/narrative_agent.py<br/>Optional LLM narrative"]
-    O["src/llm/ollama_provider.py<br/>Local Ollama first"]
-    NR["reports/llm_model_review.json/.md"]
-    UI["app/streamlit_app.py<br/>Plotly + Streamlit dashboard"]
+    P["src/run_pipeline.py<br/>One-command orchestrator"]
+    G["src/generate_sample_artifacts.py<br/>Synthetic tabular artifacts<br/>(QSR demo profile)"]
+    TF["data/train_features_sample.csv<br/>200 training rows"]
+    CF["data/current_features_sample.csv<br/>200 current rows with drift"]
+    PR["data/current_predictions_sample.csv"]
+    MM["models/model_metadata.json"]
+    FM["models/feature_metadata.json"]
 
+    S["src/agents/signal_sentinel_agent.py<br/>Agent 01: Mitra<br/>PSI, KS, Wasserstein, missingness, cluster shift"]
+    SO["reports/signal_sentinel_output.json"]
+    DR["reports/drift_report.csv"]
+    CR["reports/cluster_shift_report.csv"]
+    DF["reports/figures/drift_top_features.png"]
+
+    L["src/agents/model_lens_agent.py<br/>Agent 02: Varuna<br/>XGBoost, SHAP, VIF, overfitting delta"]
+    LO["reports/model_lens_output.json"]
+    SH["reports/shap_global_importance.csv"]
+    VF["reports/vif_report.csv"]
+    SF["reports/figures/shap_global_bar.png<br/>reports/figures/shap_beeswarm.png"]
+
+    E["src/agents/evidence_store.py<br/>Evidence packet builder"]
+    EP["reports/evidence_packet.json"]
+
+    X["src/agents/executive_synthesis_agent.py<br/>Agent 03: Aryaman<br/>Deterministic executive brief"]
+    XO["reports/executive_model_report.json<br/>reports/executive_model_report.md"]
+
+    UI["app/streamlit_app.py<br/>Dashboard"]
+
+    P --> G
+    P --> S
+    P --> L
+    P --> E
+    P --> X
     G --> TF
     G --> CF
-    TF --> T
-    CF --> T
-    T --> M
-    T --> MD
-    T --> TP
-    T --> CP
-    TF --> D
-    CF --> D
-    D --> DR
-    M --> E
-    MD --> E
-    TF --> E
-    CF --> E
-    E --> SR
-    TF --> C
-    CF --> C
-    MD --> C
-    TP --> C
-    CP --> C
-    C --> CR
-    DR --> F
-    SR --> F
-    CR --> F
-    F --> FR
-    MD --> R
-    DR --> R
-    SR --> R
-    CR --> R
-    FR --> R
-    R --> RR
-    MD --> X
-    DR --> X
-    SR --> X
-    CR --> X
-    FR --> X
-    X --> N
-    O --> N
-    N --> NR
-    TF --> UI
-    CF --> UI
-    MD --> UI
-    DR --> UI
-    SR --> UI
-    CR --> UI
-    FR --> UI
-    RR --> UI
-    NR --> UI
+    G --> PR
+    G --> MM
+    G --> FM
+    TF --> S
+    CF --> S
+    PR --> S
+    FM --> S
+    S --> SO
+    S --> DR
+    S --> CR
+    S --> DF
+    TF --> L
+    CF --> L
+    PR --> L
+    MM --> L
+    FM --> L
+    SO --> L
+    L --> LO
+    L --> SH
+    L --> VF
+    L --> SF
+    SO --> E
+    LO --> E
+    MM --> E
+    FM --> E
+    E --> EP
+    EP --> X
+    X --> XO
+    SO --> UI
+    LO --> UI
+    EP --> UI
+    XO --> UI
 ```
 
 ## Integration Order
 
 ```bash
-python src/generate_synthetic_data.py
-python src/train_model.py
-python src/agents/drift_agent.py
-python src/agents/explainability_agent.py
-python src/agents/cluster_agent.py
-python src/agents/feature_suggestion_agent.py
-python src/agents/report_agent.py
-python src/agents/llm_context_builder.py
-# Optional AI narrative after Ollama is running:
-python src/agents/narrative_agent.py
-python src/validate_integration.py
+python src/run_vyaai_pipeline.py
 streamlit run app/streamlit_app.py
 ```
 
@@ -100,44 +84,16 @@ streamlit run app/streamlit_app.py
 
 | Producer | Consumer | Contract |
 | --- | --- | --- |
-| Synthetic generator | Trainer, drift, SHAP, clustering, dashboard | `user_id`, 15 numeric model features, `purchase_qsr_next_30d` |
-| Trainer | SHAP, clustering, report, dashboard | XGBoost model, feature order, metrics, user probabilities |
-| Drift agent | Suggestions, report, dashboard | One row per trained feature with PSI, KS, mean shift, drift severity |
-| Explainability agent | Suggestions, report, dashboard | One row per feature ranked by mean absolute SHAP value plus plot files |
-| Cluster agent | Suggestions, report, dashboard | Named cluster shares, shifts, profiles, and optional prediction means |
-| Feature suggestion agent | Report, dashboard | Proposed feature, reason, linked evidence, priority |
-| Report agent | Dashboard | Markdown review with performance, monitoring, recommendations, and risk |
-| LLM context builder | Narrative agent | Compact evidence payload containing validated metrics and findings only |
-| Narrative agent | Dashboard | Optional structured LLM narrative with provider/model provenance |
-
-## LLM Usage
-
-The core analytics and risk decision remain deterministic. An optional local
-LLM narrative layer can now summarize the verified outputs for the demo.
-
-| Component | Technique Used |
-| --- | --- |
-| Prediction model | `XGBClassifier` |
-| Explainability | SHAP `TreeExplainer` |
-| Drift checks | PSI and Kolmogorov-Smirnov tests |
-| Segmentation | `StandardScaler` and `KMeans` |
-| Feature suggestions | Fixed Python rules over saved reports |
-| Model review report | Deterministic Markdown template over saved reports |
-| AI narrative review | Optional Ollama model over validated evidence only |
-| Dashboard | Streamlit and Plotly rendering |
-
-`reports/model_review_report.md` remains the source-of-truth deterministic
-report. When generated, `reports/llm_model_review.md` is explicitly labeled
-as AI interpretation and records the provider and model used.
+| Sample generator or external artifact drop | Mitra, Varuna | Train/current feature tables, labels when available, current predictions, model metadata, feature metadata |
+| Model metadata | Mitra, Varuna, Evidence Store | `target`, `entity_id`, `prediction_column`, `feature_columns`, performance metrics, business use case |
+| Agent 01: Mitra | Evidence Store, Varuna, Dashboard | Feature drift, prediction summary, missingness, cluster share movement |
+| Agent 02: Varuna | Evidence Store, Dashboard | SHAP importance, VIF report, overfitting delta, high-risk feature matrix |
+| Evidence Store | Agent 03: Aryaman | Single evidence packet containing deterministic outputs only |
+| Agent 03: Aryaman | Dashboard, stakeholders | Consulting-style JSON and Markdown model health brief |
 
 ## Verification
 
-Run:
-
 ```bash
-python src/validate_integration.py
+python -m unittest discover -s tests
+python -m compileall -q src app tests
 ```
-
-The validator checks that feature, prediction, model metadata, monitoring,
-recommendation, and final report artifacts exist and agree on the shared
-feature and population contracts.

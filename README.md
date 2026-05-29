@@ -1,280 +1,235 @@
-<div align="center">
+# VyaAI
 
-# PurchaseIntel Lens
+**Agentic model intelligence for financial-services ML teams.**
 
-### AI-assisted model observability for synthetic QSR purchase propensity
+VyaAI reviews model artifacts, detects model-health risks, explains model behavior, and produces an executive-ready model health brief from deterministic evidence.
 
-[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![XGBoost](https://img.shields.io/badge/Model-XGBoost-F7931E)](https://xgboost.readthedocs.io/)
-[![SHAP](https://img.shields.io/badge/Explainability-SHAP-00A3E0)](https://shap.readthedocs.io/)
-[![Streamlit](https://img.shields.io/badge/Dashboard-Streamlit-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
-[![Ollama](https://img.shields.io/badge/Local_AI-Ollama-111111)](https://ollama.com/)
-[![Data](https://img.shields.io/badge/Data-Synthetic_Only-42D392)](#responsible-use)
+The bundled demo uses synthetic QSR purchase-propensity data, but the architecture is not QSR-specific. VyaAI works from a generic tabular artifact contract: feature tables, predictions, labels when available, model metadata, and feature metadata.
 
-**Detect drift. Explain model behavior. Track segment movement. Recommend new signals. Generate a grounded local-AI review.**
+## 1. What Is VyaAI?
 
-</div>
+VyaAI is a local model intelligence MVP for teams that need fast, auditable review of deployed or candidate ML models.
 
-<p align="center">
-  <img src="docs/assets/dashboard_overview.png" alt="PurchaseIntel Lens monitoring overview generated from the current repository artifacts" width="100%">
-</p>
+It does not need production customer data and it does not let an LLM calculate metrics. Deterministic Python agents calculate drift, explainability, multicollinearity, segment movement, and risk signals. The narrative layer summarizes only verified evidence.
 
-> The preview above is rendered directly from this repository's generated model and monitoring artifacts, not mock data or AI-generated artwork.
+Current MVP strengths:
 
-## What It Does
+- Numeric tabular classification artifacts
+- Model monitoring and drift review
+- SHAP-based feature importance
+- VIF and overfitting diagnostics
+- Executive reporting for business and data science stakeholders
+- Synthetic-data-only local demo
 
-PurchaseIntel Lens is an end-to-end ML observability demo for a synthetic quick-service restaurant (QSR) purchase model. It generates controlled behavior change, trains a propensity classifier, diagnoses what shifted, explains what drives predictions, identifies segment movement, and surfaces actions in a dashboard.
+## 2. Why This Matters
 
-The system deliberately separates **verified analytics** from **LLM interpretation**:
+Predictive models can degrade silently when input distributions shift, unstable features become important, or population mix changes before headline metrics move.
 
-- Metrics, SHAP values, drift tests, clusters, feature recommendations, and risk levels are deterministic.
-- A local Ollama model optionally converts those verified findings into a stakeholder-friendly narrative.
-- The LLM never receives raw customer rows and never calculates or overrides monitoring results.
+VyaAI helps teams:
 
-## Demonstrated Results
+- Review models faster with an automated first-pass evidence package
+- Build business trust with reports that trace back to JSON, CSV, and plots
+- Detect drift and segment movement earlier
+- Improve feature engineering decisions using SHAP + drift + VIF evidence
+- Create client-ready model health briefs without manual report assembly
 
-The checked-in demo run uses two synthetic snapshots of **10,000 users** each and **15 behavioral features**.
-
-| Signal | Current Demo Result |
-| --- | ---: |
-| Validation AUC | `0.7665` |
-| Current-period AUC | `0.7743` |
-| Model risk level | **High** |
-| High-drift features detected | `4` |
-| Customer segments monitored | `4` |
-| High-priority feature recommendations | `5` |
-| Local narrative model | `ollama / llama3.1:8b` |
-
-The risk level is **High** because multiple important feature distributions changed materially, even though AUC remained stable.
-
-### High-Drift Findings
-
-| Feature | PSI | Mean Change | Interpretation |
-| --- | ---: | ---: | --- |
-| `merchant_novelty_rate` | `0.5243` | `+30.87%` | New merchant behavior increased materially |
-| `fuel_spend_30d` | `0.1233` | `+26.10%` | Essential-spend pattern shifted upward |
-| `weekend_dining_frequency` | `0.1206` | `-24.40%` | Weekend dining activity declined |
-| `competitor_qsr_share_90d` | `0.0572` | `+11.26%` | Competitive QSR engagement increased |
-
-## Visual Proof
-
-### Explainability
-
-<p align="center">
-  <img src="reports/shap_plots/summary_beeswarm.png" alt="SHAP beeswarm showing feature impact distribution" width="49%">
-  <img src="reports/shap_plots/high_propensity_user_waterfall.png" alt="SHAP waterfall for a high propensity synthetic user" width="49%">
-</p>
-
-The model is chiefly driven by `qsr_spend_30d`, `qsr_txn_count_30d`, `weekend_dining_frequency`, and `qsr_recency_days`. The waterfall view gives a local explanation for a high-propensity prediction.
-
-### Grounded Local-AI Narrative
-
-<p align="center">
-  <img src="docs/assets/ai_narrative_preview.png" alt="Local Ollama AI narrative preview grounded in deterministic reports" width="100%">
-</p>
-
-The AI narrative layer is generated locally using `llama3.1:8b` through Ollama. Its output is schema-validated and rejected if it contradicts AUC direction, omits required drift evidence, or introduces unsupported claims.
-
-## Core Capabilities
-
-| Capability | Implementation | Output |
-| --- | --- | --- |
-| Synthetic behavior simulation | Seeded `pandas` / `numpy` generator with intentional current-period drift | `data/train_features.csv`, `data/current_features.csv` |
-| Propensity modeling | `XGBClassifier` trained on 15 numeric features | `models/qsr_xgb_model.joblib` |
-| Performance monitoring | AUC, accuracy, precision, recall, F1 | `models/model_metadata.json` |
-| Explainability | SHAP global importance, beeswarm, dependence, waterfall | `reports/shap_*`, `reports/shap_plots/` |
-| Drift detection | PSI plus Kolmogorov-Smirnov tests | `reports/drift_report.csv` |
-| Behavioral segmentation | `StandardScaler` plus `KMeans` | `reports/*cluster*.csv` |
-| Feature recommendations | Evidence-linked deterministic rules | `reports/feature_suggestions.csv` |
-| Model health review | Deterministic Markdown report and risk rules | `reports/model_review_report.md` |
-| AI narrative review | Grounded structured output through local Ollama | `reports/llm_model_review.md` |
-| Presentation layer | Streamlit dashboard with Plotly charts | `app/streamlit_app.py` |
-
-## Architecture
-
-```mermaid
-flowchart LR
-    A[Synthetic Data Generator] --> B[Train / Current Feature Snapshots]
-    B --> C[XGBoost Propensity Model]
-    B --> D[Drift Agent<br/>PSI + KS]
-    C --> E[SHAP Explainability Agent]
-    B --> F[Cluster Agent<br/>KMeans]
-    D --> G[Feature Suggestion Agent]
-    E --> G
-    F --> G
-    C --> H[Deterministic Model Review]
-    D --> H
-    E --> H
-    F --> H
-    G --> H
-    H --> I[Validated Evidence Context]
-    I --> J[Optional Local Ollama Narrative]
-    H --> K[Streamlit Dashboard]
-    J --> K
-```
-
-For the detailed artifact graph and integration contracts, see [CODEBASE_GRAPH.md](CODEBASE_GRAPH.md).
-
-## Dashboard Screens
-
-The dashboard includes nine review sections:
-
-1. Project Overview
-2. Model Health Summary
-3. Model Performance Metrics
-4. Top SHAP Feature Drivers
-5. Drift Report Table
-6. Cluster Shift Report
-7. Feature Suggestions
-8. Deterministic Model Review Report
-9. Optional AI Narrative Review
-
-A screen-by-screen presentation flow is available in [DEMO_RUNBOOK.md](DEMO_RUNBOOK.md).
-
-## Quick Start
-
-### 1. Install
-
-Use Python 3.10 or newer.
-
-```bash
-git clone https://github.com/adsha05/PurchaseIntel-Lens.git
-cd PurchaseIntel-Lens
-python -m venv .venv
-source .venv/bin/activate
-python -m pip install -r requirements.txt
-```
-
-On macOS, XGBoost may also require:
-
-```bash
-brew install libomp
-```
-
-### 2. Run The Deterministic Analytics Pipeline
-
-```bash
-python src/generate_synthetic_data.py
-python src/train_model.py
-python src/agents/drift_agent.py
-python src/agents/explainability_agent.py
-python src/agents/cluster_agent.py
-python src/agents/feature_suggestion_agent.py
-python src/agents/report_agent.py
-python src/validate_integration.py
-```
-
-### 3. Generate The Optional Local-AI Review
-
-```bash
-cp .env.example .env
-ollama serve
-ollama pull llama3.1:8b
-python src/agents/llm_context_builder.py
-python src/agents/narrative_agent.py
-python src/validate_integration.py
-```
-
-The LLM receives only an aggregated evidence payload from validated reports:
+## 3. Architecture Diagram
 
 ```text
-reports/llm_evidence_context.json
+Model Artifacts
+  - train/current feature tables
+  - current predictions
+  - model metadata
+  - feature metadata
+        |
+        v
+Agent 01: Mitra
+  - PSI, KS, Wasserstein drift checks
+  - missing-value checks
+  - prediction summary
+  - cluster/context shift
+        |
+        v
+Agent 02: Varuna
+  - local reviewer model
+  - SHAP global drivers
+  - VIF multicollinearity
+  - train-validation metric delta
+  - high-risk feature matrix
+        |
+        v
+Evidence Store
+  - reports/evidence_packet.json
+        |
+        v
+Agent 03: Aryaman
+  - executive_model_report.json
+  - executive_model_report.md
+        |
+        v
+Streamlit Dashboard
+  - stakeholder review interface
 ```
 
-### 4. Launch The Dashboard
+## 4. Three-Agent Workflow
+
+### Agent 01: Mitra
+
+Mitra monitors signal quality and distribution movement.
+
+- Data sanity checks
+- Missing-value shifts
+- Feature drift using PSI
+- Feature drift using KS test
+- Distribution movement using Wasserstein distance
+- Prediction score and label mix summary
+- Cluster/context shift using `StandardScaler` and `KMeans`
+
+### Agent 02: Varuna
+
+Varuna explains model behavior and identifies model-level risks.
+
+- Trains a small local reviewer model on supplied artifacts
+- Computes SHAP global importance
+- Generates SHAP bar and beeswarm plots
+- Calculates VIF multicollinearity diagnostics
+- Calculates train-validation metric delta from metadata
+- Combines SHAP rank, drift level, and VIF into a high-risk feature matrix
+
+### Agent 03: Aryaman
+
+Aryaman converts deterministic evidence into a concise business report.
+
+- Reads `reports/evidence_packet.json`
+- Determines model health status
+- Summarizes what changed
+- Translates technical findings into business risk
+- Recommends next actions
+- Saves JSON and Markdown reports
+
+## 5. Sample Input Artifacts
+
+To review a different model, replace the sample artifacts while preserving this contract:
+
+```text
+data/train_features_sample.csv
+  entity id + numeric model features + target
+
+data/current_features_sample.csv
+  entity id + same numeric model features + target when available
+
+data/current_predictions_sample.csv
+  entity id + prediction score + predicted/actual labels when available
+
+models/model_metadata.json
+  model_name, model_type, target, entity_id, prediction_column,
+  feature_columns, performance metrics, business_use_case
+
+models/feature_metadata.json
+  feature names, types, and business definitions
+```
+
+The demo metadata declares `target`, `entity_id`, `prediction_column`, and `feature_columns`, so the agents do not need QSR-specific constants.
+
+## 6. Sample Outputs
+
+Running the pipeline creates:
+
+```text
+reports/
+  signal_sentinel_output.json
+  drift_report.csv
+  cluster_shift_report.csv
+  model_lens_output.json
+  shap_global_importance.csv
+  vif_report.csv
+  evidence_packet.json
+  executive_model_report.json
+  executive_model_report.md
+
+reports/figures/
+  drift_top_features.png
+  shap_global_bar.png
+  shap_beeswarm.png
+```
+
+Typical demo findings:
+
+- Medium executive model health status
+- High drift in `merchant_novelty_rate`
+- High drift in `weekend_dining_frequency`
+- Material cluster movement
+- SHAP drivers led by synthetic purchase behavior features
+- Recommended validation refresh before high-impact business use
+
+## 7. Screenshots
+
+### Model Health Summary
+
+![Model health summary](docs/assets/model_health_summary.png)
+
+### Drift Report
+
+![Drift report](docs/assets/drift_report.png)
+
+### SHAP Feature Importance
+
+![SHAP feature importance](docs/assets/shap_feature_importance.png)
+
+### High-Risk Feature Matrix
+
+![High-risk feature matrix](docs/assets/high_risk_feature_matrix.png)
+
+### Executive Report
+
+![Executive report](docs/assets/executive_report.png)
+
+## 8. Run Locally
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Run the full pipeline:
+
+```bash
+python src/run_vyaai_pipeline.py
+```
+
+Regenerate README screenshot assets:
+
+```bash
+python scripts/render_readme_assets.py
+```
+
+Launch the dashboard:
 
 ```bash
 streamlit run app/streamlit_app.py
 ```
 
-Open `http://localhost:8501`.
-
-## Output Artifacts
-
-```text
-data/
-  train_features.csv
-  current_features.csv
-  train_predictions.csv
-  current_predictions.csv
-models/
-  qsr_xgb_model.joblib
-  model_metadata.json
-reports/
-  drift_report.csv
-  shap_global_importance.csv
-  shap_plots/
-  reference_cluster_profile.csv
-  current_cluster_profile.csv
-  cluster_shift_report.csv
-  feature_suggestions.csv
-  model_review_report.md
-  llm_evidence_context.json
-  llm_model_review.json
-  llm_model_review.md
-```
-
-## Repository Layout
-
-```text
-app/
-  streamlit_app.py                 # interactive dashboard
-src/
-  generate_synthetic_data.py       # synthetic snapshot generation
-  train_model.py                   # XGBoost training and evaluation
-  validate_integration.py          # end-to-end artifact validation
-  agents/
-    drift_agent.py                 # PSI and KS drift checks
-    explainability_agent.py        # SHAP analysis and plots
-    cluster_agent.py               # segment assignment and movement
-    feature_suggestion_agent.py    # deterministic feature proposals
-    report_agent.py                # auditable baseline report
-    llm_context_builder.py         # grounded LLM evidence context
-    narrative_agent.py             # optional local-AI review
-  llm/
-    schemas.py                     # structured narrative contract
-    ollama_provider.py             # local model adapter
-scripts/
-  render_readme_assets.py         # reproducible preview images
-```
-
-## Trust Boundary
-
-| Deterministic Source Of Truth | Optional AI Interpretation |
-| --- | --- |
-| XGBoost metrics | Executive narrative |
-| SHAP contributions | Summary phrasing |
-| PSI / KS drift tests | Follow-up questions |
-| KMeans cluster movement | Stakeholder-ready explanation |
-| Risk classification rules | Suggested investigation framing |
-
-The LLM cannot change the calculated risk level or monitoring metrics. The checked-in deterministic report remains the audit baseline: [reports/model_review_report.md](reports/model_review_report.md).
-
-## Validation
-
-Run:
+Run local checks:
 
 ```bash
-python src/validate_integration.py
+python -m unittest discover -s tests
+python -m compileall -q src app tests
 ```
 
-The validator confirms:
+## 9. Financial-Services Use Cases
 
-- Feature and prediction contracts match the trained model.
-- Drift and SHAP reports cover every feature.
-- Cluster populations reconcile.
-- Feature suggestions follow their schema.
-- The deterministic report agrees with risk evidence.
-- Optional Ollama narrative output is structured, attributed, and grounded.
+VyaAI is designed for model review workflows common in financial-services and purchase-analytics environments:
 
-## Responsible Use
+- Credit risk model drift review
+- Fraud score monitoring
+- Card-linked offer propensity model review
+- Customer attrition and retention scoring
+- Marketing audience quality checks
+- Merchant/category behavior shift analysis
+- Client-facing model health reporting
+- Feature monitoring before model recalibration
 
-This project uses **synthetic data only**. It is an observability and agent-workflow demonstration, not a production decision system and not a model trained on real consumer or financial records.
+## 10. Disclaimer: Synthetic Data Only
 
-## Related Documentation
-
-- [CODEBASE_GRAPH.md](CODEBASE_GRAPH.md): full dependency graph and integration contracts
-- [DEMO_RUNBOOK.md](DEMO_RUNBOOK.md): local presentation flow
-- [MODEL_RESULTS.md](MODEL_RESULTS.md): current model result summary
-- [reports/model_review_report.md](reports/model_review_report.md): deterministic health review
-- [reports/llm_model_review.md](reports/llm_model_review.md): grounded local-AI interpretation
+This repository uses **synthetic sample data only**. It is not affiliated with Affinity Solutions or any financial institution. The MVP is for demonstration, education, and local prototyping, not production model validation.

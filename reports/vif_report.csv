@@ -1,0 +1,10 @@
+feature,vif,vif_level
+qsr_spend_30d,4.381871553669761,Low
+qsr_txn_count_30d,4.377448566599988,Low
+weekend_dining_frequency,1.047225528065608,Low
+fuel_spend_30d,1.045793262156066,Low
+qsr_recency_days,1.0452640010850327,Low
+grocery_spend_30d,1.0357654414275415,Low
+competitor_qsr_share_90d,1.0350657264975056,Low
+merchant_novelty_rate,1.0263186579908101,Low
+campaign_exposed,1.0118711283711297,Low

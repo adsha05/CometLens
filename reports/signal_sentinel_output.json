@@ -1,0 +1,135 @@
+{
+  "agent_name": "Agent 01: Mitra",
+  "overall_risk_level": "High",
+  "artifact_contract": {
+    "target": "purchase_qsr_next_30d",
+    "entity_id": "consumer_token",
+    "prediction_column": "propensity_score",
+    "feature_count": 9
+  },
+  "data_health_summary": {
+    "train_rows": 200,
+    "current_rows": 200,
+    "feature_count": 9,
+    "missing_value_findings": [
+      {
+        "feature": "qsr_txn_count_30d",
+        "train_missing_rate": 0.0,
+        "current_missing_rate": 0.0,
+        "missing_rate_change_pct_points": 0.0
+      },
+      {
+        "feature": "qsr_spend_30d",
+        "train_missing_rate": 0.0,
+        "current_missing_rate": 0.0,
+        "missing_rate_change_pct_points": 0.0
+      },
+      {
+        "feature": "qsr_recency_days",
+        "train_missing_rate": 0.0,
+        "current_missing_rate": 0.0,
+        "missing_rate_change_pct_points": 0.0
+      },
+      {
+        "feature": "competitor_qsr_share_90d",
+        "train_missing_rate": 0.0,
+        "current_missing_rate": 0.0,
+        "missing_rate_change_pct_points": 0.0
+      },
+      {
+        "feature": "grocery_spend_30d",
+        "train_missing_rate": 0.0,
+        "current_missing_rate": 0.0,
+        "missing_rate_change_pct_points": 0.0
+      },
+      {
+        "feature": "fuel_spend_30d",
+        "train_missing_rate": 0.0,
+        "current_missing_rate": 0.0,
+        "missing_rate_change_pct_points": 0.0
+      },
+      {
+        "feature": "weekend_dining_frequency",
+        "train_missing_rate": 0.0,
+        "current_missing_rate": 0.0,
+        "missing_rate_change_pct_points": 0.0
+      },
+      {
+        "feature": "merchant_novelty_rate",
+        "train_missing_rate": 0.0,
+        "current_missing_rate": 0.0,
+        "missing_rate_change_pct_points": 0.0
+      },
+      {
+        "feature": "campaign_exposed",
+        "train_missing_rate": 0.0,
+        "current_missing_rate": 0.0,
+        "missing_rate_change_pct_points": 0.0
+      }
+    ]
+  },
+  "high_drift_features": [
+    {
+      "feature": "merchant_novelty_rate",
+      "train_mean": 0.262197,
+      "current_mean": 0.36184550000000004,
+      "mean_change_pct": 38.005202195295915,
+      "psi": 0.5648547367215196,
+      "ks_statistic": 0.26000000000000006,
+      "ks_pvalue": 1.8819204313595185e-06,
+      "wasserstein_distance": 0.0996485,
+      "drift_level": "High"
+    },
+    {
+      "feature": "weekend_dining_frequency",
+      "train_mean": 1.51,
+      "current_mean": 1.125,
+      "mean_change_pct": -25.496688741721858,
+      "psi": 0.31444621273115303,
+      "ks_statistic": 0.20000000000000007,
+      "ks_pvalue": 0.0005551927328074649,
+      "wasserstein_distance": 0.45499999999999996,
+      "drift_level": "High"
+    }
+  ],
+  "medium_drift_features": [],
+  "prediction_drift_summary": {
+    "available": true,
+    "row_count": 200,
+    "score_mean": 0.40314833499999997,
+    "score_std": 0.17052763658789752,
+    "score_min": 0.093389,
+    "score_max": 0.851676,
+    "score_p10": 0.2082639,
+    "score_p50": 0.383158,
+    "score_p90": 0.6520653,
+    "predicted_positive_rate": 0.245,
+    "actual_positive_rate": 0.38,
+    "prediction_actual_rate_gap": -0.135
+  },
+  "cluster_findings": [
+    {
+      "cluster": 0,
+      "train_share_pct": 49.0,
+      "current_share_pct": 40.5,
+      "share_change_pct_points": -8.5
+    },
+    {
+      "cluster": 1,
+      "train_share_pct": 23.5,
+      "current_share_pct": 33.0,
+      "share_change_pct_points": 9.5
+    },
+    {
+      "cluster": 2,
+      "train_share_pct": 27.500000000000004,
+      "current_share_pct": 26.5,
+      "share_change_pct_points": -1.0000000000000036
+    }
+  ],
+  "recommended_checks": [
+    "Review high-drift features for data pipeline or behavior-shift explanations.",
+    "Compare prediction score distribution against the model training baseline when train predictions are available.",
+    "Inspect cluster share movement for population-mix changes before high-impact business use."
+  ]
+}

@@ -1,1 +1,1 @@
-"""Application entry points for PurchaseIntel Lens."""
+"""Application entry points for VyaAI."""

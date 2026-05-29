@@ -1,10 +1,11 @@
 {
-  "model_name": "qsr_purchase_propensity_xgb",
+  "model_name": "qsr_purchase_predictor_v3",
+  "artifact_profile": "qsr_purchase_propensity_sample",
+  "domain": "synthetic_purchase_analytics",
+  "supports_generic_contract": true,
+  "model_type": "classification",
   "target": "purchase_qsr_next_30d",
-  "model_type": "XGBClassifier",
-  "training_window": "synthetic_training_snapshot",
-  "current_window": "synthetic_current_snapshot",
-  "feature_list": [
+  "feature_columns": [
     "qsr_txn_count_30d",
     "qsr_spend_30d",
     "qsr_recency_days",
@@ -12,29 +13,18 @@
     "grocery_spend_30d",
     "fuel_spend_30d",
     "weekend_dining_frequency",
-    "avg_ticket_size",
-    "dining_category_entropy",
     "merchant_novelty_rate",
-    "campaign_exposed",
-    "income_band_encoded",
-    "age_band_encoded",
-    "region_encoded",
-    "prior_offer_redemption_rate"
+    "campaign_exposed"
   ],
-  "metrics": {
-    "validation": {
-      "auc": 0.7665376344086022,
-      "accuracy": 0.8,
-      "precision": 0.6077586206896551,
-      "recall": 0.31333333333333335,
-      "f1": 0.41348973607038125
-    },
-    "current": {
-      "auc": 0.7742625677586656,
-      "accuracy": 0.8209,
-      "precision": 0.6214511041009464,
-      "recall": 0.2922848664688427,
-      "f1": 0.3975782038345106
-    }
-  }
+  "business_use_case": "QSR audience targeting and campaign optimization",
+  "entity_id": "consumer_token",
+  "prediction_column": "propensity_score",
+  "training_window": "2026-01-01_to_2026-03-31_synthetic",
+  "current_window": "2026-04-01_to_2026-04-30_synthetic",
+  "train_auc": 0.812,
+  "validation_auc": 0.776,
+  "current_auc": 0.741,
+  "precision": 0.64,
+  "recall": 0.58,
+  "f1": 0.61
 }
