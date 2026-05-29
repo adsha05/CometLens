@@ -1,4 +1,4 @@
-"""Pydantic schemas for VyaAI executive narrative outputs."""
+"""Pydantic schemas for AxionAI executive narrative outputs."""
 
 from __future__ import annotations
 
@@ -84,6 +84,6 @@ class NarrativeArtifact(BaseModel):
             provider=provider,
             model=model,
             generated_at_utc=datetime.now(timezone.utc).isoformat(),
-            evidence_source="verified VyaAI evidence artifacts",
+            evidence_source="verified AxionAI evidence artifacts",
             narrative=narrative,
         )

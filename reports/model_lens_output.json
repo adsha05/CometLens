@@ -1,6 +1,28 @@
 {
   "agent_name": "Agent 02: Varuna",
   "model_name": "qsr_purchase_predictor_v3",
+  "explainability_reliability": {
+    "status": "unreliable",
+    "gate_mode": "flag",
+    "should_skip": false,
+    "severe_psi_threshold": 0.5,
+    "severe_ks_pvalue_threshold": 0.001,
+    "severe_drift_features": [
+      {
+        "feature": "merchant_novelty_rate",
+        "psi": 0.5648547367215196,
+        "ks_pvalue": 1.8819204313595185e-06,
+        "reason": "PSI or KS p-value crossed severe drift gate"
+      },
+      {
+        "feature": "weekend_dining_frequency",
+        "psi": 0.31444621273115303,
+        "ks_pvalue": 0.0005551927328074649,
+        "reason": "PSI or KS p-value crossed severe drift gate"
+      }
+    ],
+    "message": "SHAP outputs are flagged as unreliable because Mitra found severe input drift."
+  },
   "top_global_drivers": [
     {
       "feature": "qsr_txn_count_30d",

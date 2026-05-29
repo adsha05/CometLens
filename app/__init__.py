@@ -1,1 +1,1 @@
-"""Application entry points for VyaAI."""
+"""Application entry points for AxionAI."""

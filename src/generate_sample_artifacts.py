@@ -1,4 +1,4 @@
-"""Generate small synthetic tabular model-review artifacts for VyaAI.
+"""Generate small synthetic tabular model-review artifacts for AxionAI.
 
 The bundled profile is a QSR purchase-propensity example. The downstream agents
 read the schema from metadata, so other tabular model outputs can use the same

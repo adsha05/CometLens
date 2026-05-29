@@ -1,14 +1,14 @@
-# VyaAI
+# AxionAI
 
 **Agentic model intelligence for financial-services ML teams.**
 
-VyaAI reviews model artifacts, detects model-health risks, explains model behavior, and produces an executive-ready model health brief from deterministic evidence.
+AxionAI reviews model artifacts, detects model-health risks, explains model behavior, and produces an executive-ready model health brief from deterministic evidence.
 
-The bundled demo uses synthetic QSR purchase-propensity data, but the architecture is not QSR-specific. VyaAI works from a generic tabular artifact contract: feature tables, predictions, labels when available, model metadata, and feature metadata.
+The bundled demo uses synthetic QSR purchase-propensity data, but the architecture is not QSR-specific. AxionAI works from a generic tabular artifact contract: feature tables, predictions, labels when available, model metadata, and feature metadata.
 
-## 1. What Is VyaAI?
+## 1. What Is AxionAI?
 
-VyaAI is a local model intelligence MVP for teams that need fast, auditable review of deployed or candidate ML models.
+AxionAI is a local model intelligence MVP for teams that need fast, auditable review of deployed or candidate ML models.
 
 It does not need production customer data and it does not let an LLM calculate metrics. Deterministic Python agents calculate drift, explainability, multicollinearity, segment movement, and risk signals. The narrative layer summarizes only verified evidence.
 
@@ -18,6 +18,9 @@ Current MVP strengths:
 - Model monitoring and drift review
 - SHAP-based feature importance
 - VIF and overfitting diagnostics
+- Schema validation and graceful pipeline failures
+- Timestamped local run archives
+- Dashboard feedback capture for future calibration
 - Executive reporting for business and data science stakeholders
 - Synthetic-data-only local demo
 
@@ -25,13 +28,47 @@ Current MVP strengths:
 
 Predictive models can degrade silently when input distributions shift, unstable features become important, or population mix changes before headline metrics move.
 
-VyaAI helps teams:
+AxionAI helps teams:
 
 - Review models faster with an automated first-pass evidence package
 - Build business trust with reports that trace back to JSON, CSV, and plots
 - Detect drift and segment movement earlier
 - Improve feature engineering decisions using SHAP + drift + VIF evidence
 - Create client-ready model health briefs without manual report assembly
+
+### What Makes AxionAI Flexible Today
+
+AxionAI is flexible because it is artifact-driven, not platform-driven.
+
+| Real Today | Why It Matters |
+| --- | --- |
+| File-based artifact contracts | CSV + JSON in, CSV + JSON out. No SDK, API handshake, or vendor-specific runtime required. |
+| Model-agnostic metadata schema | `model_metadata.json` declares the model name, target, entity id, prediction column, feature columns, and metrics. |
+| Deterministic metrics layer | Python owns drift, SHAP, VIF, clustering, validation, and risk evidence. |
+| LLM isolated to narrative prep | The LLM path is optional and must summarize verified evidence only. It does not calculate metrics. |
+| No framework lock-in | The current orchestrator is plain Python and can later move into Airflow, Dagster, Prefect, or LangGraph. |
+| Local-first execution | Runs locally without API keys and is suitable for restricted or air-gapped demo environments. |
+| Dual outputs | JSON for machines, Markdown for stakeholders, PNG plots for demos and reports. |
+| Streamlit dashboard | Non-technical users can review evidence without reading raw artifacts. |
+| Schema validation | The pipeline checks required metadata fields and CSV columns before agent execution. |
+| Timestamped archives | Successful runs are copied into `reports/runs/<run_id>/` for future comparison. |
+| Conditional reliability gate | Varuna flags or skips SHAP when Mitra detects severe drift. |
+| Feedback hook | Dashboard feedback is saved to seed future calibration and organizational intelligence. |
+
+### Gap / Roadmap
+
+AxionAI is still an MVP. The remaining flexibility work is mostly about connectors, scale, and learning from usage.
+
+| Gap | Roadmap Direction |
+| --- | --- |
+| Only synthetic data has been tested deeply | Add messy real-world test fixtures: null-heavy columns, schema drift, class imbalance, delayed labels, duplicate entities. |
+| Connector layer is not built | Add optional adapters for S3, Snowflake, Databricks, MLflow, and model registry exports. |
+| Multi-client execution is basic | Add client/model namespaces and portfolio-level run indexes. |
+| Run archives exist but trend analysis is limited | Build run-to-run comparison reports for drift, SHAP movement, health status, and recurring alerts. |
+| Feedback is captured but not learned from yet | Build a calibration store that tracks false positives, accepted recommendations, and team-specific thresholds. |
+| Organizational intelligence layer does not exist yet | Learn team patterns, known pipeline topology, report usage, and preferred business-language outputs. |
+| Categorical and mixed-type support is limited | Add type-aware preprocessing and validation for categorical, ordinal, timestamp, and segment columns. |
+| Production governance is not complete | Add approval states, owner metadata, model version lineage, and audit exports. |
 
 ## 3. Architecture Diagram
 
@@ -56,6 +93,7 @@ Agent 02: Varuna
   - VIF multicollinearity
   - train-validation metric delta
   - high-risk feature matrix
+  - reliability gate from Mitra drift severity
         |
         v
 Evidence Store
@@ -69,6 +107,7 @@ Agent 03: Aryaman
         v
 Streamlit Dashboard
   - stakeholder review interface
+  - feedback capture
 ```
 
 ## 4. Three-Agent Workflow
@@ -95,6 +134,13 @@ Varuna explains model behavior and identifies model-level risks.
 - Calculates VIF multicollinearity diagnostics
 - Calculates train-validation metric delta from metadata
 - Combines SHAP rank, drift level, and VIF into a high-risk feature matrix
+- Flags SHAP output as unreliable when Mitra detects severe drift
+
+By default Varuna still runs and labels SHAP as directional when severe drift is present. To make Varuna skip explainability under severe drift:
+
+```bash
+VARUNA_DRIFT_GATE_MODE=skip python src/run_axionai_pipeline.py
+```
 
 ### Agent 03: Aryaman
 
@@ -137,6 +183,7 @@ Running the pipeline creates:
 
 ```text
 reports/
+  artifact_validation.json
   signal_sentinel_output.json
   drift_report.csv
   cluster_shift_report.csv
@@ -146,6 +193,8 @@ reports/
   evidence_packet.json
   executive_model_report.json
   executive_model_report.md
+  runs/<timestamp>/
+    archived copy of the generated evidence and report artifacts
 
 reports/figures/
   drift_top_features.png
@@ -195,7 +244,15 @@ pip install -r requirements.txt
 Run the full pipeline:
 
 ```bash
-python src/run_vyaai_pipeline.py
+python src/run_axionai_pipeline.py
+```
+
+The pipeline validates the artifact contract first. If metadata fields or required columns are missing, it fails gracefully and writes `reports/pipeline_error.json` with a meaningful next step.
+
+Run against your own existing artifacts without regenerating the synthetic demo:
+
+```bash
+python src/run_axionai_pipeline.py --use-existing-artifacts
 ```
 
 Regenerate README screenshot assets:
@@ -219,7 +276,7 @@ python -m compileall -q src app tests
 
 ## 9. Financial-Services Use Cases
 
-VyaAI is designed for model review workflows common in financial-services and purchase-analytics environments:
+AxionAI is designed for model review workflows common in financial-services and purchase-analytics environments:
 
 - Credit risk model drift review
 - Fraud score monitoring
@@ -229,6 +286,18 @@ VyaAI is designed for model review workflows common in financial-services and pu
 - Merchant/category behavior shift analysis
 - Client-facing model health reporting
 - Feature monitoring before model recalibration
+
+### Future Organizational Intelligence Layer
+
+The dashboard now captures simple analyst feedback in `reports/feedback_log.csv`. This is the first seed for a future calibration store, not a full organizational intelligence layer yet.
+
+The next layer should learn:
+
+- Which teams treat specific flags as useful or noisy
+- Which reports are used in reviews or stakeholder meetings
+- Which pipelines have known seasonal or source-system changes
+- Which thresholds should be adjusted by model family or business unit
+- How archived runs differ over time
 
 ## 10. Disclaimer: Synthetic Data Only
 

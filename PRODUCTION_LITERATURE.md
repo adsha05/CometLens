@@ -1,8 +1,8 @@
-# VyaAI Production Literature
+# AxionAI Production Literature
 
 ## Executive Overview
 
-VyaAI is an agentic model intelligence MVP for reviewing synthetic financial-services and purchase-analytics model artifacts. The system does not train or deploy a production model. Instead, it reviews existing artifact-style inputs: feature tables, labels, predictions, model metadata, and feature metadata.
+AxionAI is an agentic model intelligence MVP for reviewing synthetic financial-services and purchase-analytics model artifacts. The system does not train or deploy a production model. Instead, it reviews existing artifact-style inputs: feature tables, labels, predictions, model metadata, and feature metadata.
 
 The current implementation includes a QSR purchase propensity profile as the bundled sample workflow. The agent code is metadata-driven and can review other tabular model outputs when the target, entity id, prediction column, and feature columns are declared in metadata. All generated data is synthetic and designed only for local demonstration.
 
@@ -10,10 +10,12 @@ The current implementation includes a QSR purchase propensity profile as the bun
 
 Business and data science teams often need a fast, auditable read on whether a model is still healthy enough for use. The core question is not only whether a metric moved, but why the movement matters for decision quality, resource allocation, client communication, and model governance.
 
-VyaAI addresses this with a deterministic-evidence-first workflow:
+AxionAI addresses this with a deterministic-evidence-first workflow:
 
 - Python agents calculate all metrics and diagnostics.
 - Evidence is saved as JSON, CSV, Markdown, and figures.
+- The orchestrator validates the artifact contract before running agents.
+- Each successful run is archived under `reports/runs/<run_id>/`.
 - Executive reporting is produced from saved evidence only.
 - Any future LLM layer must summarize evidence, not calculate metrics or override risk.
 
@@ -77,6 +79,7 @@ Implemented checks:
 - VIF multicollinearity diagnostics
 - Train-validation metric overfitting delta from metadata
 - High-risk feature matrix combining SHAP rank, drift level, and VIF warning
+- Explainability reliability gate using Mitra drift severity
 
 Outputs:
 
@@ -120,6 +123,23 @@ Outputs:
 - `reports/executive_model_report.json`
 - `reports/executive_model_report.md`
 
+### 6. Feedback And Run Archive Hooks
+
+Files:
+
+- `src/agents/feedback_store.py`
+- `src/utils/run_archive.py`
+- `src/utils/artifact_validation.py`
+
+Purpose: add the first production-oriented controls around the MVP.
+
+Implemented hooks:
+
+- Graceful artifact validation for missing metadata fields and schema mismatches
+- Timestamped local archives for comparing runs over time
+- Dashboard feedback capture for analyst judgment on agent outputs
+- Varuna reliability flag when Mitra detects severe drift
+
 Risk rules:
 
 - High Risk: 3+ high-drift features or high overfitting risk
@@ -162,7 +182,13 @@ Every business-facing statement in the executive report traces back to determini
 Run the full MVP:
 
 ```bash
-python src/run_vyaai_pipeline.py
+python src/run_axionai_pipeline.py
+```
+
+Run against existing artifacts instead of regenerating the synthetic demo:
+
+```bash
+python src/run_axionai_pipeline.py --use-existing-artifacts
 ```
 
 Run checks:
@@ -180,9 +206,8 @@ streamlit run app/streamlit_app.py
 
 ## Remaining Production Work
 
-- Add stronger data contract validation with explicit schemas.
 - Add train prediction baseline for direct prediction drift comparisons.
 - Add richer segment naming and segment-level calibration checks.
 - Add CI execution for tests and compile checks.
 - Add optional LLM provider only after deterministic report quality is stable.
-- Add versioned evidence packets for multi-run comparison.
+- Build the organizational intelligence layer for team-specific calibration, pipeline topology, feedback learning, and report usage signals.

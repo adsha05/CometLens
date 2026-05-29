@@ -1,4 +1,4 @@
-"""Run the VyaAI MVP pipeline end to end."""
+"""Run the AxionAI MVP pipeline end to end."""
 
 from __future__ import annotations
 
@@ -15,14 +15,14 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 @dataclass(frozen=True)
 class PipelineStep:
-    """One command in the VyaAI pipeline."""
+    """One command in the AxionAI pipeline."""
 
     name: str
     command: list[str]
 
 
 class PipelineRunner:
-    """Orchestrate the deterministic VyaAI MVP workflow."""
+    """Orchestrate the deterministic AxionAI MVP workflow."""
 
     def __init__(self, include_narrative: bool = False) -> None:
         """Configure optional deterministic narrative generation."""
@@ -54,7 +54,7 @@ class PipelineRunner:
         """Execute all configured pipeline steps."""
         started_at = perf_counter()
         steps = self.steps()
-        print("Running VyaAI MVP pipeline", flush=True)
+        print("Running AxionAI MVP pipeline", flush=True)
         print(f"Project root: {PROJECT_ROOT}", flush=True)
         print(f"Python: {self.python}", flush=True)
         print("", flush=True)
@@ -64,13 +64,13 @@ class PipelineRunner:
             subprocess.run(step.command, cwd=PROJECT_ROOT, env=self.environment(), check=True)
             print(f"Completed in {perf_counter() - step_started_at:.1f}s", flush=True)
             print("", flush=True)
-        print("VyaAI pipeline completed successfully.", flush=True)
+        print("AxionAI pipeline completed successfully.", flush=True)
         print(f"Total runtime: {perf_counter() - started_at:.1f}s", flush=True)
 
 
 def parse_args() -> argparse.Namespace:
     """Parse command-line arguments."""
-    parser = argparse.ArgumentParser(description="Run the VyaAI MVP pipeline.")
+    parser = argparse.ArgumentParser(description="Run the AxionAI MVP pipeline.")
     parser.add_argument(
         "--with-narrative",
         action="store_true",

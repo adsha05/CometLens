@@ -95,6 +95,9 @@ class ExecutiveSynthesisAgent:
         high_vif = self._vif_issues("High")
         if high_vif:
             return f"{high_vif[0]['feature']} has high VIF"
+        reliability = self.evidence.get("model_lens_summary", {}).get("explainability_reliability", {})
+        if reliability.get("status") == "unreliable":
+            return "Varuna explainability is flagged as unreliable because severe Mitra drift was detected"
         return "no material model-health issue is flagged by the MVP evidence"
 
     def _next_step(self) -> str:
@@ -136,6 +139,10 @@ class ExecutiveSynthesisAgent:
 
         for row in self._vif_issues():
             findings.append(f"{row['feature']} has {str(row['vif_level']).lower()} VIF ({float(row['vif']):.2f}).")
+
+        reliability = self.evidence.get("model_lens_summary", {}).get("explainability_reliability", {})
+        if reliability.get("status") == "unreliable":
+            findings.append("Varuna SHAP outputs are flagged as unreliable due to severe Mitra drift.")
 
         if not findings:
             findings.append("No material drift, prediction, cluster, or VIF issue was flagged by the MVP evidence.")
@@ -202,6 +209,10 @@ class ExecutiveSynthesisAgent:
         if high_vif_features:
             feature_names = ", ".join(row["feature"] for row in high_vif_features)
             actions.append(f"Review high-VIF features for redundancy or unstable coefficient behavior: {feature_names}.")
+
+        reliability = self.evidence.get("model_lens_summary", {}).get("explainability_reliability", {})
+        if reliability.get("status") == "unreliable":
+            actions.append("Treat SHAP interpretation as directional until severe drift is resolved or the model is recalibrated.")
 
         actions.append("Re-run validation before high-impact business use.")
         return list(dict.fromkeys(actions))

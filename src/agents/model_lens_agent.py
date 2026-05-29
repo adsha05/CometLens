@@ -34,6 +34,8 @@ MODELS_DIR = PROJECT_ROOT / "models"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 FIGURES_DIR = REPORTS_DIR / "figures"
 RANDOM_SEED = 42
+SEVERE_PSI_THRESHOLD = 0.50
+SEVERE_KS_PVALUE_THRESHOLD = 0.001
 
 
 class ModelLensAgent:
@@ -69,7 +71,45 @@ class ModelLensAgent:
         self.shap_importance: pd.DataFrame = pd.DataFrame()
         self.vif_report: pd.DataFrame = pd.DataFrame()
         self.high_risk_feature_matrix: pd.DataFrame = pd.DataFrame()
+        self.explainability_reliability: dict[str, Any] = {}
         self.output: dict[str, Any] = {}
+
+    def assess_explainability_reliability(self) -> dict[str, Any]:
+        """Assess whether SHAP output should be trusted under Mitra drift findings."""
+        if not self.signal_sentinel:
+            if self.train_features is None:
+                self.load_inputs()
+        severe_features = []
+        for row in self.signal_sentinel.get("high_drift_features", []):
+            psi = float(row.get("psi", 0.0))
+            ks_pvalue = float(row.get("ks_pvalue", 1.0))
+            if psi >= SEVERE_PSI_THRESHOLD or ks_pvalue < SEVERE_KS_PVALUE_THRESHOLD:
+                severe_features.append(
+                    {
+                        "feature": row.get("feature"),
+                        "psi": psi,
+                        "ks_pvalue": ks_pvalue,
+                        "reason": "PSI or KS p-value crossed severe drift gate",
+                    }
+                )
+
+        mode = os.getenv("VARUNA_DRIFT_GATE_MODE", "flag").lower()
+        should_skip = bool(severe_features) and mode == "skip"
+        status = "unreliable" if severe_features else "reliable"
+        self.explainability_reliability = {
+            "status": status,
+            "gate_mode": mode,
+            "should_skip": should_skip,
+            "severe_psi_threshold": SEVERE_PSI_THRESHOLD,
+            "severe_ks_pvalue_threshold": SEVERE_KS_PVALUE_THRESHOLD,
+            "severe_drift_features": severe_features,
+            "message": (
+                "SHAP outputs are flagged as unreliable because Mitra found severe input drift."
+                if severe_features
+                else "No severe Mitra drift gate was triggered."
+            ),
+        }
+        return self.explainability_reliability
 
     def load_inputs(self) -> None:
         """Load feature, prediction, metadata, and Mitra artifacts."""
@@ -349,6 +389,20 @@ class ModelLensAgent:
         """Build final Varuna JSON output."""
         if self.train_features is None:
             self.load_inputs()
+        reliability = self.assess_explainability_reliability()
+        if reliability.get("should_skip"):
+            self.output = {
+                "agent_name": "Agent 02: Varuna",
+                "model_name": self.model_metadata.get("model_name"),
+                "explainability_reliability": reliability,
+                "top_global_drivers": [],
+                "high_risk_feature_matrix": [],
+                "multicollinearity_findings": [],
+                "overfitting_check": self.calculate_overfitting_check(),
+                "plots_generated": {},
+                "skipped": True,
+            }
+            return self.output
         if self.model is None:
             self.train_model()
         if self.shap_importance.empty:
@@ -363,6 +417,7 @@ class ModelLensAgent:
         self.output = {
             "agent_name": "Agent 02: Varuna",
             "model_name": self.model_metadata.get("model_name"),
+            "explainability_reliability": reliability,
             "top_global_drivers": self.shap_importance.head(10).to_dict(orient="records"),
             "high_risk_feature_matrix": self.high_risk_feature_matrix.to_dict(orient="records"),
             "multicollinearity_findings": self.vif_report.to_dict(orient="records"),

@@ -1,1 +1,1 @@
-"""Core modules for VyaAI."""
+"""Core modules for AxionAI."""

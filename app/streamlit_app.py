@@ -1,4 +1,4 @@
-"""Streamlit dashboard for the VyaAI MVP."""
+"""Streamlit dashboard for the AxionAI MVP."""
 
 from __future__ import annotations
 
@@ -8,6 +8,8 @@ from typing import Any
 
 import pandas as pd
 import streamlit as st
+
+from src.agents.feedback_store import append_feedback, load_feedback
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 MODELS_DIR = PROJECT_ROOT / "models"
@@ -51,10 +53,10 @@ def show_image_if_available(path: Path, caption: str) -> None:
 
 
 def overview_section() -> None:
-    """Render the VyaAI overview and architecture summary."""
+    """Render the AxionAI overview and architecture summary."""
     st.header("1. Overview")
     st.write(
-        "VyaAI is an agentic model intelligence MVP for reviewing synthetic tabular model artifacts. "
+        "AxionAI is an agentic model intelligence MVP for reviewing synthetic tabular model artifacts. "
         "It does not deploy a production model or use real customer data. Instead, it reads "
         "feature tables, predictions, model metadata, and feature metadata, then produces "
         "auditable model-health evidence. The bundled QSR profile is only a demo; the agents "
@@ -147,6 +149,16 @@ def model_lens_section() -> None:
         return
 
     st.subheader("Top Global Drivers")
+    reliability = lens.get("explainability_reliability", {})
+    if reliability.get("status") == "unreliable":
+        st.warning(
+            "Varuna reliability warning: SHAP outputs are directional only because Mitra found severe drift."
+        )
+        with st.expander("Reliability gate details"):
+            st.json(reliability)
+    elif reliability:
+        st.success("Varuna reliability gate passed.")
+
     top_drivers_df = records_to_frame(lens.get("top_global_drivers", []))
     if top_drivers_df.empty:
         st.info("Top global drivers are missing.")
@@ -205,10 +217,30 @@ def evidence_packet_section() -> None:
         st.json(evidence)
 
 
+def feedback_section() -> None:
+    """Capture lightweight analyst feedback for future calibration."""
+    st.header("7. Feedback Signals")
+    st.caption(
+        "These signals are the starting point for a future organizational intelligence layer. "
+        "They are saved locally to reports/feedback_log.csv."
+    )
+    agent = st.selectbox("Agent output", ["Agent 01: Mitra", "Agent 02: Varuna", "Agent 03: Aryaman"])
+    signal = st.radio("Was this output useful?", ["useful", "not useful", "false positive"], horizontal=True)
+    comment = st.text_area("Optional analyst note", placeholder="Example: drift flag was expected after data source change.")
+    if st.button("Save feedback"):
+        path = append_feedback(agent=agent, signal=signal, comment=comment)
+        st.success(f"Saved feedback to {path}")
+
+    feedback = load_feedback()
+    if not feedback.empty:
+        with st.expander("Recent feedback events", expanded=False):
+            st.dataframe(feedback.tail(10), width="stretch")
+
+
 def main() -> None:
-    """Render the complete VyaAI dashboard."""
-    st.set_page_config(page_title="VyaAI MVP", layout="wide")
-    st.title("VyaAI MVP")
+    """Render the complete AxionAI dashboard."""
+    st.set_page_config(page_title="AxionAI MVP", layout="wide")
+    st.title("AxionAI MVP")
     st.caption("Executive model intelligence for generic tabular model artifact review")
 
     overview_section()
@@ -217,6 +249,7 @@ def main() -> None:
     model_lens_section()
     executive_synthesis_section()
     evidence_packet_section()
+    feedback_section()
 
 
 if __name__ == "__main__":

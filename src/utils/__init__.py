@@ -1,1 +1,1 @@
-"""Shared utilities for the VyaAI MVP."""
+"""Shared utilities for the AxionAI MVP."""

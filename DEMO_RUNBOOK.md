@@ -1,4 +1,4 @@
-# VyaAI Local Demo Runbook
+# AxionAI Local Demo Runbook
 
 ## Demo Goal
 
@@ -14,7 +14,7 @@ python -m pip install -r requirements.txt
 ## Rebuild Artifacts
 
 ```bash
-python src/run_vyaai_pipeline.py
+python src/run_axionai_pipeline.py
 ```
 
 ## Run Checks
@@ -40,7 +40,7 @@ streamlit run app/streamlit_app.py
 
 ## Key Message
 
-VyaAI keeps metrics deterministic and auditable. The executive report is generated from saved evidence only; no external LLM calculates or overrides risk.
+AxionAI keeps metrics deterministic and auditable. The executive report is generated from saved evidence only; no external LLM calculates or overrides risk.
 
 ## Bring Your Own Model Artifacts
 

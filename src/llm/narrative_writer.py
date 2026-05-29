@@ -1,4 +1,4 @@
-"""Prompt utilities for optional future VyaAI LLM narrative generation.
+"""Prompt utilities for optional future AxionAI LLM narrative generation.
 
 This module intentionally does not call OpenAI, Ollama, or any other external
 LLM API. The deterministic executive report remains implemented in

@@ -1,4 +1,4 @@
-"""Unit tests for the VyaAI MVP deterministic workflow."""
+"""Unit tests for the AxionAI MVP deterministic workflow."""
 
 from __future__ import annotations
 
@@ -8,14 +8,18 @@ import unittest
 
 from src.agents.evidence_store import EvidencePacketBuilder
 from src.agents.executive_synthesis_agent import ExecutiveSynthesisAgent
+from src.agents.model_lens_agent import ModelLensAgent
 from src.llm.narrative_writer import SYSTEM_PROMPT, build_llm_prompt, validate_llm_report_dict
 from src.llm.schemas import ExecutiveModelReport
+from src.utils.artifact_validation import validate_input_contract
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 REPORTS_DIR = PROJECT_ROOT / "reports"
+DATA_DIR = PROJECT_ROOT / "data"
+MODELS_DIR = PROJECT_ROOT / "models"
 
 
-class VyaAIPipelineTests(unittest.TestCase):
+class AxionAIPipelineTests(unittest.TestCase):
     """Smoke-test the core evidence and executive report contracts."""
 
     def test_evidence_packet_builder_outputs_required_sections(self) -> None:
@@ -33,6 +37,25 @@ class VyaAIPipelineTests(unittest.TestCase):
         }
         self.assertTrue(required_sections.issubset(packet.keys()))
         self.assertGreaterEqual(len(packet["key_findings"]), 1)
+
+    def test_artifact_contract_validator_accepts_current_demo(self) -> None:
+        """Current sample artifacts should satisfy the metadata-driven contract."""
+        summary = validate_input_contract(
+            train_features_path=DATA_DIR / "train_features_sample.csv",
+            current_features_path=DATA_DIR / "current_features_sample.csv",
+            predictions_path=DATA_DIR / "current_predictions_sample.csv",
+            model_metadata_path=MODELS_DIR / "model_metadata.json",
+            feature_metadata_path=MODELS_DIR / "feature_metadata.json",
+        )
+        self.assertEqual(summary["target"], "purchase_qsr_next_30d")
+        self.assertGreater(summary["feature_count"], 0)
+
+    def test_varuna_reliability_gate_flags_severe_mitra_drift(self) -> None:
+        """Varuna should mark SHAP as unreliable when Mitra reports severe drift."""
+        reliability = ModelLensAgent().assess_explainability_reliability()
+        self.assertIn(reliability["status"], {"reliable", "unreliable"})
+        if reliability["status"] == "unreliable":
+            self.assertGreaterEqual(len(reliability["severe_drift_features"]), 1)
 
     def test_executive_synthesis_matches_schema(self) -> None:
         """Executive synthesis output should validate against the Pydantic schema."""

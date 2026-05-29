@@ -2,7 +2,7 @@
 
 ## Project
 
-VyaAI is an agentic model intelligence MVP for financial-services and purchase-analytics ML workflows.
+AxionAI is an agentic model intelligence MVP for financial-services and purchase-analytics ML workflows.
 
 ## Project Goal
 

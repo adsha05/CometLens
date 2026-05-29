@@ -12,6 +12,7 @@ qsr_purchase_predictor_v3 supports QSR audience targeting and campaign optimizat
 - weekend_dining_frequency is high drift and has combined risk Medium.
 - Cluster mix shifted materially; largest movement is 9.5 percentage points.
 - Prediction-positive rate differs from actual-positive rate by -0.135.
+- Varuna SHAP outputs are flagged as unreliable due to severe Mitra drift.
 
 ## Why It Matters
 
@@ -42,6 +43,7 @@ Production model decisions depend on stable inputs, interpretable drivers, and c
 - Review affected segments and recalibrate before high-impact business use.
 - Prototype `merchant_confidence_score` to separate genuine new-merchant behavior from merchant classification uncertainty.
 - Prototype `weekend_dining_recovery_index` to capture whether weekend dining behavior is rebounding or still depressed.
+- Treat SHAP interpretation as directional until severe drift is resolved or the model is recalibrated.
 - Re-run validation before high-impact business use.
 
 ## Plots To Include

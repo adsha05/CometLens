@@ -1,4 +1,4 @@
-"""Build a deterministic evidence packet from VyaAI agent outputs."""
+"""Build a deterministic evidence packet from AxionAI agent outputs."""
 
 from __future__ import annotations
 
@@ -142,6 +142,7 @@ class EvidencePacketBuilder:
             "high_risk_feature_matrix": model_lens.get("high_risk_feature_matrix", []),
             "multicollinearity_findings": model_lens.get("multicollinearity_findings", []),
             "overfitting_check": model_lens.get("overfitting_check", {}),
+            "explainability_reliability": model_lens.get("explainability_reliability", {}),
         }
 
     def build_packet(self) -> dict[str, Any]:

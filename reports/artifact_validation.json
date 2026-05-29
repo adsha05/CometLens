@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "model_name": "qsr_purchase_predictor_v3",
+  "target": "purchase_qsr_next_30d",
+  "entity_id": "consumer_token",
+  "prediction_column": "propensity_score",
+  "feature_count": 9
+}

@@ -4,3 +4,6 @@ __pycache__/
 .pytest_cache/
 .DS_Store
 .env
+reports/runs/
+reports/feedback_log.csv
+reports/pipeline_error.json

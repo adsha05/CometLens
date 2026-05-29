@@ -1,4 +1,4 @@
-"""Render README screenshot assets from deterministic VyaAI artifacts."""
+"""Render README screenshot assets from deterministic AxionAI artifacts."""
 
 from __future__ import annotations
 
