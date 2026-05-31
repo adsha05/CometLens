@@ -1,247 +1,123 @@
 # AxionAI
 
-**Agentic model intelligence for financial-services ML teams.**
+**Agentic model intelligence for auditable, business-ready ML review.**
 
-AxionAI reviews model artifacts, detects model-health risks, explains model behavior, and produces an executive-ready model health brief from deterministic evidence.
+AxionAI is a portfolio-grade local MVP that turns model artifacts into deterministic diagnostics, visual evidence, an executive model-health brief, and human-reviewable calibration recommendations.
 
-The bundled demo uses synthetic QSR purchase-propensity data, but the architecture is not QSR-specific. AxionAI works from a generic tabular artifact contract: feature tables, predictions, labels when available, model metadata, and feature metadata.
+> **Scope:** This repository uses synthetic data only. It is a local demonstration of model-intelligence architecture, not a production validation platform.
 
-## 1. What Is AxionAI?
+## Problem
 
-AxionAI is a local model intelligence MVP for teams that need fast, auditable review of deployed or candidate ML models.
+ML teams often review drift, explainability, model quality, and stakeholder feedback in disconnected tools. That makes it difficult to answer basic operational questions:
 
-It does not need production customer data and it does not let an LLM calculate metrics. Deterministic Python agents calculate drift, explainability, multicollinearity, segment movement, and risk signals. The narrative layer summarizes only verified evidence.
+- Which signals changed?
+- Do changed features matter to the model?
+- Can business stakeholders understand the impact?
+- Which recommendations trace back to verified evidence?
+- Can feedback improve future reviews without silently changing runtime behavior?
 
-Current MVP strengths:
+## Why This Matters
 
-- Numeric tabular classification artifacts
-- Model monitoring and drift review
-- SHAP-based feature importance
-- VIF and overfitting diagnostics
-- Schema validation and graceful pipeline failures
-- Timestamped local run archives
-- Dashboard feedback capture for future calibration
-- Executive reporting for business and data science stakeholders
-- Synthetic-data-only local demo
+**AxionAI helps ML teams move from disconnected diagnostics to auditable, business-ready model intelligence.**
 
-## 2. Why This Matters
+The MVP combines model monitoring, explainability, visual reporting, executive synthesis, and governed feedback calibration in one local workflow. Metrics remain deterministic and reviewable; stakeholder communication is built from saved evidence.
 
-Predictive models can degrade silently when input distributions shift, unstable features become important, or population mix changes before headline metrics move.
+## Five-Agent Architecture
 
-AxionAI helps teams:
+```mermaid
+flowchart LR
+    A["Agent 01: Mitra<br/>Signal monitoring"] --> B["Agent 02: Varuna<br/>Model diagnostics"]
+    B --> C["Evidence Store<br/>Verified JSON packet"]
+    C --> D["Agent 05: Vishwakarma<br/>Visual intelligence"]
+    D --> E["Agent 03: Aryaman<br/>Executive synthesis"]
+    E --> F["Agent 04: Samanvaya<br/>Feedback calibration"]
+    F --> G["Config Recommendation<br/>Pending human approval"]
+```
 
-- Review models faster with an automated first-pass evidence package
-- Build business trust with reports that trace back to JSON, CSV, and plots
-- Detect drift and segment movement earlier
-- Improve feature engineering decisions using SHAP + drift + VIF evidence
-- Create client-ready model health briefs without manual report assembly
-
-### What Makes AxionAI Flexible Today
-
-AxionAI is flexible because it is artifact-driven, not platform-driven.
-
-| Real Today | Why It Matters |
-| --- | --- |
-| File-based artifact contracts | CSV + JSON in, CSV + JSON out. No SDK, API handshake, or vendor-specific runtime required. |
-| Model-agnostic metadata schema | `model_metadata.json` declares the model name, target, entity id, prediction column, feature columns, and metrics. |
-| Deterministic metrics layer | Python owns drift, SHAP, VIF, clustering, validation, and risk evidence. |
-| LLM isolated to narrative prep | The LLM path is optional and must summarize verified evidence only. It does not calculate metrics. |
-| No framework lock-in | The current orchestrator is plain Python and can later move into Airflow, Dagster, Prefect, or LangGraph. |
-| Local-first execution | Runs locally without API keys and is suitable for restricted or air-gapped demo environments. |
-| Dual outputs | JSON for machines, Markdown for stakeholders, PNG plots for demos and reports. |
-| Streamlit dashboard | Non-technical users can review evidence without reading raw artifacts. |
-| Schema validation | The pipeline checks required metadata fields and CSV columns before agent execution. |
-| Timestamped archives | Successful runs are copied into `reports/runs/<run_id>/` for future comparison. |
-| Conditional reliability gate | Varuna flags or skips SHAP when Mitra detects severe drift. |
-| Feedback hook | Dashboard feedback is saved to seed future calibration and organizational intelligence. |
-
-### Gap / Roadmap
-
-AxionAI is still an MVP. The remaining flexibility work is mostly about connectors, scale, and learning from usage.
-
-| Gap | Roadmap Direction |
-| --- | --- |
-| Only synthetic data has been tested deeply | Add messy real-world test fixtures: null-heavy columns, schema drift, class imbalance, delayed labels, duplicate entities. |
-| Connector layer is not built | Add optional adapters for S3, Snowflake, Databricks, MLflow, and model registry exports. |
-| Multi-client execution is basic | Add client/model namespaces and portfolio-level run indexes. |
-| Run archives exist but trend analysis is limited | Build run-to-run comparison reports for drift, SHAP movement, health status, and recurring alerts. |
-| Feedback is captured but not learned from yet | Build a calibration store that tracks false positives, accepted recommendations, and team-specific thresholds. |
-| Organizational intelligence layer does not exist yet | Learn team patterns, known pipeline topology, report usage, and preferred business-language outputs. |
-| Categorical and mixed-type support is limited | Add type-aware preprocessing and validation for categorical, ordinal, timestamp, and segment columns. |
-| Production governance is not complete | Add approval states, owner metadata, model version lineage, and audit exports. |
-
-## 3. Architecture Diagram
+The full workflow includes input validation, a same-run evidence refresh after visual generation, and timestamped run archives:
 
 ```text
-Model Artifacts
-  - train/current feature tables
-  - current predictions
-  - model metadata
-  - feature metadata
-        |
-        v
-Agent 01: Mitra
-  - PSI, KS, Wasserstein drift checks
-  - missing-value checks
-  - prediction summary
-  - cluster/context shift
-        |
-        v
-Agent 02: Varuna
-  - local reviewer model
-  - SHAP global drivers
-  - VIF multicollinearity
-  - train-validation metric delta
-  - high-risk feature matrix
-  - reliability gate from Mitra drift severity
-        |
-        v
-Evidence Store
-  - reports/evidence_packet.json
-        |
-        v
-Agent 03: Aryaman
-  - executive_model_report.json
-  - executive_model_report.md
-        |
-        v
-Streamlit Dashboard
-  - stakeholder review interface
-  - feedback capture
-        |
-        v
-Agent 04: Samanvaya
-  - feedback review
-  - proposed calibration changes
-  - simulated approval log
+Synthetic or external artifact drop
+  -> Validate metadata and feature-table contracts
+  -> Mitra: data quality, drift, prediction movement, cluster shift
+  -> Varuna: SHAP, VIF, overfitting delta, feature-risk matrix
+  -> Evidence Store: verified machine-readable packet
+  -> Vishwakarma: report visuals and lineage SVG
+  -> Evidence Store refresh: attach matching-run visual manifest
+  -> Aryaman: concise evidence-based executive brief
+  -> Samanvaya: feedback analysis and pending config recommendations
+  -> Archive: reports/runs/<run_id>/
 ```
 
-## 4. Four-Agent Workflow
+![AxionAI generated lineage graph](docs/assets/architecture_lineage.svg)
 
-### Agent 01: Mitra
+For the detailed artifact graph, see [docs/architecture.md](docs/architecture.md).
 
-Mitra monitors signal quality and distribution movement.
+## Agent Responsibilities
 
-- Data sanity checks
-- Missing-value shifts
-- Feature drift using PSI
-- Feature drift using KS test
-- Distribution movement using Wasserstein distance
-- Prediction score and label mix summary
-- Cluster/context shift using `StandardScaler` and `KMeans`
+| Agent | Purpose | Deterministic outputs |
+| --- | --- | --- |
+| **Agent 01: Mitra** | Detect data-quality issues, missing-value movement, feature drift, prediction drift, and cluster/context shifts. | `mitra_output.json`, `drift_report.csv`, `prediction_drift_report.json`, `cluster_shift_report.csv` |
+| **Agent 02: Varuna** | Explain model behavior and detect model-quality risks using SHAP, VIF, and train-validation delta. | `varuna_output.json`, `shap_global_importance.csv`, `vif_report.csv`, `feature_risk_matrix.csv` |
+| **Agent 03: Aryaman** | Convert verified evidence into a concise business-facing model-health brief. | `aryaman_output.json`, `executive_model_report.json`, `executive_model_report.md` |
+| **Agent 04: Samanvaya** | Analyze structured feedback and propose calibration updates that require human approval. | `samanvaya_output.json`, `calibration_recommendations.json`, `config_change_log.json`, `calibration_config_v2_recommended.json` |
+| **Agent 05: Vishwakarma** | Generate report-ready visual intelligence and a run-specific lineage graph without mutating metrics. | `reports/visuals/*.json`, `reports/visuals/*.html`, `lineage_graph.svg`, `vishwakarma_output.json` |
 
-### Agent 02: Varuna
+## Evidence And Governance Design
 
-Varuna explains model behavior and identifies model-level risks.
+AxionAI deliberately separates metric calculation from narrative and calibration:
 
-- Trains a small local reviewer model on supplied artifacts
-- Computes SHAP global importance
-- Generates SHAP bar and beeswarm plots
-- Calculates VIF multicollinearity diagnostics
-- Calculates train-validation metric delta from metadata
-- Combines SHAP rank, drift level, and VIF into a high-risk feature matrix
-- Flags SHAP output as unreliable when Mitra detects severe drift
+- **Deterministic metrics:** Python calculates PSI, KS, Wasserstein distance, missing-rate shifts, clustering movement, SHAP, VIF, and validation deltas.
+- **Evidence packet:** `reports/evidence_packet.json` is the verified handoff for downstream reporting.
+- **Config-driven thresholds:** Mitra and Varuna risk rules read versioned calibration settings from `configs/calibration_config_v1.json`.
+- **No silent feedback mutation:** Dashboard feedback is saved as structured events in `reports/feedback_log.csv`.
+- **Human approval required:** Samanvaya writes `configs/calibration_config_v2_recommended.json`; it never overwrites the active v1 config.
+- **Optional LLM boundary:** The prepared narrative layer may summarize verified evidence only. It must not calculate metrics or override deterministic risk.
 
-By default Varuna still runs and labels SHAP as directional when severe drift is present. To make Varuna skip explainability under severe drift:
+## Sample Outputs
 
-```bash
-VARUNA_DRIFT_GATE_MODE=skip python src/run_axionai_pipeline.py
-```
+The bundled synthetic QSR propensity demo currently produces:
 
-### Agent 03: Aryaman
+| Evidence | Demo result |
+| --- | --- |
+| Executive model health | `High Risk` |
+| High-drift features | `merchant_novelty_rate`, `weekend_dining_frequency` |
+| Prediction drift | `High`; score mean changed by approximately `-9.0%` |
+| Feature-risk matrix | `merchant_novelty_rate` is a top SHAP driver with high drift |
+| Samanvaya governance | `2` recommendations pending human approval |
 
-Aryaman converts deterministic evidence into a concise business report.
-
-- Reads `reports/evidence_packet.json`
-- Determines model health status
-- Summarizes what changed
-- Translates technical findings into business risk
-- Recommends next actions
-- Saves JSON and Markdown reports
-
-### Agent 04: Samanvaya
-
-Samanvaya reads dashboard feedback and proposes calibration changes without applying them automatically.
-
-- Reads `reports/feedback_log.csv`
-- Proposes threshold/config changes for human review
-- Writes `reports/samanvaya_recommendations.json`
-- Writes `reports/config_change_log.json`
-- Writes proposed `configs/calibration_config_v2.json`
-
-## 5. Sample Input Artifacts
-
-To review a different model, replace the sample artifacts while preserving this contract:
-
-```text
-data/train_features_sample.csv
-  entity id + numeric model features + target
-
-data/current_features_sample.csv
-  entity id + same numeric model features + target when available
-
-data/current_predictions_sample.csv
-  entity id + prediction score + predicted/actual labels when available
-
-data/train_predictions_sample.csv
-  optional reference-window prediction scores used for prediction drift checks
-
-models/model_metadata.json
-  model_name, model_type, target, entity_id, prediction_column,
-  feature_columns, performance metrics, business_use_case
-
-models/feature_metadata.json
-  feature names, types, and business definitions
-```
-
-The demo metadata declares `target`, `entity_id`, `prediction_column`, and `feature_columns`, so the agents do not need QSR-specific constants.
-
-## 6. Sample Outputs
-
-Running the pipeline creates:
+Generated artifacts include:
 
 ```text
 reports/
-  artifact_validation.json
   mitra_output.json
-  data_quality_report.csv
-  prediction_drift_report.json
   drift_report.csv
-  cluster_shift_report.csv
+  prediction_drift_report.json
   varuna_output.json
   shap_global_importance.csv
-  vif_report.csv
+  feature_risk_matrix.csv
   evidence_packet.json
-  executive_model_report.json
+  visuals/
+    feature_risk_scatter.html
+    prediction_distribution_overlay.html
+    lineage_graph.svg
+    vishwakarma_output.json
+  aryaman_output.json
   executive_model_report.md
-  samanvaya_recommendations.json
+  samanvaya_output.json
+  calibration_recommendations.json
   config_change_log.json
-  sample_end_to_end_agent_report.md
-  runs/<timestamp>/
-    archived copy of the generated evidence and report artifacts
 
-reports/figures/
-  drift_top_features.png
-  shap_bar.png
-  shap_beeswarm.png
+configs/
+  calibration_config_v1.json
+  calibration_config_v2_recommended.json
 ```
 
-Every generated report artifact includes, where applicable, the active `config_version`, source file paths, and deterministic explanations for assigned risk levels. Mitra also writes the ordered rule hierarchy used to determine its overall risk level.
+See [docs/sample_outputs.md](docs/sample_outputs.md) for an artifact-by-artifact guide.
 
-Typical demo findings:
+## Dashboard Screenshots
 
-- Medium executive model health status
-- High drift in `merchant_novelty_rate`
-- High drift in `weekend_dining_frequency`
-- Material cluster movement
-- SHAP drivers led by synthetic purchase behavior features
-- Recommended validation refresh before high-impact business use
-
-For a full walkthrough of one synthetic run, see:
-
-- [`reports/sample_end_to_end_agent_report.md`](reports/sample_end_to_end_agent_report.md)
-
-## 7. Screenshots
+These proof assets are regenerated from the local synthetic demo outputs with `python scripts/render_readme_assets.py`.
 
 ### Model Health Summary
 
@@ -263,72 +139,77 @@ For a full walkthrough of one synthetic run, see:
 
 ![Executive report](docs/assets/executive_report.png)
 
-## 8. Run Locally
+### Governed Feedback Calibration
 
-Install dependencies:
+![Samanvaya governance review](docs/assets/samanvaya_governance.png)
+
+## Run Locally
+
+Install dependencies and run the end-to-end demo:
 
 ```bash
 pip install -r requirements.txt
-```
-
-Run the full pipeline:
-
-```bash
 python src/run_axionai_pipeline.py
-```
-
-The pipeline validates the artifact contract first. If metadata fields or required columns are missing, it fails gracefully and writes `reports/pipeline_error.json` with a meaningful next step.
-
-Run against your own existing artifacts without regenerating the synthetic demo:
-
-```bash
-python src/run_axionai_pipeline.py --use-existing-artifacts
-```
-
-Regenerate README screenshot assets:
-
-```bash
-python scripts/render_readme_assets.py
-```
-
-Launch the dashboard:
-
-```bash
 streamlit run app/streamlit_app.py
 ```
 
-Run local checks:
+Run the test suite:
 
 ```bash
-python -m unittest discover -s tests
-python -m compileall -q src app tests
+pytest tests/
 ```
 
-## 9. Financial-Services Use Cases
+Useful additional commands:
 
-AxionAI is designed for model review workflows common in financial-services and purchase-analytics environments:
+```bash
+python src/run_axionai_pipeline.py --use-existing-artifacts
+python scripts/render_readme_assets.py
+python -m unittest discover -s tests
+python -m compileall -q src app tests scripts
+```
 
-- Credit risk model drift review
-- Fraud score monitoring
-- Card-linked offer propensity model review
-- Customer attrition and retention scoring
-- Marketing audience quality checks
-- Merchant/category behavior shift analysis
-- Client-facing model health reporting
-- Feature monitoring before model recalibration
+For a demo script and screen-by-screen walkthrough, see [docs/demo_walkthrough.md](docs/demo_walkthrough.md).
 
-### Future Organizational Intelligence Layer
+## Current Validation
 
-The dashboard now captures simple analyst feedback in `reports/feedback_log.csv`. This is the first seed for a future calibration store, not a full organizational intelligence layer yet.
+- `39` pytest tests passed
+- `11` unittest checks passed
+- Streamlit smoke test passed
+- Python compile check passed
 
-The next layer should learn:
+## Target Use Cases
 
-- Which teams treat specific flags as useful or noisy
-- Which reports are used in reviews or stakeholder meetings
-- Which pipelines have known seasonal or source-system changes
-- Which thresholds should be adjusted by model family or business unit
-- How archived runs differ over time
+AxionAI is artifact-driven rather than QSR-specific. The bundled QSR model is a synthetic example profile.
 
-## 10. Disclaimer: Synthetic Data Only
+### Purchase Intelligence
 
-This repository uses **synthetic sample data only**. It is not affiliated with Affinity Solutions or any financial institution. The MVP is for demonstration, education, and local prototyping, not production model validation.
+- Propensity-model monitoring
+- Audience quality review
+- Merchant and category behavior shifts
+- Campaign activation readiness
+
+### Fraud And Risk
+
+- Fraud-score distribution monitoring
+- Credit or risk feature stability review
+- Governance-ready evidence packaging
+- Review of high-impact decision thresholds
+
+### Model Governance
+
+- Model-health review before activation
+- Auditable diagnostics and evidence packets
+- Business-facing reporting
+- Human-approved calibration recommendations
+
+## Project Positioning
+
+AxionAI is intentionally small, modular, local-first, and framework-light. The current orchestrator is plain Python rather than LangGraph, CrewAI, or an external agent runtime. Each agent has an explicit artifact contract, and every important result is saved as JSON, CSV, Markdown, HTML, SVG, or PNG.
+
+This design keeps the MVP easy to audit and easy to explain while leaving room for future connectors, multi-model portfolios, historical comparisons, and approved calibration workflows.
+
+## Disclaimer
+
+**This is a portfolio-grade local MVP using synthetic data only.**
+
+It does not use real customer, financial, or consumer data. It is not affiliated with Affinity Solutions or any financial institution. It should not be treated as production model validation, regulatory approval, or a substitute for formal model-risk governance.

@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="570" viewBox="0 0 1280 570">
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+<path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+</marker>
+</defs>
+<rect width="1280" height="570" fill="#f8fafc"/>
+<text x="30" y="40" font-family="Arial" font-size="24" font-weight="bold" fill="#0f172a">AxionAI Model Intelligence Lineage</text>
+<text x="30" y="67" font-family="Arial" font-size="14" fill="#475569">Run 20260531T191423Z | Config v1</text>
+<line x1="115" y1="129" x2="320" y2="129" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="320" y1="129" x2="525" y2="129" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="525" y1="129" x2="730" y2="129" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="730" y1="129" x2="935" y2="129" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="935" y1="129" x2="1140" y2="129" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="730" y1="129" x2="320" y2="309" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="1140" y1="129" x2="320" y2="309" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="730" y1="129" x2="525" y2="309" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="320" y1="309" x2="525" y2="309" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="320" y1="309" x2="730" y2="309" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="525" y1="309" x2="730" y2="309" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="730" y1="309" x2="935" y2="269" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="730" y1="309" x2="935" y2="379" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="935" y1="269" x2="935" y2="379" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="935" y1="379" x2="1140" y2="379" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="1140" y1="379" x2="1140" y2="494" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="30" y="100" width="170" height="58" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+<text x="40" y="123" font-family="Arial" font-size="13" font-weight="bold" fill="#0f172a">Synthetic Feature Tables</text>
+<text x="40" y="144" font-family="Arial" font-size="11" fill="#475569">Risk: Low | Completed</text>
+<rect x="235" y="100" width="170" height="58" rx="8" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+<text x="245" y="123" font-family="Arial" font-size="13" font-weight="bold" fill="#0f172a">Data Quality Gate</text>
+<text x="245" y="144" font-family="Arial" font-size="11" fill="#475569">Risk: High | Completed</text>
+<rect x="440" y="100" width="170" height="58" rx="8" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+<text x="450" y="123" font-family="Arial" font-size="13" font-weight="bold" fill="#0f172a">Feature Pipeline</text>
+<text x="450" y="144" font-family="Arial" font-size="11" fill="#475569">Risk: High | Completed</text>
+<rect x="645" y="100" width="170" height="58" rx="8" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+<text x="655" y="123" font-family="Arial" font-size="13" font-weight="bold" fill="#0f172a">Feature Store</text>
+<text x="655" y="144" font-family="Arial" font-size="11" fill="#475569">Risk: High | Completed</text>
+<rect x="850" y="100" width="170" height="58" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+<text x="860" y="123" font-family="Arial" font-size="13" font-weight="bold" fill="#0f172a">qsr_purchase_predictor_v3</text>
+<text x="860" y="144" font-family="Arial" font-size="11" fill="#475569">Risk: Low | Completed</text>
+<rect x="1055" y="100" width="170" height="58" rx="8" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+<text x="1065" y="123" font-family="Arial" font-size="13" font-weight="bold" fill="#0f172a">Prediction Logs</text>
+<text x="1065" y="144" font-family="Arial" font-size="11" fill="#475569">Risk: High | Completed</text>
+<rect x="235" y="280" width="170" height="58" rx="8" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+<text x="245" y="303" font-family="Arial" font-size="13" font-weight="bold" fill="#0f172a">Agent 01: Mitra</text>
+<text x="245" y="324" font-family="Arial" font-size="11" fill="#475569">Risk: High | Completed</text>
+<rect x="440" y="280" width="170" height="58" rx="8" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+<text x="450" y="303" font-family="Arial" font-size="13" font-weight="bold" fill="#0f172a">Agent 02: Varuna</text>
+<text x="450" y="324" font-family="Arial" font-size="11" fill="#475569">Risk: High | Completed</text>
+<rect x="645" y="280" width="170" height="58" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+<text x="655" y="303" font-family="Arial" font-size="13" font-weight="bold" fill="#0f172a">Verified Evidence Store</text>
+<text x="655" y="324" font-family="Arial" font-size="11" fill="#475569">Risk: Low | Completed</text>
+<rect x="850" y="240" width="170" height="58" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+<text x="860" y="263" font-family="Arial" font-size="13" font-weight="bold" fill="#0f172a">Agent 05: Vishwakarma</text>
+<text x="860" y="284" font-family="Arial" font-size="11" fill="#475569">Risk: Low | Completed</text>
+<rect x="850" y="350" width="170" height="58" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+<text x="860" y="373" font-family="Arial" font-size="13" font-weight="bold" fill="#0f172a">Agent 03: Aryaman</text>
+<text x="860" y="394" font-family="Arial" font-size="11" fill="#475569">Risk: Low | Completed</text>
+<rect x="1055" y="350" width="170" height="58" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+<text x="1065" y="373" font-family="Arial" font-size="13" font-weight="bold" fill="#0f172a">Executive Model Brief</text>
+<text x="1065" y="394" font-family="Arial" font-size="11" fill="#475569">Risk: Low | Completed</text>
+<rect x="1055" y="465" width="170" height="58" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+<text x="1065" y="488" font-family="Arial" font-size="13" font-weight="bold" fill="#0f172a">Stakeholder Feedback</text>
+<text x="1065" y="509" font-family="Arial" font-size="11" fill="#475569">Risk: Low | Available</text>
+<text x="30" y="545" font-family="Arial" font-size="12" fill="#64748b">Generated deterministically from saved AxionAI evidence. Red nodes require review.</text>
+</svg>

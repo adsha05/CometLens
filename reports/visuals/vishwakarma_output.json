@@ -1,0 +1,44 @@
+{
+  "agent": "Vishwakarma",
+  "run_id": "20260531T192331Z",
+  "timestamp": "2026-05-31T19:23:32.635351+00:00",
+  "model_name": "qsr_purchase_predictor_v3",
+  "config_version": "v1",
+  "visuals_generated": {
+    "feature_risk_scatter": {
+      "json": "/Users/adityasharma/Desktop/CometLens/reports/visuals/feature_risk_scatter.json",
+      "html": "/Users/adityasharma/Desktop/CometLens/reports/visuals/feature_risk_scatter.html"
+    },
+    "prediction_distribution_overlay": {
+      "json": "/Users/adityasharma/Desktop/CometLens/reports/visuals/prediction_distribution_overlay.json",
+      "html": "/Users/adityasharma/Desktop/CometLens/reports/visuals/prediction_distribution_overlay.html"
+    },
+    "lineage_graph": {
+      "json": "/Users/adityasharma/Desktop/CometLens/reports/visuals/lineage_graph.json",
+      "svg": "/Users/adityasharma/Desktop/CometLens/reports/visuals/lineage_graph.svg"
+    }
+  },
+  "recommended_report_visuals": [
+    "feature_risk_scatter",
+    "prediction_distribution_overlay",
+    "lineage_graph"
+  ],
+  "warnings": [
+    "Skipped optional PNG export for feature_risk_scatter: install Kaleido for static Plotly image export (ValueError).",
+    "Skipped optional PNG export for prediction_distribution_overlay: install Kaleido for static Plotly image export (ValueError)."
+  ],
+  "source_files": {
+    "evidence_packet": "/Users/adityasharma/Desktop/CometLens/reports/evidence_packet.json",
+    "mitra_output": "/Users/adityasharma/Desktop/CometLens/reports/mitra_output.json",
+    "varuna_output": "/Users/adityasharma/Desktop/CometLens/reports/model_lens_output.json",
+    "drift_report": "/Users/adityasharma/Desktop/CometLens/reports/drift_report.csv",
+    "prediction_drift_report": "/Users/adityasharma/Desktop/CometLens/reports/prediction_drift_report.json",
+    "shap_importance": "/Users/adityasharma/Desktop/CometLens/reports/shap_global_importance.csv",
+    "vif_report": "/Users/adityasharma/Desktop/CometLens/reports/vif_report.csv",
+    "feature_risk_matrix": "/Users/adityasharma/Desktop/CometLens/reports/feature_risk_matrix.csv",
+    "train_predictions": "/Users/adityasharma/Desktop/CometLens/data/train_predictions_sample.csv",
+    "current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+    "model_metadata": "/Users/adityasharma/Desktop/CometLens/models/model_metadata.json",
+    "calibration_config": "/Users/adityasharma/Desktop/CometLens/configs/calibration_config_v1.json"
+  }
+}

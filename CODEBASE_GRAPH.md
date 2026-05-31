@@ -36,11 +36,12 @@ flowchart TD
         AR["src/utils/run_archive.py<br/>Timestamped run archive"]
     end
 
-    subgraph Agents["Four-Agent Model Intelligence Workflow"]
+    subgraph Agents["Five-Agent Model Intelligence Workflow"]
         M["Agent 01: Mitra<br/>src/agents/signal_sentinel_agent.py<br/>Drift, missingness, prediction summary, cluster shift"]
         V["Agent 02: Varuna<br/>src/agents/model_lens_agent.py<br/>SHAP, VIF, reviewer model, overfitting delta"]
         A["Agent 03: Aryaman<br/>src/agents/executive_synthesis_agent.py<br/>Executive model health brief"]
-        S["Agent 04: Samanvaya<br/>src/agents/samanvaya_agent.py<br/>Feedback review and calibration recommendations"]
+        S["Agent 04: Samanvaya<br/>src/agents/samanvaya_calibration_agent.py<br/>Governed feedback calibration recommendations"]
+        W["Agent 05: Vishwakarma<br/>src/agents/vishwakarma_visual_architect.py<br/>Risk visuals and lineage SVG"]
     end
 
     subgraph Evidence["Evidence Layer"]
@@ -59,13 +60,14 @@ flowchart TD
         SH["reports/shap_global_importance.csv"]
         VF["reports/vif_report.csv"]
         SF["reports/figures/shap_bar.png<br/>reports/figures/shap_beeswarm.png"]
-        XO["reports/executive_model_report.json<br/>reports/executive_model_report.md"]
-        SA["reports/samanvaya_recommendations.json<br/>reports/config_change_log.json<br/>configs/calibration_config_v2.json"]
+        XO["reports/aryaman_output.json<br/>reports/executive_model_report.json<br/>reports/executive_model_report.md"]
+        SA["reports/samanvaya_output.json<br/>reports/calibration_recommendations.json<br/>reports/config_change_log.json<br/>configs/calibration_config_v2_recommended.json"]
+        WV["reports/visuals/<br/>Interactive plots, graph JSON, lineage SVG, visual manifest"]
     end
 
     subgraph Presentation["Presentation"]
         UI["app/streamlit_app.py<br/>Streamlit dashboard"]
-        FB["src/agents/feedback_store.py<br/>Analyst feedback log"]
+        FB["src/memory/feedback_store.py<br/>Governed feedback log"]
         RA["docs/assets/*.png<br/>README visual proof assets"]
         RS["scripts/render_readme_assets.py<br/>README asset renderer"]
     end
@@ -118,6 +120,9 @@ flowchart TD
     MM --> ES
     FM --> ES
     ES --> EP
+    EP --> W
+    W --> WV
+    WV --> ES
 
     P --> A
     EP --> A
@@ -133,6 +138,7 @@ flowchart TD
     XO --> UI
     DF --> UI
     SF --> UI
+    WV --> UI
 
     SO --> RS
     LO --> RS
@@ -153,8 +159,9 @@ flowchart TD
 | --- | --- | --- | --- |
 | Agent 01: Mitra | `src/agents/signal_sentinel_agent.py` | Detect signal drift, prediction score drift, missing-value shifts, data-quality failures, and cluster/context movement. | `mitra_output.json`, `data_quality_report.csv`, `prediction_drift_report.json`, `drift_report.csv`, `cluster_shift_report.csv`, `drift_top_features.png` |
 | Agent 02: Varuna | `src/agents/model_lens_agent.py` | Explain model behavior and identify feature-level model risks using SHAP, VIF, and train-validation metric delta. Flags SHAP reliability when Mitra finds severe drift. | `varuna_output.json`, `shap_global_importance.csv`, `vif_report.csv`, SHAP plots |
-| Agent 03: Aryaman | `src/agents/executive_synthesis_agent.py` | Convert verified evidence into a concise executive model health brief. | `executive_model_report.json`, `executive_model_report.md` |
-| Agent 04: Samanvaya | `src/agents/samanvaya_agent.py` | Read dashboard feedback and propose config changes for human review without mutating runtime behavior. | `samanvaya_recommendations.json`, `config_change_log.json`, `calibration_config_v2.json` |
+| Agent 03: Aryaman | `src/agents/executive_synthesis_agent.py` | Convert only the verified evidence packet into a concise executive model health brief. | `aryaman_output.json`, `executive_model_report.json`, `executive_model_report.md` |
+| Agent 04: Samanvaya | `src/agents/samanvaya_calibration_agent.py` | Read governed dashboard feedback and propose config changes for human review without mutating runtime behavior. | `samanvaya_output.json`, `calibration_recommendations.json`, `config_change_log.json`, `calibration_config_v2_recommended.json` |
+| Agent 05: Vishwakarma | `src/agents/vishwakarma_visual_architect.py` | Convert verified outputs into report-ready visuals and a run-specific lineage map without mutating monitoring metrics. | `reports/visuals/*.json`, `reports/visuals/*.html`, `lineage_graph.svg`, `vishwakarma_output.json` |
 
 ## Workflow Framework
 
@@ -167,6 +174,8 @@ run_axionai_pipeline.py
   -> Run Agent 01: Mitra
   -> Run Agent 02: Varuna with Mitra drift reliability gate
   -> Build evidence packet
+  -> Run Agent 05: Vishwakarma visual architect
+  -> Refresh evidence packet with same-run visual manifest paths
   -> Run Agent 03: Aryaman
   -> Run Agent 04: Samanvaya
   -> Archive timestamped run
@@ -194,8 +203,11 @@ Why this design:
 | Agent 01: Mitra | Agent 02: Varuna | Drift severity gate that marks SHAP output unreliable when PSI or KS thresholds are severe |
 | Agent 02: Varuna | Evidence Store, Dashboard | SHAP importance, VIF report, train-validation metric delta, high-risk feature matrix, explainability reliability status |
 | Evidence Store | Agent 03: Aryaman | Single evidence packet containing deterministic outputs only |
+| Evidence Store | Agent 05: Vishwakarma | Verified monitoring outputs and model context for deterministic visualization |
+| Agent 05: Vishwakarma | Evidence Store, Dashboard, Agent 03: Aryaman | Same-run visual manifest, interactive plots, and lineage SVG |
 | Agent 03: Aryaman | Dashboard, stakeholders | Consulting-style JSON and Markdown model health brief |
-| Dashboard feedback | Future organizational intelligence layer | `reports/feedback_log.csv` analyst feedback events |
+| Dashboard feedback | Agent 04: Samanvaya | `reports/feedback_log.csv` structured analyst, executive, and client-safe feedback events |
+| Agent 04: Samanvaya | Human reviewer | Pending-only config proposal and change log; active v1 thresholds remain unchanged |
 | README asset renderer | GitHub README | PNG visual proof from generated reports |
 
 ## Current Gaps And Next Layer

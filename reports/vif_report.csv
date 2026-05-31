@@ -1,10 +1,10 @@
-feature,vif,vif_level,vif_level_reason,config_version,source_train_features
-qsr_spend_30d,4.381871553669761,Low,Low because VIF 4.38 is below threshold 5.00.,v1,/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv
-qsr_txn_count_30d,4.377448566599988,Low,Low because VIF 4.38 is below threshold 5.00.,v1,/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv
-weekend_dining_frequency,1.047225528065608,Low,Low because VIF 1.05 is below threshold 5.00.,v1,/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv
-fuel_spend_30d,1.045793262156066,Low,Low because VIF 1.05 is below threshold 5.00.,v1,/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv
-qsr_recency_days,1.0452640010850327,Low,Low because VIF 1.05 is below threshold 5.00.,v1,/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv
-grocery_spend_30d,1.0357654414275415,Low,Low because VIF 1.04 is below threshold 5.00.,v1,/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv
-competitor_qsr_share_90d,1.0350657264975056,Low,Low because VIF 1.04 is below threshold 5.00.,v1,/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv
-merchant_novelty_rate,1.0263186579908101,Low,Low because VIF 1.03 is below threshold 5.00.,v1,/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv
-campaign_exposed,1.0118711283711297,Low,Low because VIF 1.01 is below threshold 5.00.,v1,/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv
+feature,vif,vif_risk,vif_risk_reason,vif_level,vif_level_reason
+qsr_spend_30d,4.381871553669761,Low,Low because VIF 4.38 is below configured threshold 5.00.,Low,Low because VIF 4.38 is below configured threshold 5.00.
+qsr_txn_count_30d,4.377448566599988,Low,Low because VIF 4.38 is below configured threshold 5.00.,Low,Low because VIF 4.38 is below configured threshold 5.00.
+weekend_dining_frequency,1.047225528065608,Low,Low because VIF 1.05 is below configured threshold 5.00.,Low,Low because VIF 1.05 is below configured threshold 5.00.
+fuel_spend_30d,1.045793262156066,Low,Low because VIF 1.05 is below configured threshold 5.00.,Low,Low because VIF 1.05 is below configured threshold 5.00.
+qsr_recency_days,1.0452640010850327,Low,Low because VIF 1.05 is below configured threshold 5.00.,Low,Low because VIF 1.05 is below configured threshold 5.00.
+grocery_spend_30d,1.0357654414275415,Low,Low because VIF 1.04 is below configured threshold 5.00.,Low,Low because VIF 1.04 is below configured threshold 5.00.
+competitor_qsr_share_90d,1.0350657264975056,Low,Low because VIF 1.04 is below configured threshold 5.00.,Low,Low because VIF 1.04 is below configured threshold 5.00.
+merchant_novelty_rate,1.0263186579908101,Low,Low because VIF 1.03 is below configured threshold 5.00.,Low,Low because VIF 1.03 is below configured threshold 5.00.
+campaign_exposed,1.0118711283711297,Low,Low because VIF 1.01 is below configured threshold 5.00.,Low,Low because VIF 1.01 is below configured threshold 5.00.

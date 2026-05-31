@@ -8,24 +8,34 @@ import sys
 from typing import Any
 
 import pandas as pd
+import plotly.io as pio
 import streamlit as st
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.agents.feedback_store import append_feedback, load_feedback
+from src.agents.samanvaya_calibration_agent import SamanvayaCalibrationAgent
+from src.memory.feedback_store import (
+    ALLOWED_FEEDBACK_TYPES,
+    append_feedback_event,
+    ensure_feedback_log,
+    load_feedback_log,
+)
 
 MODELS_DIR = PROJECT_ROOT / "models"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 FIGURES_DIR = REPORTS_DIR / "figures"
+VISUALS_DIR = REPORTS_DIR / "visuals"
 
 RUN_ORDER = """python src/generate_sample_artifacts.py
 python src/agents/signal_sentinel_agent.py
 python src/agents/model_lens_agent.py
 python src/agents/evidence_store.py
+python src/agents/vishwakarma_visual_architect.py
+python src/agents/evidence_store.py
 python src/agents/executive_synthesis_agent.py
-python src/agents/samanvaya_agent.py
+python src/agents/samanvaya_calibration_agent.py --demo
 streamlit run app/streamlit_app.py"""
 
 
@@ -74,13 +84,14 @@ def overview_section() -> None:
         "auditable model-health evidence. The bundled QSR profile is only a demo; the agents "
         "use metadata-defined target, entity, prediction, and feature columns."
     )
-    st.subheader("4-Agent Architecture")
+    st.subheader("5-Agent Architecture")
     st.markdown(
         """
         - **Agent 01: Mitra** detects feature drift, prediction drift, missing-value shifts, and cluster/context movement.
         - **Agent 02: Varuna** explains model behavior with a small local XGBoost reviewer model, SHAP, VIF, and overfitting checks.
         - **Agent 03: Aryaman** converts verified evidence into a consulting-style model health brief.
         - **Agent 04: Samanvaya** reads feedback and proposes calibration changes for human review.
+        - **Agent 05: Vishwakarma** renders report-ready risk visuals and a run-specific lineage graph.
         """
     )
     with st.expander("Run Order"):
@@ -211,12 +222,19 @@ def signal_sentinel_section() -> None:
 
 def model_lens_section() -> None:
     """Render Varuna outputs."""
-    st.header("4. Agent 02: Varuna")
+    st.header("4. Agent 02: Varuna — Model Auditor")
     path = REPORTS_DIR / "varuna_output.json"
     lens = load_json_with_fallback(path, REPORTS_DIR / "model_lens_output.json")
     if not lens:
         missing_file_message(path, "Agent 02: Varuna output")
         return
+
+    metric1, metric2, metric3 = st.columns(3)
+    metric1.metric("Reference Model", lens.get("reference_model_type", "unknown"))
+    metric2.metric("Explanation Method", lens.get("explanation_method", "unknown"))
+    metric3.metric("Config Version", lens.get("config_version", "unknown"))
+    for warning in lens.get("warnings", []):
+        st.warning(warning)
 
     st.subheader("Top Global Drivers")
     reliability = lens.get("explainability_reliability", {})
@@ -235,10 +253,15 @@ def model_lens_section() -> None:
     else:
         st.dataframe(top_drivers_df, width="stretch")
 
-    st.subheader("High-Risk Feature Matrix")
-    risk_matrix_df = records_to_frame(lens.get("high_risk_feature_matrix", []))
+    st.subheader("Feature Risk Matrix")
+    feature_risk_path = REPORTS_DIR / "feature_risk_matrix.csv"
+    risk_matrix_df = (
+        pd.read_csv(feature_risk_path)
+        if feature_risk_path.exists()
+        else records_to_frame(lens.get("high_risk_feature_matrix", []))
+    )
     if risk_matrix_df.empty:
-        st.info("High-risk feature matrix is missing.")
+        st.info("Feature risk matrix is missing.")
     else:
         st.dataframe(risk_matrix_df, width="stretch")
 
@@ -257,6 +280,12 @@ def model_lens_section() -> None:
         else:
             st.info("Overfitting check is missing.")
 
+    diagnostics_path = REPORTS_DIR / "model_diagnostics.json"
+    diagnostics = load_json(diagnostics_path)
+    if diagnostics:
+        with st.expander("Varuna diagnostics JSON", expanded=False):
+            st.json(diagnostics)
+
     st.subheader("SHAP Plots")
     col1, col2 = st.columns(2)
     with col1:
@@ -267,17 +296,32 @@ def model_lens_section() -> None:
 
 def executive_synthesis_section() -> None:
     """Render Aryaman markdown output."""
-    st.header("5. Agent 03: Aryaman")
-    path = REPORTS_DIR / "executive_model_report.md"
-    if not path.exists():
-        missing_file_message(path, "Executive model report")
+    st.header("7. Agent 03: Aryaman — Executive Synthesis")
+    output_path = REPORTS_DIR / "aryaman_output.json"
+    output = load_json(output_path)
+    markdown_path = REPORTS_DIR / "executive_model_report.md"
+    if not output:
+        missing_file_message(output_path, "Agent 03: Aryaman output")
         return
-    st.markdown(path.read_text(encoding="utf-8"))
+    st.metric("Model Health Status", output.get("model_health_status", "unknown"))
+    st.subheader("Executive Summary")
+    st.markdown(output.get("executive_summary", "No executive summary available."))
+    st.subheader("Key Findings")
+    for finding in output.get("key_findings_used", []):
+        st.markdown(f"- {finding}")
+    st.subheader("Recommended Actions")
+    for action in output.get("recommended_actions", []):
+        st.markdown(f"- {action}")
+    if markdown_path.exists():
+        with st.expander("Render full executive report", expanded=False):
+            st.markdown(markdown_path.read_text(encoding="utf-8"))
+    else:
+        st.info(f"Executive Markdown report is missing: `{markdown_path}`")
 
 
 def evidence_packet_section() -> None:
     """Render evidence packet in an expandable JSON viewer."""
-    st.header("6. Evidence Packet")
+    st.header("5. Evidence Packet")
     path = REPORTS_DIR / "evidence_packet.json"
     evidence = load_json(path)
     if not evidence:
@@ -287,36 +331,143 @@ def evidence_packet_section() -> None:
         st.json(evidence)
 
 
-def feedback_section() -> None:
-    """Capture lightweight analyst feedback for future calibration."""
-    st.header("7. Feedback Signals")
-    st.caption(
-        "These signals are the starting point for a future organizational intelligence layer. "
-        "They are saved locally to reports/feedback_log.csv."
-    )
-    agent = st.selectbox("Agent output", ["Agent 01: Mitra", "Agent 02: Varuna", "Agent 03: Aryaman"])
-    signal = st.radio("Was this output useful?", ["useful", "not useful", "false positive"], horizontal=True)
-    comment = st.text_area("Optional analyst note", placeholder="Example: drift flag was expected after data source change.")
-    if st.button("Save feedback"):
-        path = append_feedback(agent=agent, signal=signal, comment=comment)
-        st.success(f"Saved feedback to {path}")
+def vishwakarma_section() -> None:
+    """Render Vishwakarma visual intelligence outputs."""
+    st.header("6. Agent 05: Vishwakarma — Visual Intelligence")
+    manifest_path = VISUALS_DIR / "vishwakarma_output.json"
+    manifest = load_json(manifest_path)
+    if not manifest:
+        missing_file_message(manifest_path, "Agent 05: Vishwakarma output")
+        return
 
-    feedback = load_feedback()
-    if not feedback.empty:
-        with st.expander("Recent feedback events", expanded=False):
-            st.dataframe(feedback.tail(10), width="stretch")
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Visual Agent", manifest.get("agent", "unknown"))
+    col2.metric("Visuals Generated", len(manifest.get("visuals_generated", {})))
+    col3.metric("Config Version", manifest.get("config_version", "unknown"))
+    for warning in manifest.get("warnings", []):
+        st.warning(warning)
+
+    st.subheader("Feature Risk Map")
+    scatter_path = VISUALS_DIR / "feature_risk_scatter.json"
+    if scatter_path.exists():
+        st.plotly_chart(pio.from_json(scatter_path.read_text(encoding="utf-8")), width="stretch")
+    else:
+        st.info(f"Feature risk visual is missing: `{scatter_path}`")
+
+    st.subheader("Prediction Distribution Overlay")
+    overlay_path = VISUALS_DIR / "prediction_distribution_overlay.json"
+    if overlay_path.exists():
+        st.plotly_chart(pio.from_json(overlay_path.read_text(encoding="utf-8")), width="stretch")
+    else:
+        st.info(f"Prediction overlay is not available: `{overlay_path}`")
+
+    st.subheader("Run-Specific Lineage Graph")
+    lineage_path = VISUALS_DIR / "lineage_graph.svg"
+    if lineage_path.exists():
+        st.html(lineage_path.read_text(encoding="utf-8"))
+    else:
+        st.info(f"Lineage SVG is missing: `{lineage_path}`")
+
+    with st.expander("Vishwakarma visual manifest", expanded=False):
+        st.json(manifest)
 
 
 def samanvaya_section() -> None:
-    """Render Samanvaya recommendations when available."""
-    st.header("8. Agent 04: Samanvaya")
-    path = REPORTS_DIR / "samanvaya_recommendations.json"
-    recommendations = load_json(path)
-    if not recommendations:
-        missing_file_message(path, "Agent 04: Samanvaya output")
+    """Render governed feedback capture and Samanvaya calibration review."""
+    st.header("8. Agent 04: Samanvaya — Feedback Calibration")
+    st.caption(
+        "Samanvaya proposes auditable calibration updates for human approval. "
+        "It never changes active agent behavior automatically."
+    )
+    feedback_path = ensure_feedback_log(REPORTS_DIR / "feedback_log.csv")
+    evidence = load_json(REPORTS_DIR / "evidence_packet.json")
+
+    st.subheader("Submit Feedback Signal")
+    with st.form("samanvaya_feedback_form"):
+        user_role = st.selectbox("User role", ["model_analyst", "data_scientist", "executive", "client_safe"])
+        finding_id = st.text_input("Finding ID", placeholder="Example: MITRA_DRIFT_001")
+        feature = st.text_input("Feature", placeholder="Example: merchant_novelty_rate")
+        feedback_type = st.selectbox("Feedback type", sorted(ALLOWED_FEEDBACK_TYPES))
+        severity = st.selectbox("Severity", ["Low", "Medium", "High", "Not Set"])
+        related_agent = st.selectbox("Related agent", ["Mitra", "Varuna", "Aryaman", "Vishwakarma"])
+        comment = st.text_area("Comment", placeholder="Explain why this signal is useful, noisy, or needs follow-up.")
+        submitted = st.form_submit_button("Submit feedback")
+    if submitted:
+        path = append_feedback_event(
+            feedback_path,
+            {
+                "run_id": evidence.get("run_id", "unknown"),
+                "user_role": user_role,
+                "finding_id": finding_id,
+                "feature": feature,
+                "feedback_type": feedback_type,
+                "severity": severity,
+                "comment": comment,
+                "related_agent": related_agent,
+                "action_taken": "submitted_for_calibration_review",
+            },
+        )
+        st.success(f"Saved feedback to {path}. Run the calibration review to refresh recommendations.")
+
+    feedback = load_feedback_log(feedback_path)
+    st.subheader("Feedback Log")
+    if feedback.empty:
+        st.info("No feedback events are available yet.")
+    else:
+        st.dataframe(feedback, width="stretch")
+        st.subheader("Feedback Type Counts")
+        st.dataframe(
+            feedback["feedback_type"].value_counts().rename_axis("feedback_type").reset_index(name="count"),
+            width="stretch",
+        )
+
+    if st.button("Run Samanvaya Calibration Review"):
+        try:
+            output_paths = SamanvayaCalibrationAgent().save_outputs()
+        except (FileNotFoundError, ValueError) as error:
+            st.error(f"Samanvaya could not run: {error}")
+        else:
+            st.success(f"Samanvaya review completed. Saved {len(output_paths)} governed artifacts.")
+
+    output_path = REPORTS_DIR / "samanvaya_output.json"
+    recommendations_path = REPORTS_DIR / "calibration_recommendations.json"
+    config_path = PROJECT_ROOT / "configs" / "calibration_config_v2_recommended.json"
+    output = load_json(output_path)
+    recommendations = load_json(recommendations_path)
+    if not output:
+        missing_file_message(output_path, "Agent 04: Samanvaya output")
         return
-    st.write(recommendations.get("summary", "No Samanvaya summary available."))
-    st.json(recommendations)
+
+    metric1, metric2, metric3 = st.columns(3)
+    metric1.metric("Recommendations", output.get("recommendations_count", 0))
+    metric2.metric("Pending Human Approval", output.get("pending_human_approval_count", 0))
+    metric3.metric("High Confidence", output.get("high_confidence_recommendations", 0))
+    recommendation_rows = recommendations.get("recommendations", [])
+    st.subheader("Calibration Recommendations")
+    if recommendation_rows:
+        recommendations_df = pd.DataFrame(recommendation_rows)
+        for column in ["current_value", "recommended_value", "evidence_used"]:
+            if column in recommendations_df:
+                recommendations_df[column] = recommendations_df[column].map(
+                    lambda value: json.dumps(value) if isinstance(value, (dict, list)) else value
+                )
+        st.dataframe(recommendations_df, width="stretch")
+    else:
+        st.info("No calibration changes are recommended at this time.")
+
+    with st.expander("Samanvaya output JSON", expanded=False):
+        st.json(output)
+    with st.expander("Calibration recommendations JSON", expanded=False):
+        st.json(recommendations)
+    if config_path.exists():
+        st.download_button(
+            "Download recommended calibration config",
+            data=config_path.read_text(encoding="utf-8"),
+            file_name=config_path.name,
+            mime="application/json",
+        )
+    else:
+        st.info(f"Recommended calibration config is missing: `{config_path}`")
 
 
 def main() -> None:
@@ -329,9 +480,9 @@ def main() -> None:
     model_metadata_section()
     signal_sentinel_section()
     model_lens_section()
-    executive_synthesis_section()
     evidence_packet_section()
-    feedback_section()
+    vishwakarma_section()
+    executive_synthesis_section()
     samanvaya_section()
 
 

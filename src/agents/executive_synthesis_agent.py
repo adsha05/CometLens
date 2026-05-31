@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 from pathlib import Path
 from typing import Any
@@ -11,310 +12,227 @@ if __package__ in {None, ""}:
 
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from src.llm.schemas import ExecutiveModelReport, executive_report_to_markdown
+from src.llm.schemas import ExecutiveModelReport
+from src.reports.report_renderer import render_executive_report_markdown, save_markdown_report
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 REPORTS_DIR = PROJECT_ROOT / "reports"
+CONFIGS_DIR = PROJECT_ROOT / "configs"
+
+
+def default_paths(use_case: str | None = None) -> dict[str, Path]:
+    """Return configurable Aryaman paths with current repo defaults."""
+    use_case_reports = REPORTS_DIR / use_case if use_case else REPORTS_DIR
+    reports_dir = use_case_reports if use_case and use_case_reports.exists() else REPORTS_DIR
+    return {
+        "evidence_packet": reports_dir / "evidence_packet.json",
+        "team_profiles": CONFIGS_DIR / "team_profiles.json",
+        "markdown_report": reports_dir / "executive_model_report.md",
+        "aryaman_output": reports_dir / "aryaman_output.json",
+        "legacy_report_json": reports_dir / "executive_model_report.json",
+    }
 
 
 class ExecutiveSynthesisAgent:
-    """Generate a consulting-style model health report from verified evidence."""
+    """Generate a concise executive report using only verified evidence_packet.json."""
 
-    SAMPLE_FEATURE_ACTIONS = {
-        "weekend_dining_frequency": "Prototype `weekend_dining_recovery_index` to capture whether weekend dining behavior is rebounding or still depressed.",
-        "competitor_qsr_share_90d": "Prototype `competitor_switching_velocity` to measure recent movement toward competing merchants or alternatives.",
-        "merchant_novelty_rate": "Prototype `merchant_confidence_score` to separate genuine new-merchant behavior from merchant classification uncertainty.",
-    }
-
-    def __init__(self, evidence_packet_path: Path = REPORTS_DIR / "evidence_packet.json") -> None:
-        """Configure evidence input location."""
-        self.evidence_packet_path = Path(evidence_packet_path)
+    def __init__(
+        self,
+        paths: dict[str, str | Path] | None = None,
+        evidence_packet_path: str | Path | None = None,
+    ) -> None:
+        """Configure evidence and output paths."""
+        configured = default_paths()
+        if paths:
+            configured.update({key: Path(value) for key, value in paths.items()})
+        if evidence_packet_path is not None:
+            configured["evidence_packet"] = Path(evidence_packet_path)
+        self.paths = {key: Path(value) for key, value in configured.items()}
+        self.evidence_packet_path = self.paths["evidence_packet"]
         self.evidence: dict[str, Any] = {}
+        self.team_profiles: dict[str, Any] = {}
+        self.output: dict[str, Any] = {}
 
     def load_evidence(self) -> dict[str, Any]:
-        """Load the deterministic evidence packet."""
+        """Load the single allowed Aryaman evidence source."""
         if not self.evidence_packet_path.exists():
             raise FileNotFoundError(
                 f"Evidence packet not found: {self.evidence_packet_path}. "
                 "Run `python src/agents/evidence_store.py` first."
             )
         self.evidence = json.loads(self.evidence_packet_path.read_text(encoding="utf-8"))
+        if self.paths["team_profiles"].exists():
+            self.team_profiles = json.loads(self.paths["team_profiles"].read_text(encoding="utf-8"))
         return self.evidence
 
-    @staticmethod
-    def _risk_rank(status: str) -> int:
-        """Map risk labels to a sortable rank."""
-        return {"High": 3, "Medium": 2, "Low": 1}.get(status, 0)
-
     def determine_model_health_status(self) -> str:
-        """Apply deterministic MVP risk rules."""
-        signal = self.evidence.get("signal_sentinel_summary", {})
-        model_lens = self.evidence.get("model_lens_summary", {})
-        high_drift_count = int(signal.get("high_drift_feature_count", 0))
-        overfitting_risk = model_lens.get("overfitting_check", {}).get("risk_level", "Low")
-        has_high_vif = any(
-            row.get("vif_level") == "High"
-            for row in model_lens.get("multicollinearity_findings", [])
+        """Apply deterministic Aryaman health rules from verified evidence."""
+        if not self.evidence:
+            self.load_evidence()
+        mitra_risk = self.evidence.get("mitra_summary", {}).get("overall_risk_level", "Low")
+        high_risk_features = self.evidence.get("high_risk_features", [])
+        all_feature_risks = self.evidence.get("feature_risk_matrix", [])
+        top_five_high_drift = any(
+            int(row.get("shap_rank", 999)) <= 5 and row.get("drift_level") == "High"
+            for row in high_risk_features
         )
-
-        if high_drift_count >= 3 or overfitting_risk == "High":
+        medium_count = sum(row.get("final_risk") == "Medium" for row in all_feature_risks)
+        if mitra_risk == "High" or top_five_high_drift:
             return "High Risk"
-        if high_drift_count in {1, 2} or overfitting_risk == "Medium" or has_high_vif:
+        if mitra_risk == "Medium" or medium_count >= 2:
             return "Medium Risk"
         return "Low Risk"
 
-    def _high_drift_features(self) -> list[dict[str, Any]]:
-        """Return high-drift feature rows from the high-risk feature matrix."""
-        matrix = self.evidence.get("model_lens_summary", {}).get("high_risk_feature_matrix", [])
-        return [row for row in matrix if row.get("drift_level") == "High"]
-
-    def _high_or_medium_cluster_shift(self) -> tuple[bool, float]:
-        """Return whether cluster movement is material and the largest absolute shift."""
-        cluster_rows = self.evidence.get("signal_sentinel_summary", {}).get("cluster_findings", [])
-        if not cluster_rows:
-            return False, 0.0
-        max_shift = max(abs(float(row.get("share_change_pct_points", 0.0))) for row in cluster_rows)
-        return max_shift >= 5.0, max_shift
-
-    def _vif_issues(self, level: str | None = None) -> list[dict[str, Any]]:
-        """Return VIF findings filtered by level when provided."""
-        findings = self.evidence.get("model_lens_summary", {}).get("multicollinearity_findings", [])
-        if level is None:
-            return [row for row in findings if row.get("vif_level") in {"Medium", "High"}]
-        return [row for row in findings if row.get("vif_level") == level]
-
     def _top_issue(self) -> str:
-        """Select the top issue for executive summary text."""
-        high_drift = self._high_drift_features()
-        if high_drift:
-            return f"{high_drift[0]['feature']} is both a monitored drift issue and model-risk feature"
-        overfitting = self.evidence.get("model_lens_summary", {}).get("overfitting_check", {})
-        if overfitting.get("risk_level") in {"Medium", "High"}:
-            metric_name = overfitting.get("metric_name", "metric")
-            return f"train-validation {metric_name} delta indicates {str(overfitting['risk_level']).lower()} overfitting risk"
-        high_vif = self._vif_issues("High")
-        if high_vif:
-            return f"{high_vif[0]['feature']} has high VIF"
-        reliability = self.evidence.get("model_lens_summary", {}).get("explainability_reliability", {})
-        if reliability.get("status") == "unreliable":
-            return "Varuna explainability is flagged as unreliable because severe Mitra drift was detected"
-        return "no material model-health issue is flagged by the MVP evidence"
-
-    def _next_step(self) -> str:
-        """Select the recommended next step for summary text."""
-        cluster_material, _ = self._high_or_medium_cluster_shift()
-        if cluster_material:
-            return "review affected segments and recalibrate before high-impact business use"
-        if self._high_drift_features():
-            return "review high-drift drivers and run a validation refresh"
-        return "continue monitoring with the next synthetic current-period snapshot"
-
-    def report_profile(self) -> str:
-        """Infer report language profile from business context."""
-        metadata = self.evidence.get("model_metadata", {})
-        context = " ".join(
-            str(metadata.get(key, ""))
-            for key in ["business_use_case", "decision_supported", "domain", "model_name"]
-        ).lower()
-        risk_terms = {"fraud", "risk", "credit", "bank", "approve", "decline", "transaction", "governance"}
-        purchase_terms = {"purchase", "qsr", "campaign", "merchant", "audience", "consumer"}
-        if any(term in context for term in risk_terms):
-            return "risk_governance_model_health"
-        if any(term in context for term in purchase_terms):
-            return "purchase_model_intelligence"
-        return "general_model_health"
-
-    def build_executive_summary(self, status: str) -> str:
-        """Create concise executive summary text."""
-        metadata = self.evidence.get("model_metadata", {})
-        model_name = metadata.get("model_name", "the model")
-        use_case = metadata.get("business_use_case", "the business use case")
-        return (
-            f"{model_name} supports {use_case}. Current MVP evidence indicates **{status}**. "
-            f"The top issue is that {self._top_issue()}. The recommended next step is to "
-            f"{self._next_step()}."
-        )
-
-    def build_what_changed(self) -> list[str]:
-        """Summarize drift, cluster, prediction, and VIF changes."""
-        findings: list[str] = []
-        for row in self._high_drift_features():
-            findings.append(f"{row['feature']} is high drift and has combined risk {row['combined_risk']}.")
-
-        cluster_material, max_shift = self._high_or_medium_cluster_shift()
-        if cluster_material:
-            findings.append(f"Cluster mix shifted materially; largest movement is {max_shift:.1f} percentage points.")
-
-        prediction = self.evidence.get("signal_sentinel_summary", {}).get("prediction_drift_summary", {})
-        if prediction.get("available") and "prediction_actual_rate_gap" in prediction:
-            findings.append(
-                "Prediction-positive rate differs from actual-positive rate by "
-                f"{float(prediction['prediction_actual_rate_gap']):+.3f}."
-            )
-
-        for row in self._vif_issues():
-            findings.append(f"{row['feature']} has {str(row['vif_level']).lower()} VIF ({float(row['vif']):.2f}).")
-
-        reliability = self.evidence.get("model_lens_summary", {}).get("explainability_reliability", {})
-        if reliability.get("status") == "unreliable":
-            findings.append("Varuna SHAP outputs are flagged as unreliable due to severe Mitra drift.")
-
-        if not findings:
-            findings.append("No material drift, prediction, cluster, or VIF issue was flagged by the MVP evidence.")
-        return findings
-
-    def build_why_it_matters(self) -> str:
-        """Translate technical findings into business impact."""
-        profile = self.report_profile()
-        if profile == "risk_governance_model_health":
-            return (
-                "Risk and governance decisions depend on stable inputs, calibrated scores, and clear model "
-                "evidence. When important features drift or population context changes, decision policies "
-                "such as approve, decline, or challenge can become less aligned with current risk, increasing "
-                "operational, compliance, and customer-impact risk."
-            )
-        if profile == "purchase_model_intelligence":
-            return (
-                "Purchase and audience decisioning depend on stable behavioral signals. When important "
-                "features drift or segment mix changes, scores can become less aligned with current consumer "
-                "behavior, increasing the risk of poor prioritization, inefficient spend, or weak client trust."
-            )
-        return (
-            "Production model decisions depend on stable inputs, interpretable drivers, and consistent "
-            "population context. When important features drift or segment mix changes, model scores can "
-            "become less aligned with the current operating environment, increasing the risk of poor "
-            "prioritization, inefficient resource allocation, or weak stakeholder trust."
-        )
-
-    def build_top_model_drivers(self) -> list[str]:
-        """Return top driver statements from Varuna evidence."""
-        drivers = self.evidence.get("model_lens_summary", {}).get("top_global_drivers", [])
-        return [
-            f"{row['feature']} is SHAP rank {int(row['shap_rank'])} with mean |SHAP| {float(row['mean_abs_shap_value']):.4f}"
-            for row in drivers[:5]
-        ]
-
-    def build_high_risk_features(self) -> list[str]:
-        """Return high and medium combined-risk feature statements."""
-        matrix = self.evidence.get("model_lens_summary", {}).get("high_risk_feature_matrix", [])
-        risk_rows = [row for row in matrix if row.get("combined_risk") in {"High", "Medium"}]
-        return [
-            f"{row['feature']}: combined risk {row['combined_risk']}, drift {row['drift_level']}, VIF warning {row['vif_warning']}"
-            for row in risk_rows
-        ]
-
-    def build_business_risks(self, status: str) -> list[str]:
-        """Return business risks implied by the evidence."""
-        risks = [
-            "Decision quality may decline if current input behavior differs from training-period behavior.",
-            "Resource allocation may become less efficient if high-drift features are used without validation refresh.",
-        ]
-        if status != "Low Risk":
-            risks.append("High-impact business use should wait for validation and segment review.")
-        prediction = self.evidence.get("signal_sentinel_summary", {}).get("prediction_drift_summary", {})
-        if abs(float(prediction.get("prediction_actual_rate_gap", 0.0))) >= 0.10:
-            risks.append("Prediction-label mix gap may indicate threshold or calibration pressure.")
-        return risks
+        """Return the leading saved finding without inventing new evidence."""
+        findings = self.evidence.get("key_findings", [])
+        return findings[0] if findings else "No material issue was flagged by the deterministic evidence."
 
     def build_recommended_actions(self) -> list[str]:
-        """Build deterministic recommended actions from evidence rules."""
-        actions: list[str] = []
-        cluster_material, _ = self._high_or_medium_cluster_shift()
-        if cluster_material:
-            actions.append("Review affected segments and recalibrate before high-impact business use.")
-
-        high_risk_features = self.evidence.get("model_lens_summary", {}).get("high_risk_feature_matrix", [])
-        for row in high_risk_features:
-            feature = row.get("feature")
-            if row.get("combined_risk") in {"High", "Medium"}:
-                if feature in self.SAMPLE_FEATURE_ACTIONS:
-                    actions.append(self.SAMPLE_FEATURE_ACTIONS[feature])
-                elif feature:
-                    actions.append(
-                        f"Review `{feature}` for stability, business definition changes, and potential monitored variants."
-                    )
-
-        high_vif_features = self._vif_issues("High")
-        if high_vif_features:
-            feature_names = ", ".join(row["feature"] for row in high_vif_features)
-            actions.append(f"Review high-VIF features for redundancy or unstable coefficient behavior: {feature_names}.")
-
-        reliability = self.evidence.get("model_lens_summary", {}).get("explainability_reliability", {})
-        if reliability.get("status") == "unreliable":
-            actions.append("Treat SHAP interpretation as directional until severe drift is resolved or the model is recalibrated.")
-
-        actions.append("Re-run validation before high-impact business use.")
+        """Build deterministic Aryaman actions using verified packet values."""
+        actions = list(self.evidence.get("recommended_actions", []))
+        feature_risks = self.evidence.get("feature_risk_matrix", [])
+        prediction = self.evidence.get("prediction_drift_summary", {})
+        quality_counts = self.evidence.get("data_quality_summary", {}).get("issue_counts", {})
+        if any(
+            int(row.get("shap_rank", 999)) <= 5 and row.get("drift_level") == "High"
+            for row in feature_risks
+        ):
+            actions.append("Review high-risk feature stability and consider recalibration before activation.")
+        if prediction.get("prediction_drift_level") == "High":
+            actions.append("Run validation before campaign or model activation because prediction drift is High.")
+        if int(quality_counts.get("Medium", 0)) + int(quality_counts.get("High", 0)) > 0:
+            actions.append("Review upstream data pipelines for medium or high data-quality issues.")
+        if any(row.get("vif_risk") == "High" for row in feature_risks):
+            actions.append("Review redundancy and consider consolidating high-VIF features.")
         return list(dict.fromkeys(actions))
 
-    def build_plots_to_include(self) -> list[str]:
-        """Select required plot artifacts for the report."""
-        selected = [
-            REPORTS_DIR / "figures" / "shap_bar.png",
-            REPORTS_DIR / "figures" / "shap_beeswarm.png",
-            REPORTS_DIR / "figures" / "drift_top_features.png",
-        ]
-        return [str(path) for path in selected if path.exists()]
-
-    def build_questions_for_team(self) -> list[str]:
-        """Create follow-up questions for business and data science teams."""
-        return [
-            "Did any source-system, data-definition, policy, product, or population mix change coincide with the current-window drift?",
-            "Should threshold calibration be reviewed for the observed prediction-positive versus actual-positive gap?",
-            "Do high-risk features require new monitoring thresholds before high-impact business use?",
-        ]
-
-    def build_report(self) -> ExecutiveModelReport:
-        """Build the ExecutiveModelReport from the evidence packet."""
+    def build_output(self) -> dict[str, Any]:
+        """Build Aryaman's deterministic JSON payload."""
         if not self.evidence:
             self.load_evidence()
         status = self.determine_model_health_status()
-        limitations = self.evidence.get("limitations", [])
-        profile = self.report_profile()
-        title_by_profile = {
-            "purchase_model_intelligence": "Agent 03: Aryaman Client-Ready Purchase Model Intelligence Brief",
-            "risk_governance_model_health": "Agent 03: Aryaman Risk/Governance Model Health Brief",
-            "general_model_health": "Agent 03: Aryaman Executive Model Health Brief",
-        }
-        return ExecutiveModelReport(
-            config_version=self.evidence.get("config_version", "unknown"),
-            source_files={
-                "evidence_packet": str(self.evidence_packet_path),
-                **self.evidence.get("source_files", {}),
-            },
-            report_title=title_by_profile[profile],
-            model_health_status=status,
-            executive_summary=self.build_executive_summary(status),
-            what_changed=self.build_what_changed(),
-            why_it_matters=self.build_why_it_matters(),
-            top_model_drivers=self.build_top_model_drivers(),
-            high_risk_features=self.build_high_risk_features(),
-            business_risks=self.build_business_risks(status),
-            recommended_actions=self.build_recommended_actions(),
-            plots_to_include=self.build_plots_to_include(),
-            questions_for_team=self.build_questions_for_team(),
-            client_safe_summary=(
-                f"The model review is rated {status} based on synthetic MVP evidence. "
-                "The main findings are feature drift, segment movement, and validation-risk indicators; "
-                "these should be reviewed before high-impact business decisions."
+        metadata = self.evidence.get("model_metadata", {})
+        model_name = metadata.get("model_name", "the reviewed model")
+        use_case = metadata.get("business_use_case", "the configured business use case")
+        key_findings = self.evidence.get("key_findings", [])
+        high_risk_rows = self.evidence.get("high_risk_features", [])
+        top_drivers = [
+            f"{row['feature']} is SHAP rank {int(row['shap_rank'])} with mean |SHAP| "
+            f"{float(row.get('mean_abs_shap', row.get('mean_abs_shap_value', 0.0))):.4f}."
+            for row in self.evidence.get("top_model_drivers", [])[:5]
+        ]
+        high_risk_features = [
+            f"{row['feature']}: {row.get('reason', 'High deterministic feature risk.')}"
+            for row in high_risk_rows
+        ]
+        why_it_matters = (
+            "Model decisions depend on stable signals and validated score behavior. Drift in model-important "
+            "features or prediction distributions can reduce confidence in current-window activation decisions."
+        )
+        business_risks = [
+            "Decision quality may decline if current-window behavior differs from the validated baseline.",
+            "Activation efficiency may decline if score movement is not reviewed before operational use.",
+        ]
+        if status != "Low Risk":
+            business_risks.append("High-impact use should wait for validation and feature-stability review.")
+        self.output = {
+            "agent": "Aryaman",
+            "run_id": self.evidence.get("run_id", "unknown"),
+            "timestamp": self.evidence.get("timestamp", "unknown"),
+            "config_version": self.evidence.get("config_version", "unknown"),
+            "model_health_status": status,
+            "executive_summary": (
+                f"{model_name} supports {use_case}. Deterministic evidence indicates **{status}**. "
+                f"The leading issue is: {self._top_issue()} Review the recommended actions before activation."
             ),
-            limitations=limitations,
+            "key_findings_used": key_findings,
+            "recommended_actions": self.build_recommended_actions(),
+            "top_model_drivers": top_drivers,
+            "high_risk_features": high_risk_features,
+            "business_risks": business_risks,
+            "why_it_matters": why_it_matters,
+            "report_path": str(self.paths["markdown_report"]),
+            "evidence_packet_path": str(self.evidence_packet_path),
+            "recommended_report_visuals": self.evidence.get("recommended_report_visuals", []),
+            "visuals_available": self.evidence.get("visuals_available", {}),
+            "warnings": [],
+        }
+        return self.output
+
+    def build_report(self) -> ExecutiveModelReport:
+        """Build backward-compatible structured report data from Aryaman output."""
+        output = self.build_output()
+        visual_paths: list[str] = []
+        for paths in self.evidence.get("visuals_available", {}).values():
+            preferred_path = next(
+                (paths[format_name] for format_name in ("png", "svg", "html", "json") if paths.get(format_name)),
+                None,
+            )
+            if preferred_path:
+                visual_paths.append(preferred_path)
+        return ExecutiveModelReport(
+            config_version=output["config_version"],
+            source_files={"evidence_packet": str(self.evidence_packet_path)},
+            report_title="Agent 03: Aryaman Executive Model Health Brief",
+            model_health_status=output["model_health_status"],
+            executive_summary=output["executive_summary"],
+            what_changed=output["key_findings_used"],
+            why_it_matters=output["why_it_matters"],
+            top_model_drivers=output["top_model_drivers"],
+            high_risk_features=output["high_risk_features"],
+            business_risks=output["business_risks"],
+            recommended_actions=output["recommended_actions"],
+            plots_to_include=[
+                item["path"]
+                for item in self.evidence.get("plots_available", {}).values()
+                if item.get("exists")
+            ]
+            + visual_paths,
+            questions_for_team=[
+                "Did any source-system, policy, or population-mix change coincide with this review window?",
+                "Should activation thresholds be reviewed before the next high-impact use?",
+            ],
+            client_safe_summary=(
+                f"The deterministic model review is rated {output['model_health_status']}. "
+                "Review the identified feature and score movement before high-impact use."
+            ),
+            limitations=self.evidence.get("limitations", []),
         )
 
     def save_outputs(self) -> tuple[Path, Path]:
-        """Save the executive report as JSON and Markdown."""
-        REPORTS_DIR.mkdir(parents=True, exist_ok=True)
-        report = self.build_report()
-        json_path = REPORTS_DIR / "executive_model_report.json"
-        markdown_path = REPORTS_DIR / "executive_model_report.md"
-        json_path.write_text(report.model_dump_json(indent=2), encoding="utf-8")
-        markdown_path.write_text(executive_report_to_markdown(report), encoding="utf-8")
-        return json_path, markdown_path
+        """Save Aryaman JSON, Markdown, and legacy structured report JSON."""
+        output = self.build_output()
+        markdown = render_executive_report_markdown(self.evidence, output)
+        markdown_path = save_markdown_report(markdown, self.paths["markdown_report"])
+        self.paths["aryaman_output"].write_text(json.dumps(output, indent=2), encoding="utf-8")
+        self.paths["legacy_report_json"].write_text(self.build_report().model_dump_json(indent=2), encoding="utf-8")
+        return self.paths["aryaman_output"], markdown_path
+
+    def run(self, state: dict[str, Any] | None = None) -> dict[str, Any]:
+        """Run Aryaman as a future LangGraph-compatible state transformation."""
+        next_state = dict(state or {})
+        json_path, markdown_path = self.save_outputs()
+        next_state["aryaman"] = self.output
+        next_state["aryaman_output_paths"] = {
+            "json": str(json_path),
+            "markdown": str(markdown_path),
+        }
+        return next_state
+
+
+def parse_args() -> argparse.Namespace:
+    """Parse Aryaman CLI arguments."""
+    parser = argparse.ArgumentParser(description="Run Agent 03: Aryaman executive synthesis.")
+    parser.add_argument("--use_case", choices=["fraud", "purchase"], help="Optional configured report folder.")
+    return parser.parse_args()
 
 
 def main() -> None:
-    """Run Agent 03: Aryaman."""
-    json_path, markdown_path = ExecutiveSynthesisAgent().save_outputs()
-    print(f"Saved executive model report JSON to {json_path}")
+    """Run Agent 03: Aryaman from the command line."""
+    args = parse_args()
+    json_path, markdown_path = ExecutiveSynthesisAgent(paths=default_paths(args.use_case)).save_outputs()
+    print(f"Saved Aryaman output JSON to {json_path}")
     print(f"Saved executive model report Markdown to {markdown_path}")
 
 

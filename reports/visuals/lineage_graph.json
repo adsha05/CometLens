@@ -1,0 +1,207 @@
+{
+  "graph_name": "AxionAI Model Intelligence Lineage",
+  "run_id": "20260531T192331Z",
+  "config_version": "v1",
+  "model_name": "qsr_purchase_predictor_v3",
+  "nodes": [
+    {
+      "id": "raw_data",
+      "label": "Synthetic Feature Tables",
+      "type": "data_source",
+      "status": "Completed",
+      "risk_level": "Low",
+      "description": "Reference and current windows"
+    },
+    {
+      "id": "data_quality",
+      "label": "Data Quality Gate",
+      "type": "processing",
+      "status": "Completed",
+      "risk_level": "High",
+      "description": ""
+    },
+    {
+      "id": "feature_pipeline",
+      "label": "Feature Pipeline",
+      "type": "processing",
+      "status": "Completed",
+      "risk_level": "High",
+      "description": ""
+    },
+    {
+      "id": "feature_store",
+      "label": "Feature Store",
+      "type": "storage",
+      "status": "Completed",
+      "risk_level": "High",
+      "description": ""
+    },
+    {
+      "id": "model_scores",
+      "label": "qsr_purchase_predictor_v3",
+      "type": "model",
+      "status": "Completed",
+      "risk_level": "Low",
+      "description": ""
+    },
+    {
+      "id": "prediction_logs",
+      "label": "Prediction Logs",
+      "type": "data_source",
+      "status": "Completed",
+      "risk_level": "High",
+      "description": ""
+    },
+    {
+      "id": "mitra",
+      "label": "Agent 01: Mitra",
+      "type": "agent",
+      "status": "Completed",
+      "risk_level": "High",
+      "description": "Signal monitoring"
+    },
+    {
+      "id": "varuna",
+      "label": "Agent 02: Varuna",
+      "type": "agent",
+      "status": "Completed",
+      "risk_level": "High",
+      "description": "Model diagnostics"
+    },
+    {
+      "id": "evidence_store",
+      "label": "Verified Evidence Store",
+      "type": "storage",
+      "status": "Completed",
+      "risk_level": "Low",
+      "description": ""
+    },
+    {
+      "id": "vishwakarma",
+      "label": "Agent 05: Vishwakarma",
+      "type": "agent",
+      "status": "Completed",
+      "risk_level": "Low",
+      "description": "Visual intelligence"
+    },
+    {
+      "id": "aryaman",
+      "label": "Agent 03: Aryaman",
+      "type": "agent",
+      "status": "Completed",
+      "risk_level": "Low",
+      "description": "Executive synthesis"
+    },
+    {
+      "id": "executive_report",
+      "label": "Executive Model Brief",
+      "type": "output",
+      "status": "Completed",
+      "risk_level": "Low",
+      "description": ""
+    },
+    {
+      "id": "feedback",
+      "label": "Stakeholder Feedback",
+      "type": "output",
+      "status": "Available",
+      "risk_level": "Low",
+      "description": ""
+    }
+  ],
+  "edges": [
+    {
+      "source": "raw_data",
+      "target": "data_quality",
+      "relationship": "flows_to"
+    },
+    {
+      "source": "data_quality",
+      "target": "feature_pipeline",
+      "relationship": "flows_to"
+    },
+    {
+      "source": "feature_pipeline",
+      "target": "feature_store",
+      "relationship": "flows_to"
+    },
+    {
+      "source": "feature_store",
+      "target": "model_scores",
+      "relationship": "flows_to"
+    },
+    {
+      "source": "model_scores",
+      "target": "prediction_logs",
+      "relationship": "flows_to"
+    },
+    {
+      "source": "feature_store",
+      "target": "mitra",
+      "relationship": "flows_to"
+    },
+    {
+      "source": "prediction_logs",
+      "target": "mitra",
+      "relationship": "flows_to"
+    },
+    {
+      "source": "feature_store",
+      "target": "varuna",
+      "relationship": "flows_to"
+    },
+    {
+      "source": "mitra",
+      "target": "varuna",
+      "relationship": "reliability_gate"
+    },
+    {
+      "source": "mitra",
+      "target": "evidence_store",
+      "relationship": "flows_to"
+    },
+    {
+      "source": "varuna",
+      "target": "evidence_store",
+      "relationship": "flows_to"
+    },
+    {
+      "source": "evidence_store",
+      "target": "vishwakarma",
+      "relationship": "flows_to"
+    },
+    {
+      "source": "evidence_store",
+      "target": "aryaman",
+      "relationship": "flows_to"
+    },
+    {
+      "source": "vishwakarma",
+      "target": "aryaman",
+      "relationship": "visual_manifest"
+    },
+    {
+      "source": "aryaman",
+      "target": "executive_report",
+      "relationship": "flows_to"
+    },
+    {
+      "source": "executive_report",
+      "target": "feedback",
+      "relationship": "flows_to"
+    }
+  ],
+  "source_files": {
+    "mitra_output": "/Users/adityasharma/Desktop/CometLens/reports/mitra_output.json",
+    "varuna_output": "/Users/adityasharma/Desktop/CometLens/reports/model_lens_output.json",
+    "data_quality_report": "/Users/adityasharma/Desktop/CometLens/reports/data_quality_report.csv",
+    "drift_report": "/Users/adityasharma/Desktop/CometLens/reports/drift_report.csv",
+    "prediction_drift_report": "/Users/adityasharma/Desktop/CometLens/reports/prediction_drift_report.json",
+    "feature_risk_matrix": "/Users/adityasharma/Desktop/CometLens/reports/feature_risk_matrix.csv",
+    "model_diagnostics": "/Users/adityasharma/Desktop/CometLens/reports/model_diagnostics.json",
+    "vishwakarma_output": "/Users/adityasharma/Desktop/CometLens/reports/visuals/vishwakarma_output.json",
+    "model_metadata": "/Users/adityasharma/Desktop/CometLens/models/model_metadata.json",
+    "feature_metadata": "/Users/adityasharma/Desktop/CometLens/models/feature_metadata.json",
+    "calibration_config": "/Users/adityasharma/Desktop/CometLens/configs/calibration_config_v1.json"
+  }
+}

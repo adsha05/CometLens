@@ -1,25 +1,16 @@
-"""Agent 02: Varuna for explainability and model-level risk diagnostics."""
+"""Agent 02: Varuna for deterministic explainability and model-risk diagnostics."""
 
 from __future__ import annotations
 
+import argparse
+from datetime import datetime, timezone
 import json
 import os
 from pathlib import Path
+import shutil
 from typing import Any
 
-os.environ.setdefault("MPLCONFIGDIR", "/private/tmp/cometlens-matplotlib")
-os.environ.setdefault("LOKY_MAX_CPU_COUNT", "4")
-
-import matplotlib
-
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
-import shap
-from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import train_test_split
-from xgboost import XGBClassifier, XGBRegressor
 
 if __package__ in {None, ""}:
     import sys
@@ -27,504 +18,458 @@ if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from src.agents.evidence_store import EvidenceStore
+from src.diagnostics.explainability import (
+    compute_shap_importance,
+    get_feature_columns,
+    save_shap_plots,
+    train_reference_model,
+)
+from src.diagnostics.multicollinearity import calculate_vif
+from src.diagnostics.overfitting import calculate_overfitting_delta
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = PROJECT_ROOT / "data"
 MODELS_DIR = PROJECT_ROOT / "models"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 FIGURES_DIR = REPORTS_DIR / "figures"
-RANDOM_SEED = 42
-SEVERE_PSI_THRESHOLD = 0.50
-SEVERE_KS_PVALUE_THRESHOLD = 0.001
+DEFAULT_CONFIG_PATH = PROJECT_ROOT / "configs" / "calibration_config_v1.json"
+
+
+def default_paths(use_case: str | None = None) -> dict[str, Path]:
+    """Return configurable Varuna artifact paths with current repo defaults."""
+    use_case_data_dir = DATA_DIR / use_case if use_case else DATA_DIR
+    use_case_reports_dir = REPORTS_DIR / use_case if use_case else REPORTS_DIR
+    data_dir = use_case_data_dir if use_case and use_case_data_dir.exists() else DATA_DIR
+    reports_dir = use_case_reports_dir if use_case and use_case_reports_dir.exists() else REPORTS_DIR
+    return {
+        "train_features": data_dir / "train_features_sample.csv",
+        "current_features": data_dir / "current_features_sample.csv",
+        "current_predictions": data_dir / "current_predictions_sample.csv",
+        "drift_report": reports_dir / "drift_report.csv",
+        "mitra_output": reports_dir / "mitra_output.json",
+        "model_metadata": MODELS_DIR / "model_metadata.json",
+        "feature_metadata": MODELS_DIR / "feature_metadata.json",
+        "reports_dir": reports_dir,
+        "figures_dir": reports_dir / "figures",
+    }
 
 
 class ModelLensAgent:
-    """Explain model behavior and combine explainability with model risk signals."""
+    """Coordinate deterministic explainability, VIF, overfitting, and feature risk checks."""
 
     def __init__(
         self,
-        train_features_path: Path = DATA_DIR / "train_features_sample.csv",
-        current_features_path: Path = DATA_DIR / "current_features_sample.csv",
-        predictions_path: Path = DATA_DIR / "current_predictions_sample.csv",
-        model_metadata_path: Path = MODELS_DIR / "model_metadata.json",
-        feature_metadata_path: Path = MODELS_DIR / "feature_metadata.json",
-        signal_sentinel_path: Path = REPORTS_DIR / "mitra_output.json",
+        paths: dict[str, str | Path] | None = None,
+        config_path: str | Path = DEFAULT_CONFIG_PATH,
+        **legacy_paths: str | Path,
     ) -> None:
-        """Configure input and output artifact paths."""
-        self.train_features_path = Path(train_features_path)
-        self.current_features_path = Path(current_features_path)
-        self.predictions_path = Path(predictions_path)
-        self.model_metadata_path = Path(model_metadata_path)
-        self.feature_metadata_path = Path(feature_metadata_path)
-        self.signal_sentinel_path = Path(signal_sentinel_path)
-        self.train_features: pd.DataFrame | None = None
-        self.current_features: pd.DataFrame | None = None
-        self.predictions: pd.DataFrame | None = None
+        """Configure Varuna while accepting earlier keyword path arguments."""
+        configured = default_paths()
+        if paths:
+            configured.update({key: Path(value) for key, value in paths.items()})
+        legacy_mapping = {
+            "train_features_path": "train_features",
+            "current_features_path": "current_features",
+            "predictions_path": "current_predictions",
+            "model_metadata_path": "model_metadata",
+            "feature_metadata_path": "feature_metadata",
+            "signal_sentinel_path": "mitra_output",
+        }
+        for legacy_key, target_key in legacy_mapping.items():
+            if legacy_key in legacy_paths:
+                configured[target_key] = Path(legacy_paths[legacy_key])
+
+        self.paths = {key: Path(value) for key, value in configured.items()}
+        self.config_path = Path(config_path)
+        self.train_features_path = self.paths["train_features"]
+        self.current_features_path = self.paths["current_features"]
+        self.predictions_path = self.paths["current_predictions"]
+        self.drift_report_path = self.paths["drift_report"]
+        self.model_metadata_path = self.paths["model_metadata"]
+        self.feature_metadata_path = self.paths["feature_metadata"]
+        self.signal_sentinel_path = self.paths["mitra_output"]
+        self.reports_dir = self.paths["reports_dir"]
+        self.figures_dir = self.paths["figures_dir"]
+
+        self.run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        self.timestamp = datetime.now(timezone.utc).isoformat()
+        self.config: dict[str, Any] = {}
+        self.config_version = "unknown"
+        self.train_features = pd.DataFrame()
+        self.current_features = pd.DataFrame()
+        self.predictions = pd.DataFrame()
+        self.drift_report = pd.DataFrame()
         self.model_metadata: dict[str, Any] = {}
         self.feature_metadata: dict[str, Any] = {}
         self.signal_sentinel: dict[str, Any] = {}
-        self.target_col: str | None = None
-        self.entity_id_col: str | None = None
-        self.prediction_col: str = "propensity_score"
+        self.target_col = ""
+        self.entity_id_col = ""
         self.feature_cols: list[str] = []
-        self.model: XGBClassifier | XGBRegressor | None = None
-        self.shap_importance: pd.DataFrame = pd.DataFrame()
-        self.vif_report: pd.DataFrame = pd.DataFrame()
-        self.high_risk_feature_matrix: pd.DataFrame = pd.DataFrame()
+        self.model: Any = None
+        self.reference_model_type = "unknown"
+        self.shap_importance = pd.DataFrame()
+        self.vif_report = pd.DataFrame()
+        self.feature_risk_matrix = pd.DataFrame()
+        self.high_risk_feature_matrix = pd.DataFrame()
+        self.overfitting_check: dict[str, Any] = {}
         self.explainability_reliability: dict[str, Any] = {}
+        self.explanation_method = "unknown"
+        self.plots_generated: dict[str, str] = {}
+        self.warnings: list[str] = []
         self.output: dict[str, Any] = {}
 
+    def load_inputs(self) -> None:
+        """Load model artifacts, Mitra outputs, drift report, metadata, and config."""
+        required_paths = [
+            self.train_features_path,
+            self.current_features_path,
+            self.predictions_path,
+            self.drift_report_path,
+            self.signal_sentinel_path,
+            self.model_metadata_path,
+            self.feature_metadata_path,
+            self.config_path,
+        ]
+        missing = [str(path) for path in required_paths if not path.exists()]
+        if missing:
+            raise FileNotFoundError(
+                "Missing Agent 02: Varuna inputs. Run sample generation and Agent 01: Mitra first. Missing: "
+                + ", ".join(missing)
+            )
+
+        self.train_features = pd.read_csv(self.train_features_path)
+        self.current_features = pd.read_csv(self.current_features_path)
+        self.predictions = pd.read_csv(self.predictions_path)
+        self.drift_report = pd.read_csv(self.drift_report_path)
+        self.model_metadata = json.loads(self.model_metadata_path.read_text(encoding="utf-8"))
+        self.feature_metadata = json.loads(self.feature_metadata_path.read_text(encoding="utf-8"))
+        self.signal_sentinel = json.loads(self.signal_sentinel_path.read_text(encoding="utf-8"))
+        self.config = json.loads(self.config_path.read_text(encoding="utf-8"))
+        self.config_version = str(self.config.get("config_version", "unknown"))
+        self.target_col = str(self.model_metadata.get("target") or self.feature_metadata.get("target", ""))
+        self.entity_id_col = str(
+            self.model_metadata.get("entity_id") or self.feature_metadata.get("entity_id", "")
+        )
+
+        metadata_features = [
+            feature
+            for feature in self.model_metadata.get("feature_columns", [])
+            if feature in self.train_features.columns and feature in self.current_features.columns
+        ]
+        inferred = get_feature_columns(self.train_features, self.target_col, self.entity_id_col)
+        self.feature_cols = [feature for feature in metadata_features if feature in inferred] or inferred
+        if not self.feature_cols:
+            raise ValueError("Agent 02: Varuna could not identify numeric model feature columns.")
+
+    def _source_files(self) -> dict[str, str]:
+        """Return source paths for auditable output metadata."""
+        return {
+            "train_features": str(self.train_features_path),
+            "current_features": str(self.current_features_path),
+            "current_predictions": str(self.predictions_path),
+            "drift_report": str(self.drift_report_path),
+            "mitra_output": str(self.signal_sentinel_path),
+            "model_metadata": str(self.model_metadata_path),
+            "feature_metadata": str(self.feature_metadata_path),
+            "calibration_config": str(self.config_path),
+        }
+
     def assess_explainability_reliability(self) -> dict[str, Any]:
-        """Assess whether SHAP output should be trusted under Mitra drift findings."""
+        """Use config-driven severe drift gates to label explainability reliability."""
         if not self.signal_sentinel:
-            if self.train_features is None:
-                self.load_inputs()
+            self.load_inputs()
+        varuna = self.config.get("varuna", {})
+        severe_psi = float(varuna.get("severe_psi_threshold", 0.50))
+        severe_ks = float(varuna.get("severe_ks_pvalue_threshold", 0.001))
+        mode = os.getenv("VARUNA_DRIFT_GATE_MODE", str(varuna.get("drift_gate_mode", "flag"))).lower()
         severe_features = []
         for row in self.signal_sentinel.get("high_drift_features", []):
             psi = float(row.get("psi", 0.0))
             ks_pvalue = float(row.get("ks_pvalue", 1.0))
-            if psi >= SEVERE_PSI_THRESHOLD or ks_pvalue < SEVERE_KS_PVALUE_THRESHOLD:
+            if psi >= severe_psi or ks_pvalue < severe_ks:
                 severe_features.append(
                     {
                         "feature": row.get("feature"),
                         "psi": psi,
                         "ks_pvalue": ks_pvalue,
-                        "reason": "PSI or KS p-value crossed severe drift gate",
+                        "reason": "PSI or KS p-value crossed configured severe drift gate.",
                     }
                 )
-
-        mode = os.getenv("VARUNA_DRIFT_GATE_MODE", "flag").lower()
-        should_skip = bool(severe_features) and mode == "skip"
-        status = "unreliable" if severe_features else "reliable"
         self.explainability_reliability = {
-            "status": status,
+            "status": "unreliable" if severe_features else "reliable",
             "gate_mode": mode,
-            "should_skip": should_skip,
-            "severe_psi_threshold": SEVERE_PSI_THRESHOLD,
-            "severe_ks_pvalue_threshold": SEVERE_KS_PVALUE_THRESHOLD,
+            "should_skip": bool(severe_features) and mode == "skip",
+            "severe_psi_threshold": severe_psi,
+            "severe_ks_pvalue_threshold": severe_ks,
             "severe_drift_features": severe_features,
             "message": (
-                "SHAP outputs are flagged as unreliable because Mitra found severe input drift."
+                "SHAP outputs are directional only because Mitra found severe input drift."
                 if severe_features
                 else "No severe Mitra drift gate was triggered."
             ),
         }
         return self.explainability_reliability
 
-    def load_inputs(self) -> None:
-        """Load feature, prediction, metadata, and Mitra artifacts."""
-        required_paths = [
-            self.train_features_path,
-            self.current_features_path,
-            self.predictions_path,
-            self.model_metadata_path,
-            self.feature_metadata_path,
-            self.signal_sentinel_path,
-        ]
-        missing = [str(path) for path in required_paths if not path.exists()]
-        if missing:
-            raise FileNotFoundError(
-                "Missing Agent 02: Varuna inputs. Run sample generation and Agent 01: Mitra first. "
-                f"Missing: {', '.join(missing)}"
-            )
-
-        self.train_features = pd.read_csv(self.train_features_path)
-        self.current_features = pd.read_csv(self.current_features_path)
-        self.predictions = pd.read_csv(self.predictions_path)
-        self.model_metadata = json.loads(self.model_metadata_path.read_text(encoding="utf-8"))
-        self.feature_metadata = json.loads(self.feature_metadata_path.read_text(encoding="utf-8"))
-        self.signal_sentinel = json.loads(self.signal_sentinel_path.read_text(encoding="utf-8"))
-
-        self.target_col = self.model_metadata.get("target") or self.feature_metadata.get("target")
-        self.entity_id_col = self.model_metadata.get("entity_id") or self.feature_metadata.get("entity_id")
-        self.prediction_col = self.model_metadata.get("prediction_column", self.prediction_col)
-        metadata_features = self.model_metadata.get("feature_columns") or [
-            feature["name"] for feature in self.feature_metadata.get("features", [])
-        ]
-        self.feature_cols = [
-            feature
-            for feature in metadata_features
-            if feature in self.train_features.columns and feature in self.current_features.columns
-        ]
-        if not self.feature_cols:
-            numeric_columns = self.train_features.select_dtypes(include=np.number).columns.tolist()
-            excluded_columns = {column for column in [self.target_col, self.entity_id_col] if column}
-            self.feature_cols = [
-                column
-                for column in numeric_columns
-                if column not in excluded_columns and column in self.current_features.columns
-            ]
-
-    def _is_classification_review(self, y: pd.Series) -> bool:
-        """Infer whether the local reviewer should use classification behavior."""
-        model_type = str(self.model_metadata.get("model_type", "")).lower()
-        if "class" in model_type:
-            return True
-        if "regress" in model_type:
-            return False
-        return y.dropna().nunique() <= 20
-
-    def train_model(self) -> XGBClassifier | XGBRegressor:
-        """Train a small XGBoost reviewer model for local explainability."""
-        if self.train_features is None:
+    def run_shap_analysis(self) -> pd.DataFrame:
+        """Train the local reviewer and calculate explainability importance."""
+        if self.train_features.empty:
             self.load_inputs()
-        assert self.train_features is not None
-        if not self.target_col or self.target_col not in self.train_features.columns:
-            raise ValueError(
-                "Agent 02: Varuna needs a target column in model_metadata.json and train features. "
-                f"Configured target: {self.target_col!r}."
-            )
-        if not self.feature_cols:
-            raise ValueError("Agent 02: Varuna could not identify numeric feature columns to review.")
-
-        X = self.train_features[self.feature_cols].apply(pd.to_numeric, errors="coerce").fillna(0)
-        y = pd.to_numeric(self.train_features[self.target_col], errors="coerce").fillna(0)
-        is_classification = self._is_classification_review(y)
-        stratify = y.astype(int) if is_classification and y.nunique() > 1 else None
-        X_train, _, y_train, _ = train_test_split(
-            X,
-            y.astype(int) if is_classification else y,
-            test_size=0.25,
-            random_state=RANDOM_SEED,
-            stratify=stratify,
+        self.model, self.reference_model_type = train_reference_model(
+            self.train_features,
+            self.feature_cols,
+            self.target_col,
         )
-        common_params = {
-            "n_estimators": 80,
-            "max_depth": 3,
-            "learning_rate": 0.06,
-            "subsample": 0.9,
-            "colsample_bytree": 0.9,
-            "random_state": RANDOM_SEED,
-            "n_jobs": 1,
-        }
-        if is_classification:
-            self.model = XGBClassifier(
-                **common_params,
-                objective="binary:logistic",
-                eval_metric="logloss",
-            )
-        else:
-            self.model = XGBRegressor(
-                **common_params,
-                objective="reg:squarederror",
-                eval_metric="rmse",
-            )
-        self.model.fit(X_train, y_train)
-        return self.model
-
-    def compute_shap_importance(self) -> pd.DataFrame:
-        """Compute global SHAP importance on current features."""
-        if self.current_features is None:
-            self.load_inputs()
-        if self.model is None:
-            self.train_model()
-        assert self.current_features is not None
-        assert self.model is not None
-
-        X_current = self.current_features[self.feature_cols].apply(pd.to_numeric, errors="coerce").fillna(0)
-        explainer = shap.TreeExplainer(self.model)
-        shap_values = explainer.shap_values(X_current)
-        if isinstance(shap_values, list):
-            shap_values = shap_values[-1]
-        shap_values = np.asarray(shap_values)
-        if shap_values.ndim == 3:
-            shap_values = shap_values[:, :, -1]
-
-        self._shap_values = shap_values
-        self._x_current = X_current
-        self.shap_importance = (
-            pd.DataFrame(
-                {
-                    "feature": self.feature_cols,
-                    "mean_abs_shap_value": np.abs(shap_values).mean(axis=0),
-                }
-            )
-            .sort_values("mean_abs_shap_value", ascending=False)
-            .reset_index(drop=True)
+        self.shap_importance = compute_shap_importance(self.model, self.current_features, self.feature_cols)
+        self.explanation_method = str(self.shap_importance.attrs.get("explanation_method", "unknown"))
+        warning = self.shap_importance.attrs.get("warning")
+        if warning:
+            self.warnings.append(str(warning))
+        plot_result = save_shap_plots(
+            self.model,
+            self.current_features,
+            self.feature_cols,
+            self.figures_dir,
+            importance_df=self.shap_importance,
         )
-        self.shap_importance["shap_rank"] = np.arange(1, len(self.shap_importance) + 1)
+        self.plots_generated.update(plot_result["plots_generated"])
+        self.warnings.extend(plot_result["warnings"])
+
+        bar_path = self.figures_dir / "shap_bar.png"
+        legacy_bar_path = self.figures_dir / "shap_global_bar.png"
+        if bar_path.exists():
+            shutil.copyfile(bar_path, legacy_bar_path)
+            self.plots_generated["shap_global_bar"] = str(legacy_bar_path)
         return self.shap_importance
 
-    def generate_shap_plots(self) -> dict[str, Path]:
-        """Generate SHAP global bar and beeswarm plots."""
-        if self.shap_importance.empty:
-            self.compute_shap_importance()
-        FIGURES_DIR.mkdir(parents=True, exist_ok=True)
-        bar_path = FIGURES_DIR / "shap_bar.png"
-        legacy_bar_path = FIGURES_DIR / "shap_global_bar.png"
-        beeswarm_path = FIGURES_DIR / "shap_beeswarm.png"
-
-        top_features = self.shap_importance.head(10).sort_values("mean_abs_shap_value")
-        plt.figure(figsize=(9, 5))
-        plt.barh(top_features["feature"], top_features["mean_abs_shap_value"], color="#3855ff")
-        plt.xlabel("Mean absolute SHAP value")
-        plt.title("Global SHAP Feature Importance")
-        plt.tight_layout()
-        plt.savefig(bar_path, dpi=160, bbox_inches="tight")
-        plt.savefig(legacy_bar_path, dpi=160, bbox_inches="tight")
-        plt.close()
-
-        shap.summary_plot(
-            self._shap_values,
-            self._x_current,
-            feature_names=self.feature_cols,
-            show=False,
-            max_display=10,
-        )
-        plt.tight_layout()
-        plt.savefig(beeswarm_path, dpi=160, bbox_inches="tight")
-        plt.close()
-        return {"shap_bar": bar_path, "shap_beeswarm": beeswarm_path, "shap_global_bar": legacy_bar_path}
-
-    @staticmethod
-    def _vif_level(vif: float) -> str:
-        """Classify VIF severity."""
-        if vif >= 10:
-            return "High"
-        if vif >= 5:
-            return "Medium"
-        return "Low"
-
-    @staticmethod
-    def _vif_level_reason(vif: float) -> str:
-        """Explain VIF severity."""
-        if vif >= 10:
-            return f"High because VIF {vif:.2f} is at or above threshold 10.00."
-        if vif >= 5:
-            return f"Medium because VIF {vif:.2f} is at or above threshold 5.00."
-        return f"Low because VIF {vif:.2f} is below threshold 5.00."
-
-    def calculate_vif(self) -> pd.DataFrame:
-        """Calculate VIF for numeric model features using linear-regression R-squared."""
-        if self.train_features is None:
+    def run_vif_analysis(self) -> pd.DataFrame:
+        """Run config-driven VIF diagnostics."""
+        if self.train_features.empty:
             self.load_inputs()
-        assert self.train_features is not None
-
-        X = self.train_features[self.feature_cols].apply(pd.to_numeric, errors="coerce")
-        X = X.fillna(X.median(numeric_only=True))
-        rows = []
-        for feature in self.feature_cols:
-            y = X[feature]
-            others = X.drop(columns=[feature])
-            if others.empty or float(y.var()) == 0.0:
-                vif = 1.0
-            else:
-                model = LinearRegression()
-                model.fit(others, y)
-                r_squared = float(model.score(others, y))
-                vif = float("inf") if r_squared >= 0.999999 else 1.0 / (1.0 - r_squared)
-            rows.append(
-                {
-                    "feature": feature,
-                    "vif": vif,
-                    "vif_level": self._vif_level(vif),
-                    "vif_level_reason": self._vif_level_reason(vif),
-                }
-            )
-        self.vif_report = pd.DataFrame(rows).sort_values("vif", ascending=False).reset_index(drop=True)
+        self.vif_report = calculate_vif(self.train_features, self.feature_cols, self.config)
+        self.vif_report["vif_level"] = self.vif_report["vif_risk"]
+        self.vif_report["vif_level_reason"] = self.vif_report["vif_risk_reason"]
         return self.vif_report
 
-    @staticmethod
-    def _overfitting_level(delta: float) -> str:
-        """Classify train-validation metric delta."""
-        if delta >= 0.07:
-            return "High"
-        if delta >= 0.03:
-            return "Medium"
-        return "Low"
+    def run_overfitting_check(self) -> dict[str, Any]:
+        """Calculate config-driven train-validation AUC delta."""
+        if not self.model_metadata:
+            self.load_inputs()
+        self.overfitting_check = calculate_overfitting_delta(self.model_metadata, self.config)
+        self.overfitting_check["risk_level_reason"] = self.overfitting_check["reason"]
+        return self.overfitting_check
 
-    @staticmethod
-    def _overfitting_level_reason(delta: float) -> str:
-        """Explain train-validation overfitting risk."""
-        if delta >= 0.07:
-            return f"High because train-validation delta {delta:.4f} is at or above threshold 0.0700."
-        if delta >= 0.03:
-            return f"Medium because train-validation delta {delta:.4f} is at or above threshold 0.0300."
-        return f"Low because train-validation delta {delta:.4f} is below threshold 0.0300."
-
-    def calculate_overfitting_check(self) -> dict[str, Any]:
-        """Calculate train-validation metric delta from metadata when available."""
-        train_metric = self.model_metadata.get("train_auc", self.model_metadata.get("train_metric", 0.0))
-        validation_metric = self.model_metadata.get(
-            "validation_auc",
-            self.model_metadata.get("validation_metric", 0.0),
-        )
-        metric_name = "auc" if "train_auc" in self.model_metadata else self.model_metadata.get("metric_name", "metric")
-        train_auc = float(train_metric)
-        validation_auc = float(validation_metric)
-        delta = train_auc - validation_auc
-        return {
-            "metric_name": metric_name,
-            "train_auc": train_auc,
-            "validation_auc": validation_auc,
-            "delta": delta,
-            "risk_level": self._overfitting_level(delta),
-            "risk_level_reason": self._overfitting_level_reason(delta),
-        }
-
-    def build_high_risk_feature_matrix(self) -> pd.DataFrame:
-        """Combine SHAP rank, drift level, and VIF warning by feature."""
+    def build_feature_risk_matrix(self) -> pd.DataFrame:
+        """Combine SHAP, Mitra drift, VIF, and feature metadata into one risk matrix."""
         if self.shap_importance.empty:
-            self.compute_shap_importance()
+            self.run_shap_analysis()
         if self.vif_report.empty:
-            self.calculate_vif()
-
-        drift_rows = (
-            self.signal_sentinel.get("high_drift_features", [])
-            + self.signal_sentinel.get("medium_drift_features", [])
-        )
-        drift_by_feature = {
-            row["feature"]: row.get("drift_level", "Low")
-            for row in drift_rows
+            self.run_vif_analysis()
+        metadata = {
+            row.get("name"): row
+            for row in self.feature_metadata.get("features", [])
+            if isinstance(row, dict) and row.get("name")
         }
-        drift_reason_by_feature = {
-            row["feature"]: row.get("drift_level_reason", "Low because feature did not cross Mitra drift thresholds.")
-            for row in drift_rows
-        }
-        matrix = self.shap_importance.merge(self.vif_report, on="feature", how="left")
-        matrix["drift_level"] = matrix["feature"].map(drift_by_feature).fillna("Low")
-        matrix["drift_level_reason"] = matrix["feature"].map(drift_reason_by_feature).fillna(
-            "Low because feature did not cross Mitra drift thresholds."
+        drift_columns = ["feature", "psi", "ks_pvalue", "wasserstein_distance", "drift_level"]
+        available_drift_columns = [column for column in drift_columns if column in self.drift_report.columns]
+        matrix = self.shap_importance.merge(
+            self.drift_report[available_drift_columns],
+            on="feature",
+            how="left",
+        ).merge(
+            self.vif_report[["feature", "vif", "vif_risk"]],
+            on="feature",
+            how="left",
         )
-        matrix["vif_warning"] = matrix["vif_level"].fillna("Low")
-
-        def combined_risk(row: pd.Series) -> str:
-            if row["drift_level"] == "High" and row["shap_rank"] <= 5:
-                return "High"
-            if row["vif_warning"] == "High" and row["shap_rank"] <= 5:
-                return "High"
-            if row["drift_level"] in {"High", "Medium"} or row["vif_warning"] == "Medium":
-                return "Medium"
-            return "Low"
-
-        matrix["combined_risk"] = matrix.apply(combined_risk, axis=1)
-        matrix["combined_risk_reason"] = matrix.apply(
-            lambda row: (
-                "High because feature has high drift and is a top-5 SHAP driver."
-                if row["drift_level"] == "High" and row["shap_rank"] <= 5
-                else "High because feature has high VIF and is a top-5 SHAP driver."
-                if row["vif_warning"] == "High" and row["shap_rank"] <= 5
-                else "Medium because feature has drift or medium VIF warning."
-                if row["drift_level"] in {"High", "Medium"} or row["vif_warning"] == "Medium"
-                else "Low because feature did not cross combined SHAP, drift, or VIF risk rules."
-            ),
-            axis=1,
+        matrix["feature_group"] = matrix["feature"].map(
+            lambda feature: metadata.get(feature, {}).get("feature_group", "model_feature")
         )
-        self.high_risk_feature_matrix = matrix[
-            [
-                "feature",
-                "shap_rank",
-                "mean_abs_shap_value",
-                "drift_level",
-                "drift_level_reason",
-                "vif",
-                "vif_warning",
-                "combined_risk",
-                "combined_risk_reason",
-            ]
-        ].sort_values(["combined_risk", "shap_rank"], ascending=[True, True])
+        matrix["business_definition"] = matrix["feature"].map(
+            lambda feature: metadata.get(feature, {}).get("business_definition", "")
+        )
+        matrix["psi"] = matrix["psi"].fillna(0.0)
+        matrix["ks_pvalue"] = matrix["ks_pvalue"].fillna(1.0)
+        matrix["wasserstein_distance"] = matrix["wasserstein_distance"].fillna(0.0)
+        matrix["drift_level"] = matrix["drift_level"].fillna("Low")
+        matrix["vif"] = matrix["vif"].fillna(1.0)
+        matrix["vif_risk"] = matrix["vif_risk"].fillna("Low")
+
+        def classify(row: pd.Series) -> tuple[str, str, str]:
+            top_five = int(row["shap_rank"]) <= 5
+            top_ten = int(row["shap_rank"]) <= 10
+            if top_five and row["drift_level"] == "High":
+                return (
+                    "High",
+                    "High because the feature is a top-5 SHAP driver with High drift.",
+                    "Review feature stability and consider recalibration before activation.",
+                )
+            if top_five and row["vif_risk"] == "High":
+                return (
+                    "High",
+                    "High because the feature is a top-5 SHAP driver with High VIF risk.",
+                    "Review redundancy and consider combining or removing correlated features.",
+                )
+            if top_ten and row["drift_level"] == "Medium":
+                return (
+                    "Medium",
+                    "Medium because the feature is a top-10 SHAP driver with Medium drift.",
+                    "Monitor feature drift and validate stability in the next review window.",
+                )
+            if not top_five and row["drift_level"] == "High":
+                return (
+                    "Medium",
+                    "Medium because the feature has High drift but is not a top-5 SHAP driver.",
+                    "Monitor feature drift; lower immediate model-risk impact.",
+                )
+            return "Low", "Low because no configured feature-risk rule fired.", "No immediate action."
+
+        classified = matrix.apply(classify, axis=1, result_type="expand")
+        matrix[["final_risk", "reason", "recommended_action"]] = classified
+        matrix["combined_risk"] = matrix["final_risk"]
+        matrix["combined_risk_reason"] = matrix["reason"]
+        matrix["vif_warning"] = matrix["vif_risk"]
         risk_order = {"High": 0, "Medium": 1, "Low": 2}
-        self.high_risk_feature_matrix = (
-            self.high_risk_feature_matrix.assign(
-                _risk_order=self.high_risk_feature_matrix["combined_risk"].map(risk_order)
-            )
+        self.feature_risk_matrix = (
+            matrix[
+                [
+                    "feature",
+                    "feature_group",
+                    "business_definition",
+                    "shap_rank",
+                    "mean_abs_shap",
+                    "mean_abs_shap_value",
+                    "psi",
+                    "ks_pvalue",
+                    "wasserstein_distance",
+                    "drift_level",
+                    "vif",
+                    "vif_risk",
+                    "vif_warning",
+                    "final_risk",
+                    "combined_risk",
+                    "reason",
+                    "combined_risk_reason",
+                    "recommended_action",
+                ]
+            ]
+            .assign(_risk_order=lambda frame: frame["final_risk"].map(risk_order))
             .sort_values(["_risk_order", "shap_rank"])
-            .drop(columns=["_risk_order"])
+            .drop(columns="_risk_order")
             .reset_index(drop=True)
         )
-        return self.high_risk_feature_matrix
+        self.high_risk_feature_matrix = self.feature_risk_matrix
+        return self.feature_risk_matrix
+
+    def build_high_risk_feature_matrix(self) -> pd.DataFrame:
+        """Backward-compatible alias for the richer feature risk matrix."""
+        return self.build_feature_risk_matrix()
 
     def build_output(self) -> dict[str, Any]:
-        """Build final Varuna JSON output."""
-        if self.train_features is None:
+        """Build final auditable Varuna output."""
+        if self.train_features.empty:
             self.load_inputs()
         reliability = self.assess_explainability_reliability()
-        config_version = self.signal_sentinel.get("config_version", "unknown")
-        source_files = {
-            "train_features": str(self.train_features_path),
-            "current_features": str(self.current_features_path),
-            "current_predictions": str(self.predictions_path),
-            "model_metadata": str(self.model_metadata_path),
-            "feature_metadata": str(self.feature_metadata_path),
-            "mitra_output": str(self.signal_sentinel_path),
-        }
-        if reliability.get("should_skip"):
-            self.output = {
-                "agent_name": "Agent 02: Varuna",
-                "config_version": config_version,
-                "source_files": source_files,
-                "model_name": self.model_metadata.get("model_name"),
-                "explainability_reliability": reliability,
-                "top_global_drivers": [],
-                "high_risk_feature_matrix": [],
-                "multicollinearity_findings": [],
-                "overfitting_check": self.calculate_overfitting_check(),
-                "plots_generated": {},
-                "skipped": True,
-            }
-            return self.output
-        if self.model is None:
-            self.train_model()
-        if self.shap_importance.empty:
-            self.compute_shap_importance()
-        if self.vif_report.empty:
-            self.calculate_vif()
-        if self.high_risk_feature_matrix.empty:
-            self.build_high_risk_feature_matrix()
-        plots = self.generate_shap_plots()
-        overfitting_check = self.calculate_overfitting_check()
+        if not reliability["should_skip"]:
+            if self.shap_importance.empty:
+                self.run_shap_analysis()
+            if self.vif_report.empty:
+                self.run_vif_analysis()
+            if self.feature_risk_matrix.empty:
+                self.build_feature_risk_matrix()
+        if not self.overfitting_check:
+            self.run_overfitting_check()
 
+        top_drivers = self.shap_importance.head(10).to_dict(orient="records")
+        high_risk = self.feature_risk_matrix.to_dict(orient="records")
+        vif_findings = self.vif_report.to_dict(orient="records")
         self.output = {
+            "agent": "Varuna",
             "agent_name": "Agent 02: Varuna",
-            "config_version": config_version,
-            "source_files": source_files,
-            "model_name": self.model_metadata.get("model_name"),
+            "run_id": self.run_id,
+            "timestamp": self.timestamp,
+            "config_version": self.config_version,
+            "reference_model_type": self.reference_model_type,
+            "explanation_method": self.explanation_method,
             "explainability_reliability": reliability,
-            "top_global_drivers": self.shap_importance.head(10).to_dict(orient="records"),
-            "high_risk_feature_matrix": self.high_risk_feature_matrix.to_dict(orient="records"),
-            "multicollinearity_findings": self.vif_report.to_dict(orient="records"),
-            "overfitting_check": overfitting_check,
-            "plots_generated": {name: str(path) for name, path in plots.items()},
+            "top_model_drivers": top_drivers,
+            "top_global_drivers": top_drivers,
+            "high_risk_feature_matrix": high_risk,
+            "multicollinearity_findings": vif_findings,
+            "overfitting_check": self.overfitting_check,
+            "plots_generated": self.plots_generated,
+            "warnings": list(dict.fromkeys(self.warnings)),
+            "source_files": self._source_files(),
+            "skipped": reliability["should_skip"],
         }
         return self.output
 
     def save_outputs(self) -> dict[str, Path]:
-        """Run Varuna and save JSON, CSV, and figure artifacts."""
+        """Run Varuna and save JSON, CSV, and PNG artifacts."""
         output = self.build_output()
-        REPORTS_DIR.mkdir(parents=True, exist_ok=True)
-        FIGURES_DIR.mkdir(parents=True, exist_ok=True)
-        output_path = REPORTS_DIR / "varuna_output.json"
-        legacy_output_path = REPORTS_DIR / "model_lens_output.json"
-        shap_path = REPORTS_DIR / "shap_global_importance.csv"
-        vif_path = REPORTS_DIR / "vif_report.csv"
+        self.reports_dir.mkdir(parents=True, exist_ok=True)
+        self.figures_dir.mkdir(parents=True, exist_ok=True)
+        output_path = self.reports_dir / "model_lens_output.json"
+        varuna_path = self.reports_dir / "varuna_output.json"
+        shap_path = self.reports_dir / "shap_global_importance.csv"
+        vif_path = self.reports_dir / "vif_report.csv"
+        diagnostics_path = self.reports_dir / "model_diagnostics.json"
+        risk_matrix_path = self.reports_dir / "feature_risk_matrix.csv"
 
         output_path.write_text(json.dumps(output, indent=2), encoding="utf-8")
-        legacy_output_path.write_text(json.dumps(output, indent=2), encoding="utf-8")
-        if not self.shap_importance.empty:
-            self.shap_importance["config_version"] = output.get("config_version", "unknown")
-            self.shap_importance["source_current_features"] = str(self.current_features_path)
-        if not self.vif_report.empty:
-            self.vif_report["config_version"] = output.get("config_version", "unknown")
-            self.vif_report["source_train_features"] = str(self.train_features_path)
+        varuna_path.write_text(json.dumps(output, indent=2), encoding="utf-8")
+        diagnostics_path.write_text(
+            json.dumps(
+                {
+                    "agent": "Varuna",
+                    "run_id": self.run_id,
+                    "timestamp": self.timestamp,
+                    "config_version": self.config_version,
+                    "explanation_method": self.explanation_method,
+                    "explainability_reliability": self.explainability_reliability,
+                    "overfitting_check": self.overfitting_check,
+                    "warnings": output["warnings"],
+                    "source_files": self._source_files(),
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
         self.shap_importance.to_csv(shap_path, index=False)
         self.vif_report.to_csv(vif_path, index=False)
+        self.feature_risk_matrix.to_csv(risk_matrix_path, index=False)
         store = EvidenceStore()
         store.save_section("varuna", output)
         store.save_section("model_lens", output)
         return {
             "json": output_path,
-            "legacy_json": legacy_output_path,
+            "varuna_json": varuna_path,
             "shap_global_importance": shap_path,
             "vif_report": vif_path,
-            "shap_bar": FIGURES_DIR / "shap_bar.png",
-            "shap_global_bar": FIGURES_DIR / "shap_global_bar.png",
-            "shap_beeswarm": FIGURES_DIR / "shap_beeswarm.png",
+            "model_diagnostics": diagnostics_path,
+            "feature_risk_matrix": risk_matrix_path,
+            "shap_bar": self.figures_dir / "shap_bar.png",
+            "shap_beeswarm": self.figures_dir / "shap_beeswarm.png",
         }
+
+    def run(self, state: dict[str, Any] | None = None) -> dict[str, Any]:
+        """Run Varuna as a future LangGraph-compatible state transformation."""
+        next_state = dict(state or {})
+        output_paths = self.save_outputs()
+        next_state["varuna"] = self.output
+        next_state["varuna_output_paths"] = {name: str(path) for name, path in output_paths.items()}
+        return next_state
+
+
+def parse_args() -> argparse.Namespace:
+    """Parse CLI arguments."""
+    parser = argparse.ArgumentParser(description="Run Agent 02: Varuna model diagnostics.")
+    parser.add_argument("--use_case", choices=["fraud", "purchase"], help="Optional configured use-case artifact folder.")
+    return parser.parse_args()
 
 
 def main() -> None:
     """Run Agent 02: Varuna from the command line."""
-    output_paths = ModelLensAgent().save_outputs()
+    args = parse_args()
+    output_paths = ModelLensAgent(paths=default_paths(args.use_case)).save_outputs()
     print("Saved Agent 02: Varuna outputs:")
     for label, path in output_paths.items():
         print(f"- {label}: {path}")

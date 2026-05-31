@@ -1,39 +1,44 @@
-"""Simple feedback logging for future organizational intelligence."""
+"""Backward-compatible feedback helpers backed by the governed memory store."""
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
 from pathlib import Path
 
 import pandas as pd
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-REPORTS_DIR = PROJECT_ROOT / "reports"
-FEEDBACK_PATH = REPORTS_DIR / "feedback_log.csv"
+from src.memory.feedback_store import (
+    DEFAULT_FEEDBACK_PATH,
+    append_feedback_event,
+    ensure_feedback_log,
+    load_feedback_log,
+)
+
+FEEDBACK_PATH = DEFAULT_FEEDBACK_PATH
 
 
 def append_feedback(agent: str, signal: str, comment: str = "", path: Path = FEEDBACK_PATH) -> Path:
-    """Append one dashboard feedback event."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    row = pd.DataFrame(
-        [
-            {
-                "timestamp_utc": datetime.now(timezone.utc).isoformat(),
-                "agent": agent,
-                "signal": signal,
-                "comment": comment.strip(),
-            }
-        ]
+    """Append one legacy dashboard feedback event using the governed schema."""
+    feedback_type = {
+        "useful": "helpful",
+        "not useful": "not_helpful",
+        "false positive": "false_alarm",
+    }.get(signal, signal)
+    return append_feedback_event(
+        path,
+        {
+            "user_role": "analyst",
+            "finding_id": "",
+            "feature": "",
+            "feedback_type": feedback_type,
+            "severity": "Not Set",
+            "comment": comment,
+            "related_agent": agent,
+            "action_taken": "",
+        },
     )
-    if path.exists():
-        row.to_csv(path, mode="a", header=False, index=False)
-    else:
-        row.to_csv(path, index=False)
-    return path
 
 
 def load_feedback(path: Path = FEEDBACK_PATH) -> pd.DataFrame:
-    """Load feedback events when available."""
-    if not path.exists():
-        return pd.DataFrame(columns=["timestamp_utc", "agent", "signal", "comment"])
-    return pd.read_csv(path)
+    """Load feedback in the governed schema."""
+    ensure_feedback_log(path)
+    return load_feedback_log(path)

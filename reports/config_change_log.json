@@ -1,13 +1,58 @@
 {
-  "agent_name": "Agent 04: Samanvaya",
-  "config_version": "v1",
+  "run_id": "20260531T191423Z",
+  "timestamp": "2026-05-31T19:14:24.525264+00:00",
+  "config_version_reviewed": "v1",
+  "recommended_changes": [
+    {
+      "recommendation_id": "REC_001",
+      "change_type": "seasonal_feature_tagging",
+      "target_config_path": "mitra.known_seasonal_features",
+      "feature": "fuel_spend_30d",
+      "current_value": [],
+      "recommended_value": [
+        "fuel_spend_30d"
+      ],
+      "reason": "Repeated false-alarm feedback for fuel_spend_30d; review seasonal tagging before suppression.",
+      "evidence_used": [
+        "feedback_log:false_alarm_count=2",
+        "evidence_packet:key_findings"
+      ],
+      "confidence": "Medium",
+      "requires_human_approval": true,
+      "status": "recommended"
+    },
+    {
+      "recommendation_id": "REC_002",
+      "change_type": "report_profile_adjustment",
+      "target_config_path": "aryaman.report_profile",
+      "feature": "",
+      "current_value": [],
+      "recommended_value": {
+        "max_findings": 5,
+        "simplify_language": true,
+        "hide_technical_appendix_by_default": true
+      },
+      "reason": "Repeated executive or client-safe feedback indicates that report language is too technical.",
+      "evidence_used": [
+        "feedback_log:executive_too_technical_count=2",
+        "evidence_packet:key_findings"
+      ],
+      "confidence": "Medium",
+      "requires_human_approval": true,
+      "status": "recommended"
+    }
+  ],
+  "approved_changes": [],
+  "rejected_changes": [],
+  "human_approval_required": true,
+  "note": "No changes are applied automatically.",
   "source_files": {
-    "feedback_log": "/Users/adityasharma/Desktop/CometLens/reports/feedback_log.csv",
-    "calibration_config": "/Users/adityasharma/Desktop/CometLens/configs/calibration_config_v1.json"
-  },
-  "generated_at_utc": "2026-05-29T23:16:28.647340+00:00",
-  "approval_mode": "simulated_human_review",
-  "approval_status": "pending",
-  "note": "MVP records proposed changes but does not automatically apply them to agent runtime.",
-  "recommendation_count": 0
+    "evidence_packet": "/Users/adityasharma/Desktop/CometLens/reports/evidence_packet.json",
+    "aryaman_output": "/Users/adityasharma/Desktop/CometLens/reports/aryaman_output.json",
+    "mitra_output": "/Users/adityasharma/Desktop/CometLens/reports/mitra_output.json",
+    "varuna_output": "/Users/adityasharma/Desktop/CometLens/reports/model_lens_output.json",
+    "vishwakarma_output": "/Users/adityasharma/Desktop/CometLens/reports/visuals/vishwakarma_output.json",
+    "calibration_config": "/Users/adityasharma/Desktop/CometLens/configs/calibration_config_v1.json",
+    "feedback_log": "/Users/adityasharma/Desktop/CometLens/reports/feedback_log.csv"
+  }
 }

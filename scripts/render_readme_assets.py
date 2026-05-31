@@ -215,6 +215,39 @@ def render_executive_report() -> Path:
     return path
 
 
+def render_samanvaya_governance() -> Path:
+    """Render the governed feedback-calibration summary as a screenshot-style card."""
+    samanvaya = load_json(REPORTS_DIR / "samanvaya_output.json")
+    recommendations = load_json(REPORTS_DIR / "calibration_recommendations.json")
+    lines = [
+        f"Reviewed config: {samanvaya.get('config_version_reviewed', 'unknown')}",
+        f"Feedback events reviewed: {samanvaya.get('feedback_summary', {}).get('total_events', 0)}",
+        f"Pending human approvals: {samanvaya.get('pending_human_approval_count', 0)}",
+        "Recommended changes:",
+        *[
+            f"{item.get('change_type', 'unknown')}: {item.get('reason', '')}"
+            for item in recommendations.get("recommendations", [])[:3]
+        ],
+        "Active thresholds remain unchanged until human approval.",
+    ]
+    path = ASSETS_DIR / "samanvaya_governance.png"
+    save_card(
+        path,
+        "Agent 04: Samanvaya Governance Review",
+        lines,
+        "Generated from reports/samanvaya_output.json and reports/calibration_recommendations.json",
+    )
+    return path
+
+
+def copy_lineage_graph() -> Path:
+    """Copy Vishwakarma's generated SVG into stable README assets."""
+    source = REPORTS_DIR / "visuals" / "lineage_graph.svg"
+    output_path = ASSETS_DIR / "architecture_lineage.svg"
+    shutil.copyfile(source, output_path)
+    return output_path
+
+
 def main() -> None:
     """Render all README assets."""
     ASSETS_DIR.mkdir(parents=True, exist_ok=True)
@@ -224,6 +257,8 @@ def main() -> None:
         render_shap_feature_importance(),
         render_high_risk_feature_matrix(),
         render_executive_report(),
+        render_samanvaya_governance(),
+        copy_lineage_graph(),
     ]
     print("Created README screenshot assets:")
     for path in paths:

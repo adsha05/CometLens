@@ -1,0 +1,45 @@
+{
+  "agent": "Aryaman",
+  "run_id": "20260531T192330Z",
+  "timestamp": "2026-05-31T19:23:30.186259+00:00",
+  "config_version": "v1",
+  "model_health_status": "High Risk",
+  "executive_summary": "qsr_purchase_predictor_v3 supports QSR audience targeting and campaign optimization. Deterministic evidence indicates **High Risk**. The leading issue is: merchant_novelty_rate is high drift and appears in the feature risk matrix. Review the recommended actions before activation.",
+  "key_findings_used": [
+    "merchant_novelty_rate is high drift and appears in the feature risk matrix.",
+    "weekend_dining_frequency is high drift and appears in the feature risk matrix.",
+    "merchant_novelty_rate is a high-risk feature because it is model-important and has high drift.",
+    "Prediction drift is High based on score distribution shift and KS p-value.",
+    "Train-validation AUC delta indicates medium overfitting risk."
+  ],
+  "recommended_actions": [
+    "Review high-risk feature stability and consider recalibration before activation.",
+    "Run validation before campaign or model activation because prediction drift is High.",
+    "Review upstream data pipelines for medium or high data-quality issues.",
+    "Review high-drift features for data pipeline or behavior-shift explanations.",
+    "Compare prediction score distribution against the model training baseline when train predictions are available.",
+    "Inspect cluster share movement for population-mix changes before high-impact business use.",
+    "Review prediction score drift against decision thresholds and downstream actions."
+  ],
+  "top_model_drivers": [
+    "merchant_novelty_rate is SHAP rank 1 with mean |SHAP| 0.4256.",
+    "qsr_txn_count_30d is SHAP rank 2 with mean |SHAP| 0.4084.",
+    "grocery_spend_30d is SHAP rank 3 with mean |SHAP| 0.3089.",
+    "qsr_spend_30d is SHAP rank 4 with mean |SHAP| 0.2315.",
+    "qsr_recency_days is SHAP rank 5 with mean |SHAP| 0.1798."
+  ],
+  "high_risk_features": [
+    "merchant_novelty_rate: High because the feature is a top-5 SHAP driver with High drift."
+  ],
+  "business_risks": [
+    "Decision quality may decline if current-window behavior differs from the validated baseline.",
+    "Activation efficiency may decline if score movement is not reviewed before operational use.",
+    "High-impact use should wait for validation and feature-stability review."
+  ],
+  "why_it_matters": "Model decisions depend on stable signals and validated score behavior. Drift in model-important features or prediction distributions can reduce confidence in current-window activation decisions.",
+  "report_path": "/Users/adityasharma/Desktop/CometLens/reports/executive_model_report.md",
+  "evidence_packet_path": "/Users/adityasharma/Desktop/CometLens/reports/evidence_packet.json",
+  "recommended_report_visuals": [],
+  "visuals_available": {},
+  "warnings": []
+}

@@ -19,8 +19,9 @@ if __package__ in {None, ""}:
 from src.agents.evidence_store import EvidencePacketBuilder
 from src.agents.executive_synthesis_agent import ExecutiveSynthesisAgent
 from src.agents.model_lens_agent import ModelLensAgent
-from src.agents.samanvaya_agent import SamanvayaAgent
+from src.agents.samanvaya_calibration_agent import SamanvayaCalibrationAgent
 from src.agents.signal_sentinel_agent import SignalSentinelAgent
+from src.agents.vishwakarma_visual_architect import VishwakarmaVisualArchitect
 from src.generate_sample_artifacts import main as generate_sample_artifacts
 from src.utils.artifact_validation import ArtifactValidationError, validate_input_contract
 from src.utils.run_archive import archive_run
@@ -156,16 +157,33 @@ def archive_current_run(run_id: str) -> list[Path]:
         REPORTS_DIR / "model_lens_output.json",
         REPORTS_DIR / "shap_global_importance.csv",
         REPORTS_DIR / "vif_report.csv",
+        REPORTS_DIR / "model_diagnostics.json",
+        REPORTS_DIR / "feature_risk_matrix.csv",
         REPORTS_DIR / "evidence_packet.json",
+        REPORTS_DIR / "visuals",
+        REPORTS_DIR / "aryaman_output.json",
         REPORTS_DIR / "executive_model_report.json",
         REPORTS_DIR / "executive_model_report.md",
         REPORTS_DIR / "samanvaya_recommendations.json",
+        REPORTS_DIR / "samanvaya_output.json",
+        REPORTS_DIR / "calibration_recommendations.json",
         REPORTS_DIR / "config_change_log.json",
+        REPORTS_DIR / "feedback_log.csv",
         REPORTS_DIR / "figures",
         CONFIGS_DIR / "calibration_config_v1.json",
         CONFIGS_DIR / "calibration_config_v2.json",
+        CONFIGS_DIR / "calibration_config_v2_recommended.json",
     ]
     return [archive_run(run_id, artifacts)]
+
+
+def resolve_artifact_run_id(fallback_run_id: str) -> str:
+    """Return the verified evidence run ID for archive naming when available."""
+    evidence_path = REPORTS_DIR / "evidence_packet.json"
+    if not evidence_path.exists():
+        return fallback_run_id
+    evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+    return str(evidence.get("run_id") or fallback_run_id)
 
 
 def parse_args() -> argparse.Namespace:
@@ -208,11 +226,21 @@ def main() -> None:
         step_number += 1
         run_step(f"{step_number}. Run Evidence Store builder", lambda: [EvidencePacketBuilder().save()])
         step_number += 1
+        run_step(f"{step_number}. Run Agent 05: Vishwakarma", lambda: [VishwakarmaVisualArchitect().save_outputs()])
+        step_number += 1
+        run_step(f"{step_number}. Refresh Evidence Store visuals", lambda: [EvidencePacketBuilder().save()])
+        step_number += 1
         run_step(f"{step_number}. Run Agent 03: Aryaman", lambda: ExecutiveSynthesisAgent().save_outputs())
         step_number += 1
-        run_step(f"{step_number}. Run Agent 04: Samanvaya", lambda: SamanvayaAgent().save_outputs())
+        run_step(
+            f"{step_number}. Run Agent 04: Samanvaya",
+            lambda: SamanvayaCalibrationAgent(demo_mode=not args.use_existing_artifacts).save_outputs(),
+        )
         step_number += 1
-        run_step(f"{step_number}. Archive timestamped run", lambda: archive_current_run(run_id))
+        run_step(
+            f"{step_number}. Archive timestamped run",
+            lambda: archive_current_run(resolve_artifact_run_id(run_id)),
+        )
     except PipelineExecutionError as error:
         error_path = write_pipeline_error(error)
         print(f"Pipeline failed gracefully: {error}", file=sys.stderr)

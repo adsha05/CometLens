@@ -20,8 +20,16 @@
     "drift_gate_mode": "flag",
     "vif_medium": 5.0,
     "vif_high": 10.0,
+    "vif_thresholds": {
+      "medium": 5.0,
+      "high": 10.0
+    },
     "overfit_delta_medium": 0.03,
-    "overfit_delta_high": 0.07
+    "overfit_delta_high": 0.07,
+    "overfitting_delta_thresholds": {
+      "medium": 0.03,
+      "high": 0.07
+    }
   },
   "aryaman": {
     "default_report_profile": "general_model_health",
@@ -29,6 +37,7 @@
     "risk_governance_keywords": ["fraud", "risk", "credit", "bank", "approve", "decline", "transaction"]
   },
   "samanvaya": {
+    "minimum_feedback_events_for_recommendation": 2,
     "false_positive_threshold_for_review": 2,
     "useful_signal_threshold_for_keep": 3,
     "max_threshold_adjustment_pct": 10

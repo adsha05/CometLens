@@ -1,17 +1,13 @@
 {
   "evidence": {
     "model_lens": {
+      "agent": "Varuna",
       "agent_name": "Agent 02: Varuna",
+      "run_id": "20260531T192331Z",
+      "timestamp": "2026-05-31T19:23:31.897705+00:00",
       "config_version": "v1",
-      "source_files": {
-        "train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
-        "current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
-        "current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
-        "model_metadata": "/Users/adityasharma/Desktop/CometLens/models/model_metadata.json",
-        "feature_metadata": "/Users/adityasharma/Desktop/CometLens/models/feature_metadata.json",
-        "mitra_output": "/Users/adityasharma/Desktop/CometLens/reports/mitra_output.json"
-      },
-      "model_name": "qsr_purchase_predictor_v3",
+      "reference_model_type": "XGBoostClassifier",
+      "explanation_method": "shap_tree_explainer",
       "explainability_reliability": {
         "status": "unreliable",
         "gate_mode": "flag",
@@ -23,234 +19,410 @@
             "feature": "merchant_novelty_rate",
             "psi": 0.5648547367215196,
             "ks_pvalue": 1.8819204313595185e-06,
-            "reason": "PSI or KS p-value crossed severe drift gate"
+            "reason": "PSI or KS p-value crossed configured severe drift gate."
           },
           {
             "feature": "weekend_dining_frequency",
             "psi": 0.31444621273115303,
             "ks_pvalue": 0.0005551927328074649,
-            "reason": "PSI or KS p-value crossed severe drift gate"
+            "reason": "PSI or KS p-value crossed configured severe drift gate."
           }
         ],
-        "message": "SHAP outputs are flagged as unreliable because Mitra found severe input drift."
+        "message": "SHAP outputs are directional only because Mitra found severe input drift."
       },
-      "top_global_drivers": [
-        {
-          "feature": "qsr_txn_count_30d",
-          "mean_abs_shap_value": 0.5763269066810608,
-          "shap_rank": 1
-        },
+      "top_model_drivers": [
         {
           "feature": "merchant_novelty_rate",
-          "mean_abs_shap_value": 0.508556067943573,
-          "shap_rank": 2
+          "mean_abs_shap": 0.4256240129470825,
+          "shap_rank": 1,
+          "mean_abs_shap_value": 0.4256240129470825
+        },
+        {
+          "feature": "qsr_txn_count_30d",
+          "mean_abs_shap": 0.40844687819480896,
+          "shap_rank": 2,
+          "mean_abs_shap_value": 0.40844687819480896
         },
         {
           "feature": "grocery_spend_30d",
-          "mean_abs_shap_value": 0.46509280800819397,
-          "shap_rank": 3
-        },
-        {
-          "feature": "qsr_recency_days",
-          "mean_abs_shap_value": 0.23915597796440125,
-          "shap_rank": 4
+          "mean_abs_shap": 0.3089274764060974,
+          "shap_rank": 3,
+          "mean_abs_shap_value": 0.3089274764060974
         },
         {
           "feature": "qsr_spend_30d",
-          "mean_abs_shap_value": 0.21993398666381836,
-          "shap_rank": 5
+          "mean_abs_shap": 0.23145142197608948,
+          "shap_rank": 4,
+          "mean_abs_shap_value": 0.23145142197608948
         },
         {
-          "feature": "fuel_spend_30d",
-          "mean_abs_shap_value": 0.21283723413944244,
-          "shap_rank": 6
-        },
-        {
-          "feature": "competitor_qsr_share_90d",
-          "mean_abs_shap_value": 0.11285369843244553,
-          "shap_rank": 7
+          "feature": "qsr_recency_days",
+          "mean_abs_shap": 0.17975057661533356,
+          "shap_rank": 5,
+          "mean_abs_shap_value": 0.17975057661533356
         },
         {
           "feature": "weekend_dining_frequency",
-          "mean_abs_shap_value": 0.08141425251960754,
-          "shap_rank": 8
+          "mean_abs_shap": 0.1419900357723236,
+          "shap_rank": 6,
+          "mean_abs_shap_value": 0.1419900357723236
+        },
+        {
+          "feature": "competitor_qsr_share_90d",
+          "mean_abs_shap": 0.09856006503105164,
+          "shap_rank": 7,
+          "mean_abs_shap_value": 0.09856006503105164
+        },
+        {
+          "feature": "fuel_spend_30d",
+          "mean_abs_shap": 0.08302345871925354,
+          "shap_rank": 8,
+          "mean_abs_shap_value": 0.08302345871925354
         },
         {
           "feature": "campaign_exposed",
-          "mean_abs_shap_value": 0.02812393754720688,
-          "shap_rank": 9
+          "mean_abs_shap": 0.011783698573708534,
+          "shap_rank": 9,
+          "mean_abs_shap_value": 0.011783698573708534
+        }
+      ],
+      "top_global_drivers": [
+        {
+          "feature": "merchant_novelty_rate",
+          "mean_abs_shap": 0.4256240129470825,
+          "shap_rank": 1,
+          "mean_abs_shap_value": 0.4256240129470825
+        },
+        {
+          "feature": "qsr_txn_count_30d",
+          "mean_abs_shap": 0.40844687819480896,
+          "shap_rank": 2,
+          "mean_abs_shap_value": 0.40844687819480896
+        },
+        {
+          "feature": "grocery_spend_30d",
+          "mean_abs_shap": 0.3089274764060974,
+          "shap_rank": 3,
+          "mean_abs_shap_value": 0.3089274764060974
+        },
+        {
+          "feature": "qsr_spend_30d",
+          "mean_abs_shap": 0.23145142197608948,
+          "shap_rank": 4,
+          "mean_abs_shap_value": 0.23145142197608948
+        },
+        {
+          "feature": "qsr_recency_days",
+          "mean_abs_shap": 0.17975057661533356,
+          "shap_rank": 5,
+          "mean_abs_shap_value": 0.17975057661533356
+        },
+        {
+          "feature": "weekend_dining_frequency",
+          "mean_abs_shap": 0.1419900357723236,
+          "shap_rank": 6,
+          "mean_abs_shap_value": 0.1419900357723236
+        },
+        {
+          "feature": "competitor_qsr_share_90d",
+          "mean_abs_shap": 0.09856006503105164,
+          "shap_rank": 7,
+          "mean_abs_shap_value": 0.09856006503105164
+        },
+        {
+          "feature": "fuel_spend_30d",
+          "mean_abs_shap": 0.08302345871925354,
+          "shap_rank": 8,
+          "mean_abs_shap_value": 0.08302345871925354
+        },
+        {
+          "feature": "campaign_exposed",
+          "mean_abs_shap": 0.011783698573708534,
+          "shap_rank": 9,
+          "mean_abs_shap_value": 0.011783698573708534
         }
       ],
       "high_risk_feature_matrix": [
         {
           "feature": "merchant_novelty_rate",
-          "shap_rank": 2,
-          "mean_abs_shap_value": 0.508556067943573,
+          "feature_group": "model_feature",
+          "business_definition": "Rate of synthetic dining activity at merchants not previously observed for the consumer.",
+          "shap_rank": 1,
+          "mean_abs_shap": 0.4256240129470825,
+          "mean_abs_shap_value": 0.4256240129470825,
+          "psi": 0.5648547367215196,
+          "ks_pvalue": 1.8819204313595183e-06,
+          "wasserstein_distance": 0.0996485,
           "drift_level": "High",
-          "drift_level_reason": "High because PSI 0.5649 is at or above configured high threshold 0.2500.",
           "vif": 1.0263186579908101,
+          "vif_risk": "Low",
           "vif_warning": "Low",
+          "final_risk": "High",
           "combined_risk": "High",
-          "combined_risk_reason": "High because feature has high drift and is a top-5 SHAP driver."
+          "reason": "High because the feature is a top-5 SHAP driver with High drift.",
+          "combined_risk_reason": "High because the feature is a top-5 SHAP driver with High drift.",
+          "recommended_action": "Review feature stability and consider recalibration before activation."
         },
         {
           "feature": "weekend_dining_frequency",
-          "shap_rank": 8,
-          "mean_abs_shap_value": 0.08141425251960754,
+          "feature_group": "model_feature",
+          "business_definition": "Count of synthetic weekend dining events in the last 30 days.",
+          "shap_rank": 6,
+          "mean_abs_shap": 0.1419900357723236,
+          "mean_abs_shap_value": 0.1419900357723236,
+          "psi": 0.314446212731153,
+          "ks_pvalue": 0.0005551927328074,
+          "wasserstein_distance": 0.4549999999999999,
           "drift_level": "High",
-          "drift_level_reason": "High because PSI 0.3144 is at or above configured high threshold 0.2500.",
           "vif": 1.047225528065608,
+          "vif_risk": "Low",
           "vif_warning": "Low",
+          "final_risk": "Medium",
           "combined_risk": "Medium",
-          "combined_risk_reason": "Medium because feature has drift or medium VIF warning."
+          "reason": "Medium because the feature has High drift but is not a top-5 SHAP driver.",
+          "combined_risk_reason": "Medium because the feature has High drift but is not a top-5 SHAP driver.",
+          "recommended_action": "Monitor feature drift; lower immediate model-risk impact."
         },
         {
           "feature": "qsr_txn_count_30d",
-          "shap_rank": 1,
-          "mean_abs_shap_value": 0.5763269066810608,
+          "feature_group": "model_feature",
+          "business_definition": "Number of synthetic QSR transactions in the last 30 days.",
+          "shap_rank": 2,
+          "mean_abs_shap": 0.40844687819480896,
+          "mean_abs_shap_value": 0.40844687819480896,
+          "psi": 0.0204004975331449,
+          "ks_pvalue": 0.9063568398670327,
+          "wasserstein_distance": 0.2050000000000001,
           "drift_level": "Low",
-          "drift_level_reason": "Low because feature did not cross Mitra drift thresholds.",
           "vif": 4.377448566599988,
+          "vif_risk": "Low",
           "vif_warning": "Low",
+          "final_risk": "Low",
           "combined_risk": "Low",
-          "combined_risk_reason": "Low because feature did not cross combined SHAP, drift, or VIF risk rules."
+          "reason": "Low because no configured feature-risk rule fired.",
+          "combined_risk_reason": "Low because no configured feature-risk rule fired.",
+          "recommended_action": "No immediate action."
         },
         {
           "feature": "grocery_spend_30d",
+          "feature_group": "model_feature",
+          "business_definition": "Total synthetic grocery spend in the last 30 days.",
           "shap_rank": 3,
-          "mean_abs_shap_value": 0.46509280800819397,
+          "mean_abs_shap": 0.3089274764060974,
+          "mean_abs_shap_value": 0.3089274764060974,
+          "psi": 0.0142710852704023,
+          "ks_pvalue": 0.6846706791645845,
+          "wasserstein_distance": 8.352400000000003,
           "drift_level": "Low",
-          "drift_level_reason": "Low because feature did not cross Mitra drift thresholds.",
           "vif": 1.0357654414275415,
+          "vif_risk": "Low",
           "vif_warning": "Low",
+          "final_risk": "Low",
           "combined_risk": "Low",
-          "combined_risk_reason": "Low because feature did not cross combined SHAP, drift, or VIF risk rules."
-        },
-        {
-          "feature": "qsr_recency_days",
-          "shap_rank": 4,
-          "mean_abs_shap_value": 0.23915597796440125,
-          "drift_level": "Low",
-          "drift_level_reason": "Low because feature did not cross Mitra drift thresholds.",
-          "vif": 1.0452640010850327,
-          "vif_warning": "Low",
-          "combined_risk": "Low",
-          "combined_risk_reason": "Low because feature did not cross combined SHAP, drift, or VIF risk rules."
+          "reason": "Low because no configured feature-risk rule fired.",
+          "combined_risk_reason": "Low because no configured feature-risk rule fired.",
+          "recommended_action": "No immediate action."
         },
         {
           "feature": "qsr_spend_30d",
-          "shap_rank": 5,
-          "mean_abs_shap_value": 0.21993398666381836,
+          "feature_group": "model_feature",
+          "business_definition": "Total synthetic QSR spend in the last 30 days.",
+          "shap_rank": 4,
+          "mean_abs_shap": 0.23145142197608948,
+          "mean_abs_shap_value": 0.23145142197608948,
+          "psi": 0.0855631305367218,
+          "ks_pvalue": 0.6846706791645834,
+          "wasserstein_distance": 3.4828,
           "drift_level": "Low",
-          "drift_level_reason": "Low because feature did not cross Mitra drift thresholds.",
           "vif": 4.381871553669761,
+          "vif_risk": "Low",
           "vif_warning": "Low",
+          "final_risk": "Low",
           "combined_risk": "Low",
-          "combined_risk_reason": "Low because feature did not cross combined SHAP, drift, or VIF risk rules."
+          "reason": "Low because no configured feature-risk rule fired.",
+          "combined_risk_reason": "Low because no configured feature-risk rule fired.",
+          "recommended_action": "No immediate action."
         },
         {
-          "feature": "fuel_spend_30d",
-          "shap_rank": 6,
-          "mean_abs_shap_value": 0.21283723413944244,
+          "feature": "qsr_recency_days",
+          "feature_group": "model_feature",
+          "business_definition": "Days since the synthetic consumer's most recent QSR transaction.",
+          "shap_rank": 5,
+          "mean_abs_shap": 0.17975057661533356,
+          "mean_abs_shap_value": 0.17975057661533356,
+          "psi": 0.0412202586609684,
+          "ks_pvalue": 0.3706320255863302,
+          "wasserstein_distance": 1.395,
           "drift_level": "Low",
-          "drift_level_reason": "Low because feature did not cross Mitra drift thresholds.",
-          "vif": 1.045793262156066,
+          "vif": 1.0452640010850327,
+          "vif_risk": "Low",
           "vif_warning": "Low",
+          "final_risk": "Low",
           "combined_risk": "Low",
-          "combined_risk_reason": "Low because feature did not cross combined SHAP, drift, or VIF risk rules."
+          "reason": "Low because no configured feature-risk rule fired.",
+          "combined_risk_reason": "Low because no configured feature-risk rule fired.",
+          "recommended_action": "No immediate action."
         },
         {
           "feature": "competitor_qsr_share_90d",
+          "feature_group": "model_feature",
+          "business_definition": "Share of synthetic QSR activity with competitor QSR merchants over 90 days.",
           "shap_rank": 7,
-          "mean_abs_shap_value": 0.11285369843244553,
+          "mean_abs_shap": 0.09856006503105164,
+          "mean_abs_shap_value": 0.09856006503105164,
+          "psi": 0.0773579379229839,
+          "ks_pvalue": 0.5182193645480672,
+          "wasserstein_distance": 0.0216975,
           "drift_level": "Low",
-          "drift_level_reason": "Low because feature did not cross Mitra drift thresholds.",
           "vif": 1.0350657264975056,
+          "vif_risk": "Low",
           "vif_warning": "Low",
+          "final_risk": "Low",
           "combined_risk": "Low",
-          "combined_risk_reason": "Low because feature did not cross combined SHAP, drift, or VIF risk rules."
+          "reason": "Low because no configured feature-risk rule fired.",
+          "combined_risk_reason": "Low because no configured feature-risk rule fired.",
+          "recommended_action": "No immediate action."
+        },
+        {
+          "feature": "fuel_spend_30d",
+          "feature_group": "model_feature",
+          "business_definition": "Total synthetic fuel spend in the last 30 days.",
+          "shap_rank": 8,
+          "mean_abs_shap": 0.08302345871925354,
+          "mean_abs_shap_value": 0.08302345871925354,
+          "psi": 0.0522199015355041,
+          "ks_pvalue": 0.8428847956274123,
+          "wasserstein_distance": 4.1195,
+          "drift_level": "Low",
+          "vif": 1.045793262156066,
+          "vif_risk": "Low",
+          "vif_warning": "Low",
+          "final_risk": "Low",
+          "combined_risk": "Low",
+          "reason": "Low because no configured feature-risk rule fired.",
+          "combined_risk_reason": "Low because no configured feature-risk rule fired.",
+          "recommended_action": "No immediate action."
         },
         {
           "feature": "campaign_exposed",
+          "feature_group": "model_feature",
+          "business_definition": "Indicator that the synthetic consumer was exposed to a QSR campaign.",
           "shap_rank": 9,
-          "mean_abs_shap_value": 0.02812393754720688,
+          "mean_abs_shap": 0.011783698573708534,
+          "mean_abs_shap_value": 0.011783698573708534,
+          "psi": 0.0001118114571026,
+          "ks_pvalue": 1.0,
+          "wasserstein_distance": 0.005,
           "drift_level": "Low",
-          "drift_level_reason": "Low because feature did not cross Mitra drift thresholds.",
           "vif": 1.0118711283711297,
+          "vif_risk": "Low",
           "vif_warning": "Low",
+          "final_risk": "Low",
           "combined_risk": "Low",
-          "combined_risk_reason": "Low because feature did not cross combined SHAP, drift, or VIF risk rules."
+          "reason": "Low because no configured feature-risk rule fired.",
+          "combined_risk_reason": "Low because no configured feature-risk rule fired.",
+          "recommended_action": "No immediate action."
         }
       ],
       "multicollinearity_findings": [
         {
           "feature": "qsr_spend_30d",
           "vif": 4.381871553669761,
+          "vif_risk": "Low",
+          "vif_risk_reason": "Low because VIF 4.38 is below configured threshold 5.00.",
           "vif_level": "Low",
-          "vif_level_reason": "Low because VIF 4.38 is below threshold 5.00."
+          "vif_level_reason": "Low because VIF 4.38 is below configured threshold 5.00."
         },
         {
           "feature": "qsr_txn_count_30d",
           "vif": 4.377448566599988,
+          "vif_risk": "Low",
+          "vif_risk_reason": "Low because VIF 4.38 is below configured threshold 5.00.",
           "vif_level": "Low",
-          "vif_level_reason": "Low because VIF 4.38 is below threshold 5.00."
+          "vif_level_reason": "Low because VIF 4.38 is below configured threshold 5.00."
         },
         {
           "feature": "weekend_dining_frequency",
           "vif": 1.047225528065608,
+          "vif_risk": "Low",
+          "vif_risk_reason": "Low because VIF 1.05 is below configured threshold 5.00.",
           "vif_level": "Low",
-          "vif_level_reason": "Low because VIF 1.05 is below threshold 5.00."
+          "vif_level_reason": "Low because VIF 1.05 is below configured threshold 5.00."
         },
         {
           "feature": "fuel_spend_30d",
           "vif": 1.045793262156066,
+          "vif_risk": "Low",
+          "vif_risk_reason": "Low because VIF 1.05 is below configured threshold 5.00.",
           "vif_level": "Low",
-          "vif_level_reason": "Low because VIF 1.05 is below threshold 5.00."
+          "vif_level_reason": "Low because VIF 1.05 is below configured threshold 5.00."
         },
         {
           "feature": "qsr_recency_days",
           "vif": 1.0452640010850327,
+          "vif_risk": "Low",
+          "vif_risk_reason": "Low because VIF 1.05 is below configured threshold 5.00.",
           "vif_level": "Low",
-          "vif_level_reason": "Low because VIF 1.05 is below threshold 5.00."
+          "vif_level_reason": "Low because VIF 1.05 is below configured threshold 5.00."
         },
         {
           "feature": "grocery_spend_30d",
           "vif": 1.0357654414275415,
+          "vif_risk": "Low",
+          "vif_risk_reason": "Low because VIF 1.04 is below configured threshold 5.00.",
           "vif_level": "Low",
-          "vif_level_reason": "Low because VIF 1.04 is below threshold 5.00."
+          "vif_level_reason": "Low because VIF 1.04 is below configured threshold 5.00."
         },
         {
           "feature": "competitor_qsr_share_90d",
           "vif": 1.0350657264975056,
+          "vif_risk": "Low",
+          "vif_risk_reason": "Low because VIF 1.04 is below configured threshold 5.00.",
           "vif_level": "Low",
-          "vif_level_reason": "Low because VIF 1.04 is below threshold 5.00."
+          "vif_level_reason": "Low because VIF 1.04 is below configured threshold 5.00."
         },
         {
           "feature": "merchant_novelty_rate",
           "vif": 1.0263186579908101,
+          "vif_risk": "Low",
+          "vif_risk_reason": "Low because VIF 1.03 is below configured threshold 5.00.",
           "vif_level": "Low",
-          "vif_level_reason": "Low because VIF 1.03 is below threshold 5.00."
+          "vif_level_reason": "Low because VIF 1.03 is below configured threshold 5.00."
         },
         {
           "feature": "campaign_exposed",
           "vif": 1.0118711283711297,
+          "vif_risk": "Low",
+          "vif_risk_reason": "Low because VIF 1.01 is below configured threshold 5.00.",
           "vif_level": "Low",
-          "vif_level_reason": "Low because VIF 1.01 is below threshold 5.00."
+          "vif_level_reason": "Low because VIF 1.01 is below configured threshold 5.00."
         }
       ],
       "overfitting_check": {
-        "metric_name": "auc",
         "train_auc": 0.812,
         "validation_auc": 0.776,
         "delta": 0.03600000000000003,
         "risk_level": "Medium",
-        "risk_level_reason": "Medium because train-validation delta 0.0360 is at or above threshold 0.0300."
+        "reason": "Medium because train-validation AUC delta 0.0360 is at or above configured threshold 0.0300.",
+        "risk_level_reason": "Medium because train-validation AUC delta 0.0360 is at or above configured threshold 0.0300."
       },
       "plots_generated": {
         "shap_bar": "/Users/adityasharma/Desktop/CometLens/reports/figures/shap_bar.png",
         "shap_beeswarm": "/Users/adityasharma/Desktop/CometLens/reports/figures/shap_beeswarm.png",
         "shap_global_bar": "/Users/adityasharma/Desktop/CometLens/reports/figures/shap_global_bar.png"
-      }
+      },
+      "warnings": [],
+      "source_files": {
+        "train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+        "current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+        "current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+        "drift_report": "/Users/adityasharma/Desktop/CometLens/reports/drift_report.csv",
+        "mitra_output": "/Users/adityasharma/Desktop/CometLens/reports/mitra_output.json",
+        "model_metadata": "/Users/adityasharma/Desktop/CometLens/models/model_metadata.json",
+        "feature_metadata": "/Users/adityasharma/Desktop/CometLens/models/feature_metadata.json",
+        "calibration_config": "/Users/adityasharma/Desktop/CometLens/configs/calibration_config_v1.json"
+      },
+      "skipped": false
     },
     "signal_sentinel": {
       "agent_name": "Agent 01: Mitra",
@@ -1608,17 +1780,13 @@
       ]
     },
     "varuna": {
+      "agent": "Varuna",
       "agent_name": "Agent 02: Varuna",
+      "run_id": "20260531T192331Z",
+      "timestamp": "2026-05-31T19:23:31.897705+00:00",
       "config_version": "v1",
-      "source_files": {
-        "train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
-        "current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
-        "current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
-        "model_metadata": "/Users/adityasharma/Desktop/CometLens/models/model_metadata.json",
-        "feature_metadata": "/Users/adityasharma/Desktop/CometLens/models/feature_metadata.json",
-        "mitra_output": "/Users/adityasharma/Desktop/CometLens/reports/mitra_output.json"
-      },
-      "model_name": "qsr_purchase_predictor_v3",
+      "reference_model_type": "XGBoostClassifier",
+      "explanation_method": "shap_tree_explainer",
       "explainability_reliability": {
         "status": "unreliable",
         "gate_mode": "flag",
@@ -1630,234 +1798,410 @@
             "feature": "merchant_novelty_rate",
             "psi": 0.5648547367215196,
             "ks_pvalue": 1.8819204313595185e-06,
-            "reason": "PSI or KS p-value crossed severe drift gate"
+            "reason": "PSI or KS p-value crossed configured severe drift gate."
           },
           {
             "feature": "weekend_dining_frequency",
             "psi": 0.31444621273115303,
             "ks_pvalue": 0.0005551927328074649,
-            "reason": "PSI or KS p-value crossed severe drift gate"
+            "reason": "PSI or KS p-value crossed configured severe drift gate."
           }
         ],
-        "message": "SHAP outputs are flagged as unreliable because Mitra found severe input drift."
+        "message": "SHAP outputs are directional only because Mitra found severe input drift."
       },
-      "top_global_drivers": [
-        {
-          "feature": "qsr_txn_count_30d",
-          "mean_abs_shap_value": 0.5763269066810608,
-          "shap_rank": 1
-        },
+      "top_model_drivers": [
         {
           "feature": "merchant_novelty_rate",
-          "mean_abs_shap_value": 0.508556067943573,
-          "shap_rank": 2
+          "mean_abs_shap": 0.4256240129470825,
+          "shap_rank": 1,
+          "mean_abs_shap_value": 0.4256240129470825
+        },
+        {
+          "feature": "qsr_txn_count_30d",
+          "mean_abs_shap": 0.40844687819480896,
+          "shap_rank": 2,
+          "mean_abs_shap_value": 0.40844687819480896
         },
         {
           "feature": "grocery_spend_30d",
-          "mean_abs_shap_value": 0.46509280800819397,
-          "shap_rank": 3
-        },
-        {
-          "feature": "qsr_recency_days",
-          "mean_abs_shap_value": 0.23915597796440125,
-          "shap_rank": 4
+          "mean_abs_shap": 0.3089274764060974,
+          "shap_rank": 3,
+          "mean_abs_shap_value": 0.3089274764060974
         },
         {
           "feature": "qsr_spend_30d",
-          "mean_abs_shap_value": 0.21993398666381836,
-          "shap_rank": 5
+          "mean_abs_shap": 0.23145142197608948,
+          "shap_rank": 4,
+          "mean_abs_shap_value": 0.23145142197608948
         },
         {
-          "feature": "fuel_spend_30d",
-          "mean_abs_shap_value": 0.21283723413944244,
-          "shap_rank": 6
-        },
-        {
-          "feature": "competitor_qsr_share_90d",
-          "mean_abs_shap_value": 0.11285369843244553,
-          "shap_rank": 7
+          "feature": "qsr_recency_days",
+          "mean_abs_shap": 0.17975057661533356,
+          "shap_rank": 5,
+          "mean_abs_shap_value": 0.17975057661533356
         },
         {
           "feature": "weekend_dining_frequency",
-          "mean_abs_shap_value": 0.08141425251960754,
-          "shap_rank": 8
+          "mean_abs_shap": 0.1419900357723236,
+          "shap_rank": 6,
+          "mean_abs_shap_value": 0.1419900357723236
+        },
+        {
+          "feature": "competitor_qsr_share_90d",
+          "mean_abs_shap": 0.09856006503105164,
+          "shap_rank": 7,
+          "mean_abs_shap_value": 0.09856006503105164
+        },
+        {
+          "feature": "fuel_spend_30d",
+          "mean_abs_shap": 0.08302345871925354,
+          "shap_rank": 8,
+          "mean_abs_shap_value": 0.08302345871925354
         },
         {
           "feature": "campaign_exposed",
-          "mean_abs_shap_value": 0.02812393754720688,
-          "shap_rank": 9
+          "mean_abs_shap": 0.011783698573708534,
+          "shap_rank": 9,
+          "mean_abs_shap_value": 0.011783698573708534
+        }
+      ],
+      "top_global_drivers": [
+        {
+          "feature": "merchant_novelty_rate",
+          "mean_abs_shap": 0.4256240129470825,
+          "shap_rank": 1,
+          "mean_abs_shap_value": 0.4256240129470825
+        },
+        {
+          "feature": "qsr_txn_count_30d",
+          "mean_abs_shap": 0.40844687819480896,
+          "shap_rank": 2,
+          "mean_abs_shap_value": 0.40844687819480896
+        },
+        {
+          "feature": "grocery_spend_30d",
+          "mean_abs_shap": 0.3089274764060974,
+          "shap_rank": 3,
+          "mean_abs_shap_value": 0.3089274764060974
+        },
+        {
+          "feature": "qsr_spend_30d",
+          "mean_abs_shap": 0.23145142197608948,
+          "shap_rank": 4,
+          "mean_abs_shap_value": 0.23145142197608948
+        },
+        {
+          "feature": "qsr_recency_days",
+          "mean_abs_shap": 0.17975057661533356,
+          "shap_rank": 5,
+          "mean_abs_shap_value": 0.17975057661533356
+        },
+        {
+          "feature": "weekend_dining_frequency",
+          "mean_abs_shap": 0.1419900357723236,
+          "shap_rank": 6,
+          "mean_abs_shap_value": 0.1419900357723236
+        },
+        {
+          "feature": "competitor_qsr_share_90d",
+          "mean_abs_shap": 0.09856006503105164,
+          "shap_rank": 7,
+          "mean_abs_shap_value": 0.09856006503105164
+        },
+        {
+          "feature": "fuel_spend_30d",
+          "mean_abs_shap": 0.08302345871925354,
+          "shap_rank": 8,
+          "mean_abs_shap_value": 0.08302345871925354
+        },
+        {
+          "feature": "campaign_exposed",
+          "mean_abs_shap": 0.011783698573708534,
+          "shap_rank": 9,
+          "mean_abs_shap_value": 0.011783698573708534
         }
       ],
       "high_risk_feature_matrix": [
         {
           "feature": "merchant_novelty_rate",
-          "shap_rank": 2,
-          "mean_abs_shap_value": 0.508556067943573,
+          "feature_group": "model_feature",
+          "business_definition": "Rate of synthetic dining activity at merchants not previously observed for the consumer.",
+          "shap_rank": 1,
+          "mean_abs_shap": 0.4256240129470825,
+          "mean_abs_shap_value": 0.4256240129470825,
+          "psi": 0.5648547367215196,
+          "ks_pvalue": 1.8819204313595183e-06,
+          "wasserstein_distance": 0.0996485,
           "drift_level": "High",
-          "drift_level_reason": "High because PSI 0.5649 is at or above configured high threshold 0.2500.",
           "vif": 1.0263186579908101,
+          "vif_risk": "Low",
           "vif_warning": "Low",
+          "final_risk": "High",
           "combined_risk": "High",
-          "combined_risk_reason": "High because feature has high drift and is a top-5 SHAP driver."
+          "reason": "High because the feature is a top-5 SHAP driver with High drift.",
+          "combined_risk_reason": "High because the feature is a top-5 SHAP driver with High drift.",
+          "recommended_action": "Review feature stability and consider recalibration before activation."
         },
         {
           "feature": "weekend_dining_frequency",
-          "shap_rank": 8,
-          "mean_abs_shap_value": 0.08141425251960754,
+          "feature_group": "model_feature",
+          "business_definition": "Count of synthetic weekend dining events in the last 30 days.",
+          "shap_rank": 6,
+          "mean_abs_shap": 0.1419900357723236,
+          "mean_abs_shap_value": 0.1419900357723236,
+          "psi": 0.314446212731153,
+          "ks_pvalue": 0.0005551927328074,
+          "wasserstein_distance": 0.4549999999999999,
           "drift_level": "High",
-          "drift_level_reason": "High because PSI 0.3144 is at or above configured high threshold 0.2500.",
           "vif": 1.047225528065608,
+          "vif_risk": "Low",
           "vif_warning": "Low",
+          "final_risk": "Medium",
           "combined_risk": "Medium",
-          "combined_risk_reason": "Medium because feature has drift or medium VIF warning."
+          "reason": "Medium because the feature has High drift but is not a top-5 SHAP driver.",
+          "combined_risk_reason": "Medium because the feature has High drift but is not a top-5 SHAP driver.",
+          "recommended_action": "Monitor feature drift; lower immediate model-risk impact."
         },
         {
           "feature": "qsr_txn_count_30d",
-          "shap_rank": 1,
-          "mean_abs_shap_value": 0.5763269066810608,
+          "feature_group": "model_feature",
+          "business_definition": "Number of synthetic QSR transactions in the last 30 days.",
+          "shap_rank": 2,
+          "mean_abs_shap": 0.40844687819480896,
+          "mean_abs_shap_value": 0.40844687819480896,
+          "psi": 0.0204004975331449,
+          "ks_pvalue": 0.9063568398670327,
+          "wasserstein_distance": 0.2050000000000001,
           "drift_level": "Low",
-          "drift_level_reason": "Low because feature did not cross Mitra drift thresholds.",
           "vif": 4.377448566599988,
+          "vif_risk": "Low",
           "vif_warning": "Low",
+          "final_risk": "Low",
           "combined_risk": "Low",
-          "combined_risk_reason": "Low because feature did not cross combined SHAP, drift, or VIF risk rules."
+          "reason": "Low because no configured feature-risk rule fired.",
+          "combined_risk_reason": "Low because no configured feature-risk rule fired.",
+          "recommended_action": "No immediate action."
         },
         {
           "feature": "grocery_spend_30d",
+          "feature_group": "model_feature",
+          "business_definition": "Total synthetic grocery spend in the last 30 days.",
           "shap_rank": 3,
-          "mean_abs_shap_value": 0.46509280800819397,
+          "mean_abs_shap": 0.3089274764060974,
+          "mean_abs_shap_value": 0.3089274764060974,
+          "psi": 0.0142710852704023,
+          "ks_pvalue": 0.6846706791645845,
+          "wasserstein_distance": 8.352400000000003,
           "drift_level": "Low",
-          "drift_level_reason": "Low because feature did not cross Mitra drift thresholds.",
           "vif": 1.0357654414275415,
+          "vif_risk": "Low",
           "vif_warning": "Low",
+          "final_risk": "Low",
           "combined_risk": "Low",
-          "combined_risk_reason": "Low because feature did not cross combined SHAP, drift, or VIF risk rules."
-        },
-        {
-          "feature": "qsr_recency_days",
-          "shap_rank": 4,
-          "mean_abs_shap_value": 0.23915597796440125,
-          "drift_level": "Low",
-          "drift_level_reason": "Low because feature did not cross Mitra drift thresholds.",
-          "vif": 1.0452640010850327,
-          "vif_warning": "Low",
-          "combined_risk": "Low",
-          "combined_risk_reason": "Low because feature did not cross combined SHAP, drift, or VIF risk rules."
+          "reason": "Low because no configured feature-risk rule fired.",
+          "combined_risk_reason": "Low because no configured feature-risk rule fired.",
+          "recommended_action": "No immediate action."
         },
         {
           "feature": "qsr_spend_30d",
-          "shap_rank": 5,
-          "mean_abs_shap_value": 0.21993398666381836,
+          "feature_group": "model_feature",
+          "business_definition": "Total synthetic QSR spend in the last 30 days.",
+          "shap_rank": 4,
+          "mean_abs_shap": 0.23145142197608948,
+          "mean_abs_shap_value": 0.23145142197608948,
+          "psi": 0.0855631305367218,
+          "ks_pvalue": 0.6846706791645834,
+          "wasserstein_distance": 3.4828,
           "drift_level": "Low",
-          "drift_level_reason": "Low because feature did not cross Mitra drift thresholds.",
           "vif": 4.381871553669761,
+          "vif_risk": "Low",
           "vif_warning": "Low",
+          "final_risk": "Low",
           "combined_risk": "Low",
-          "combined_risk_reason": "Low because feature did not cross combined SHAP, drift, or VIF risk rules."
+          "reason": "Low because no configured feature-risk rule fired.",
+          "combined_risk_reason": "Low because no configured feature-risk rule fired.",
+          "recommended_action": "No immediate action."
         },
         {
-          "feature": "fuel_spend_30d",
-          "shap_rank": 6,
-          "mean_abs_shap_value": 0.21283723413944244,
+          "feature": "qsr_recency_days",
+          "feature_group": "model_feature",
+          "business_definition": "Days since the synthetic consumer's most recent QSR transaction.",
+          "shap_rank": 5,
+          "mean_abs_shap": 0.17975057661533356,
+          "mean_abs_shap_value": 0.17975057661533356,
+          "psi": 0.0412202586609684,
+          "ks_pvalue": 0.3706320255863302,
+          "wasserstein_distance": 1.395,
           "drift_level": "Low",
-          "drift_level_reason": "Low because feature did not cross Mitra drift thresholds.",
-          "vif": 1.045793262156066,
+          "vif": 1.0452640010850327,
+          "vif_risk": "Low",
           "vif_warning": "Low",
+          "final_risk": "Low",
           "combined_risk": "Low",
-          "combined_risk_reason": "Low because feature did not cross combined SHAP, drift, or VIF risk rules."
+          "reason": "Low because no configured feature-risk rule fired.",
+          "combined_risk_reason": "Low because no configured feature-risk rule fired.",
+          "recommended_action": "No immediate action."
         },
         {
           "feature": "competitor_qsr_share_90d",
+          "feature_group": "model_feature",
+          "business_definition": "Share of synthetic QSR activity with competitor QSR merchants over 90 days.",
           "shap_rank": 7,
-          "mean_abs_shap_value": 0.11285369843244553,
+          "mean_abs_shap": 0.09856006503105164,
+          "mean_abs_shap_value": 0.09856006503105164,
+          "psi": 0.0773579379229839,
+          "ks_pvalue": 0.5182193645480672,
+          "wasserstein_distance": 0.0216975,
           "drift_level": "Low",
-          "drift_level_reason": "Low because feature did not cross Mitra drift thresholds.",
           "vif": 1.0350657264975056,
+          "vif_risk": "Low",
           "vif_warning": "Low",
+          "final_risk": "Low",
           "combined_risk": "Low",
-          "combined_risk_reason": "Low because feature did not cross combined SHAP, drift, or VIF risk rules."
+          "reason": "Low because no configured feature-risk rule fired.",
+          "combined_risk_reason": "Low because no configured feature-risk rule fired.",
+          "recommended_action": "No immediate action."
+        },
+        {
+          "feature": "fuel_spend_30d",
+          "feature_group": "model_feature",
+          "business_definition": "Total synthetic fuel spend in the last 30 days.",
+          "shap_rank": 8,
+          "mean_abs_shap": 0.08302345871925354,
+          "mean_abs_shap_value": 0.08302345871925354,
+          "psi": 0.0522199015355041,
+          "ks_pvalue": 0.8428847956274123,
+          "wasserstein_distance": 4.1195,
+          "drift_level": "Low",
+          "vif": 1.045793262156066,
+          "vif_risk": "Low",
+          "vif_warning": "Low",
+          "final_risk": "Low",
+          "combined_risk": "Low",
+          "reason": "Low because no configured feature-risk rule fired.",
+          "combined_risk_reason": "Low because no configured feature-risk rule fired.",
+          "recommended_action": "No immediate action."
         },
         {
           "feature": "campaign_exposed",
+          "feature_group": "model_feature",
+          "business_definition": "Indicator that the synthetic consumer was exposed to a QSR campaign.",
           "shap_rank": 9,
-          "mean_abs_shap_value": 0.02812393754720688,
+          "mean_abs_shap": 0.011783698573708534,
+          "mean_abs_shap_value": 0.011783698573708534,
+          "psi": 0.0001118114571026,
+          "ks_pvalue": 1.0,
+          "wasserstein_distance": 0.005,
           "drift_level": "Low",
-          "drift_level_reason": "Low because feature did not cross Mitra drift thresholds.",
           "vif": 1.0118711283711297,
+          "vif_risk": "Low",
           "vif_warning": "Low",
+          "final_risk": "Low",
           "combined_risk": "Low",
-          "combined_risk_reason": "Low because feature did not cross combined SHAP, drift, or VIF risk rules."
+          "reason": "Low because no configured feature-risk rule fired.",
+          "combined_risk_reason": "Low because no configured feature-risk rule fired.",
+          "recommended_action": "No immediate action."
         }
       ],
       "multicollinearity_findings": [
         {
           "feature": "qsr_spend_30d",
           "vif": 4.381871553669761,
+          "vif_risk": "Low",
+          "vif_risk_reason": "Low because VIF 4.38 is below configured threshold 5.00.",
           "vif_level": "Low",
-          "vif_level_reason": "Low because VIF 4.38 is below threshold 5.00."
+          "vif_level_reason": "Low because VIF 4.38 is below configured threshold 5.00."
         },
         {
           "feature": "qsr_txn_count_30d",
           "vif": 4.377448566599988,
+          "vif_risk": "Low",
+          "vif_risk_reason": "Low because VIF 4.38 is below configured threshold 5.00.",
           "vif_level": "Low",
-          "vif_level_reason": "Low because VIF 4.38 is below threshold 5.00."
+          "vif_level_reason": "Low because VIF 4.38 is below configured threshold 5.00."
         },
         {
           "feature": "weekend_dining_frequency",
           "vif": 1.047225528065608,
+          "vif_risk": "Low",
+          "vif_risk_reason": "Low because VIF 1.05 is below configured threshold 5.00.",
           "vif_level": "Low",
-          "vif_level_reason": "Low because VIF 1.05 is below threshold 5.00."
+          "vif_level_reason": "Low because VIF 1.05 is below configured threshold 5.00."
         },
         {
           "feature": "fuel_spend_30d",
           "vif": 1.045793262156066,
+          "vif_risk": "Low",
+          "vif_risk_reason": "Low because VIF 1.05 is below configured threshold 5.00.",
           "vif_level": "Low",
-          "vif_level_reason": "Low because VIF 1.05 is below threshold 5.00."
+          "vif_level_reason": "Low because VIF 1.05 is below configured threshold 5.00."
         },
         {
           "feature": "qsr_recency_days",
           "vif": 1.0452640010850327,
+          "vif_risk": "Low",
+          "vif_risk_reason": "Low because VIF 1.05 is below configured threshold 5.00.",
           "vif_level": "Low",
-          "vif_level_reason": "Low because VIF 1.05 is below threshold 5.00."
+          "vif_level_reason": "Low because VIF 1.05 is below configured threshold 5.00."
         },
         {
           "feature": "grocery_spend_30d",
           "vif": 1.0357654414275415,
+          "vif_risk": "Low",
+          "vif_risk_reason": "Low because VIF 1.04 is below configured threshold 5.00.",
           "vif_level": "Low",
-          "vif_level_reason": "Low because VIF 1.04 is below threshold 5.00."
+          "vif_level_reason": "Low because VIF 1.04 is below configured threshold 5.00."
         },
         {
           "feature": "competitor_qsr_share_90d",
           "vif": 1.0350657264975056,
+          "vif_risk": "Low",
+          "vif_risk_reason": "Low because VIF 1.04 is below configured threshold 5.00.",
           "vif_level": "Low",
-          "vif_level_reason": "Low because VIF 1.04 is below threshold 5.00."
+          "vif_level_reason": "Low because VIF 1.04 is below configured threshold 5.00."
         },
         {
           "feature": "merchant_novelty_rate",
           "vif": 1.0263186579908101,
+          "vif_risk": "Low",
+          "vif_risk_reason": "Low because VIF 1.03 is below configured threshold 5.00.",
           "vif_level": "Low",
-          "vif_level_reason": "Low because VIF 1.03 is below threshold 5.00."
+          "vif_level_reason": "Low because VIF 1.03 is below configured threshold 5.00."
         },
         {
           "feature": "campaign_exposed",
           "vif": 1.0118711283711297,
+          "vif_risk": "Low",
+          "vif_risk_reason": "Low because VIF 1.01 is below configured threshold 5.00.",
           "vif_level": "Low",
-          "vif_level_reason": "Low because VIF 1.01 is below threshold 5.00."
+          "vif_level_reason": "Low because VIF 1.01 is below configured threshold 5.00."
         }
       ],
       "overfitting_check": {
-        "metric_name": "auc",
         "train_auc": 0.812,
         "validation_auc": 0.776,
         "delta": 0.03600000000000003,
         "risk_level": "Medium",
-        "risk_level_reason": "Medium because train-validation delta 0.0360 is at or above threshold 0.0300."
+        "reason": "Medium because train-validation AUC delta 0.0360 is at or above configured threshold 0.0300.",
+        "risk_level_reason": "Medium because train-validation AUC delta 0.0360 is at or above configured threshold 0.0300."
       },
       "plots_generated": {
         "shap_bar": "/Users/adityasharma/Desktop/CometLens/reports/figures/shap_bar.png",
         "shap_beeswarm": "/Users/adityasharma/Desktop/CometLens/reports/figures/shap_beeswarm.png",
         "shap_global_bar": "/Users/adityasharma/Desktop/CometLens/reports/figures/shap_global_bar.png"
-      }
+      },
+      "warnings": [],
+      "source_files": {
+        "train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+        "current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+        "current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+        "drift_report": "/Users/adityasharma/Desktop/CometLens/reports/drift_report.csv",
+        "mitra_output": "/Users/adityasharma/Desktop/CometLens/reports/mitra_output.json",
+        "model_metadata": "/Users/adityasharma/Desktop/CometLens/models/model_metadata.json",
+        "feature_metadata": "/Users/adityasharma/Desktop/CometLens/models/feature_metadata.json",
+        "calibration_config": "/Users/adityasharma/Desktop/CometLens/configs/calibration_config_v1.json"
+      },
+      "skipped": false
     }
   }
 }

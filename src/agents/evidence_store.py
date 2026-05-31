@@ -1,191 +1,282 @@
-"""Build a deterministic evidence packet from AxionAI agent outputs."""
+"""Build a deterministic evidence packet from AxionAI agent artifacts."""
 
 from __future__ import annotations
 
+import argparse
+from datetime import datetime, timezone
 import json
 from pathlib import Path
 from typing import Any
 
+import pandas as pd
+
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 MODELS_DIR = PROJECT_ROOT / "models"
 REPORTS_DIR = PROJECT_ROOT / "reports"
+CONFIGS_DIR = PROJECT_ROOT / "configs"
 DEFAULT_EVIDENCE_PATH = REPORTS_DIR / "evidence_store.json"
 DEFAULT_PACKET_PATH = REPORTS_DIR / "evidence_packet.json"
 
 
+def default_paths(use_case: str | None = None) -> dict[str, Path]:
+    """Return configurable Evidence Store paths with current repo defaults."""
+    use_case_reports = REPORTS_DIR / use_case if use_case else REPORTS_DIR
+    reports_dir = use_case_reports if use_case and use_case_reports.exists() else REPORTS_DIR
+    return {
+        "mitra_output": reports_dir / "mitra_output.json",
+        "varuna_output": reports_dir / "model_lens_output.json",
+        "data_quality_report": reports_dir / "data_quality_report.csv",
+        "drift_report": reports_dir / "drift_report.csv",
+        "prediction_drift_report": reports_dir / "prediction_drift_report.json",
+        "feature_risk_matrix": reports_dir / "feature_risk_matrix.csv",
+        "model_diagnostics": reports_dir / "model_diagnostics.json",
+        "vishwakarma_output": reports_dir / "visuals" / "vishwakarma_output.json",
+        "model_metadata": MODELS_DIR / "model_metadata.json",
+        "feature_metadata": MODELS_DIR / "feature_metadata.json",
+        "calibration_config": CONFIGS_DIR / "calibration_config_v1.json",
+        "output": reports_dir / "evidence_packet.json",
+    }
+
+
 class EvidenceStore:
-    """Persist agent evidence and build a compact packet for narrative use."""
+    """Persist named deterministic evidence sections during agent execution."""
 
     def __init__(self, path: Path = DEFAULT_EVIDENCE_PATH) -> None:
         """Create an evidence store at the provided path."""
-        self.path = path
+        self.path = Path(path)
         self.path.parent.mkdir(parents=True, exist_ok=True)
 
     def load(self) -> dict[str, Any]:
-        """Load the append-only evidence store used by agents during execution."""
+        """Load saved agent evidence sections."""
         if not self.path.exists():
             return {"evidence": {}}
         return json.loads(self.path.read_text(encoding="utf-8"))
 
     def save_section(self, section: str, payload: dict[str, Any]) -> Path:
-        """Save one named evidence section and return the store path."""
+        """Save one named section and return the store path."""
         evidence = self.load()
         evidence.setdefault("evidence", {})[section] = payload
         self.path.write_text(json.dumps(evidence, indent=2), encoding="utf-8")
         return self.path
 
 
-class EvidencePacketBuilder:
-    """Create a single auditable evidence packet from deterministic artifacts."""
+class EvidenceStoreBuilder:
+    """Combine verified Mitra and Varuna outputs into one auditable evidence packet."""
 
-    def __init__(
-        self,
-        signal_sentinel_path: Path = REPORTS_DIR / "mitra_output.json",
-        model_lens_path: Path = REPORTS_DIR / "varuna_output.json",
-        model_metadata_path: Path = MODELS_DIR / "model_metadata.json",
-        feature_metadata_path: Path = MODELS_DIR / "feature_metadata.json",
-        output_path: Path = DEFAULT_PACKET_PATH,
-    ) -> None:
-        """Configure source and destination artifacts."""
-        self.signal_sentinel_path = Path(signal_sentinel_path)
-        self.model_lens_path = Path(model_lens_path)
-        self.model_metadata_path = Path(model_metadata_path)
-        self.feature_metadata_path = Path(feature_metadata_path)
-        self.output_path = Path(output_path)
+    def __init__(self, paths: dict[str, str | Path] | None = None, **legacy_paths: str | Path) -> None:
+        """Configure input and output paths while accepting earlier keyword paths."""
+        configured = default_paths()
+        if paths:
+            configured.update({key: Path(value) for key, value in paths.items()})
+        legacy_mapping = {
+            "signal_sentinel_path": "mitra_output",
+            "model_lens_path": "varuna_output",
+            "model_metadata_path": "model_metadata",
+            "feature_metadata_path": "feature_metadata",
+            "output_path": "output",
+        }
+        for legacy_key, target_key in legacy_mapping.items():
+            if legacy_key in legacy_paths:
+                configured[target_key] = Path(legacy_paths[legacy_key])
+        self.paths = {key: Path(value) for key, value in configured.items()}
+        self.output_path = self.paths["output"]
+        self.packet: dict[str, Any] = {}
 
     @staticmethod
-    def _load_json(path: Path, fallback_path: Path | None = None) -> dict[str, Any]:
-        """Load a required JSON artifact."""
-        selected_path = path if path.exists() else fallback_path
-        if selected_path is None or not selected_path.exists():
+    def _load_json(path: Path) -> dict[str, Any]:
+        """Load a required JSON object."""
+        if not path.exists():
             raise FileNotFoundError(f"Required evidence input not found: {path}")
-        return json.loads(selected_path.read_text(encoding="utf-8"))
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(payload, dict):
+            raise ValueError(f"Expected JSON object in {path}")
+        return payload
 
     @staticmethod
-    def _feature_direction(row: dict[str, Any]) -> str:
-        """Describe feature mean direction from existing drift values."""
-        change = float(row.get("mean_change_pct", 0.0))
-        if change > 0:
-            return "increased in current data"
-        if change < 0:
-            return "decreased in current data"
-        return "was unchanged in current data"
+    def _load_csv(path: Path) -> pd.DataFrame:
+        """Load a required CSV artifact."""
+        if not path.exists():
+            raise FileNotFoundError(f"Required evidence input not found: {path}")
+        return pd.read_csv(path)
 
     @staticmethod
     def _available_plot(path_value: str) -> dict[str, Any]:
-        """Describe a plot path and whether it exists locally."""
+        """Return an auditable plot availability record."""
         path = Path(path_value)
-        return {"path": path_value, "exists": path.exists()}
+        return {"path": str(path), "exists": path.exists()}
+
+    @staticmethod
+    def _risk_rows(frame: pd.DataFrame, risk_column: str, levels: set[str]) -> list[dict[str, Any]]:
+        """Return records filtered by requested risk levels."""
+        if frame.empty or risk_column not in frame.columns:
+            return []
+        return frame.loc[frame[risk_column].isin(levels)].to_dict(orient="records")
 
     def _derive_key_findings(
         self,
-        signal_sentinel: dict[str, Any],
-        model_lens: dict[str, Any],
+        mitra: dict[str, Any],
+        varuna: dict[str, Any],
+        feature_risk: pd.DataFrame,
+        prediction_drift: dict[str, Any],
     ) -> list[str]:
-        """Derive plain-English findings only from existing deterministic values."""
+        """Derive concise findings using only saved deterministic outputs."""
         findings: list[str] = []
+        risk_features = set(feature_risk.get("feature", pd.Series(dtype=str)).astype(str))
+        for row in mitra.get("high_drift_features", []):
+            feature = str(row.get("feature"))
+            suffix = " and appears in the feature risk matrix" if feature in risk_features else ""
+            findings.append(f"{feature} is high drift{suffix}.")
 
-        for row in signal_sentinel.get("high_drift_features", []):
-            feature = row["feature"]
-            findings.append(f"{feature} is a high-drift feature")
-            findings.append(f"{feature} {self._feature_direction(row)}")
+        for row in feature_risk.to_dict(orient="records"):
+            if row.get("final_risk") == "High":
+                findings.append(
+                    f"{row['feature']} is a high-risk feature because it is model-important and has "
+                    f"{str(row.get('drift_level', 'Low')).lower()} drift."
+                )
 
-        for row in signal_sentinel.get("medium_drift_features", []):
-            feature = row["feature"]
-            findings.append(f"{feature} is a medium-drift feature")
-            findings.append(f"{feature} {self._feature_direction(row)}")
-
-        for row in model_lens.get("multicollinearity_findings", []):
-            feature = row["feature"]
-            vif_level = row.get("vif_level", "Low")
-            if vif_level == "High":
-                findings.append(f"{feature} has high VIF")
-            elif vif_level == "Medium":
-                findings.append(f"{feature} has medium VIF")
-
-        overfitting = model_lens.get("overfitting_check", {})
-        overfitting_level = overfitting.get("risk_level")
-        if overfitting_level:
-            metric_name = overfitting.get("metric_name", "metric")
+        prediction_level = prediction_drift.get("prediction_drift_level")
+        if prediction_level and prediction_level != "Unknown":
             findings.append(
-                f"train-validation {metric_name} delta indicates {str(overfitting_level).lower()} overfitting risk"
+                f"Prediction drift is {prediction_level} based on score distribution shift and KS p-value."
             )
 
-        top_driver = next(iter(model_lens.get("top_global_drivers", [])), None)
-        if top_driver:
-            findings.append(f"{top_driver['feature']} is the top global model driver")
+        for row in varuna.get("multicollinearity_findings", []):
+            vif_risk = row.get("vif_risk", row.get("vif_level"))
+            if vif_risk == "High":
+                findings.append(f"VIF risk is High for {row['feature']}.")
 
-        prediction_summary = signal_sentinel.get("prediction_drift_summary", {})
-        prediction_drift_level = prediction_summary.get("prediction_drift_level")
-        if prediction_drift_level and prediction_drift_level != "Unknown":
-            findings.append(f"prediction score drift is {str(prediction_drift_level).lower()}")
-        if "score_psi" in prediction_summary:
-            findings.append(f"prediction score PSI is {float(prediction_summary['score_psi']):.3f}")
-        if "prediction_actual_rate_gap" in prediction_summary:
-            gap = float(prediction_summary["prediction_actual_rate_gap"])
-            findings.append(f"predicted-positive rate differs from actual-positive rate by {gap:+.3f}")
+        overfitting = varuna.get("overfitting_check", {})
+        if overfitting.get("risk_level") not in {None, "Low", "Not Available"}:
+            findings.append(
+                "Train-validation AUC delta indicates "
+                f"{str(overfitting['risk_level']).lower()} overfitting risk."
+            )
+        return list(dict.fromkeys(findings))
 
-        return findings
-
-    @staticmethod
-    def _signal_summary(signal_sentinel: dict[str, Any]) -> dict[str, Any]:
-        """Extract a compact Mitra summary."""
-        return {
-            "overall_risk_level": signal_sentinel.get("overall_risk_level"),
-            "overall_risk_explanation": signal_sentinel.get("overall_risk_explanation"),
-            "risk_assessment": signal_sentinel.get("risk_assessment", {}),
-            "data_health_summary": signal_sentinel.get("data_health_summary", {}),
-            "high_drift_feature_count": len(signal_sentinel.get("high_drift_features", [])),
-            "medium_drift_feature_count": len(signal_sentinel.get("medium_drift_features", [])),
-            "prediction_drift_summary": signal_sentinel.get("prediction_drift_summary", {}),
-            "cluster_findings": signal_sentinel.get("cluster_findings", []),
-            "recommended_checks": signal_sentinel.get("recommended_checks", []),
-        }
-
-    @staticmethod
-    def _model_lens_summary(model_lens: dict[str, Any]) -> dict[str, Any]:
-        """Extract a compact Varuna summary."""
-        return {
-            "top_global_drivers": model_lens.get("top_global_drivers", []),
-            "high_risk_feature_matrix": model_lens.get("high_risk_feature_matrix", []),
-            "multicollinearity_findings": model_lens.get("multicollinearity_findings", []),
-            "overfitting_check": model_lens.get("overfitting_check", {}),
-            "explainability_reliability": model_lens.get("explainability_reliability", {}),
-        }
+    def _recommended_actions(
+        self,
+        mitra: dict[str, Any],
+        varuna: dict[str, Any],
+        feature_risk: pd.DataFrame,
+        data_quality: pd.DataFrame,
+        prediction_drift: dict[str, Any],
+    ) -> list[str]:
+        """Build actions using deterministic risk rules only."""
+        actions: list[str] = []
+        if any(feature_risk.get("final_risk", pd.Series(dtype=str)) == "High"):
+            actions.append("Review high-risk feature stability and consider recalibration before activation.")
+        if prediction_drift.get("prediction_drift_level") == "High":
+            actions.append("Run validation before campaign or model activation because prediction drift is High.")
+        if not data_quality.empty and any(data_quality.get("issue_level", pd.Series(dtype=str)).isin(["Medium", "High"])):
+            actions.append("Review upstream data pipelines for medium or high data-quality issues.")
+        if any(
+            row.get("vif_risk", row.get("vif_level")) == "High"
+            for row in varuna.get("multicollinearity_findings", [])
+        ):
+            actions.append("Review feature redundancy and consider consolidating high-VIF features.")
+        actions.extend(mitra.get("recommended_checks", []))
+        return list(dict.fromkeys(actions))
 
     def build_packet(self) -> dict[str, Any]:
-        """Build the full evidence packet."""
-        signal_sentinel = self._load_json(
-            self.signal_sentinel_path,
-            fallback_path=REPORTS_DIR / "signal_sentinel_output.json",
-        )
-        model_lens = self._load_json(
-            self.model_lens_path,
-            fallback_path=REPORTS_DIR / "model_lens_output.json",
-        )
-        model_metadata = self._load_json(self.model_metadata_path)
-        feature_metadata = self._load_json(self.feature_metadata_path)
-        plots = {
+        """Build the complete verified evidence packet."""
+        mitra = self._load_json(self.paths["mitra_output"])
+        varuna = self._load_json(self.paths["varuna_output"])
+        data_quality = self._load_csv(self.paths["data_quality_report"])
+        drift = self._load_csv(self.paths["drift_report"])
+        prediction_drift = self._load_json(self.paths["prediction_drift_report"])
+        feature_risk = self._load_csv(self.paths["feature_risk_matrix"])
+        model_diagnostics = self._load_json(self.paths["model_diagnostics"])
+        model_metadata = self._load_json(self.paths["model_metadata"])
+        feature_metadata = self._load_json(self.paths["feature_metadata"])
+        config = self._load_json(self.paths["calibration_config"])
+        run_id = str(varuna.get("run_id") or mitra.get("run_id") or datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ"))
+        timestamp = str(varuna.get("timestamp") or datetime.now(timezone.utc).isoformat())
+        config_version = str(config.get("config_version", mitra.get("config_version", "unknown")))
+        plots_available = {
             name: self._available_plot(path)
-            for name, path in model_lens.get("plots_generated", {}).items()
+            for name, path in varuna.get("plots_generated", {}).items()
         }
+        vishwakarma = self._load_json(self.paths["vishwakarma_output"]) if self.paths["vishwakarma_output"].exists() else {}
+        visuals_match_run = str(vishwakarma.get("run_id")) == run_id
+        visuals_available = vishwakarma.get("visuals_generated", {}) if visuals_match_run else {}
+        recommended_report_visuals = vishwakarma.get("recommended_report_visuals", []) if visuals_match_run else []
 
-        return {
-            "config_version": signal_sentinel.get("config_version", model_lens.get("config_version", "unknown")),
-            "source_files": {
-                "mitra_output": str(self.signal_sentinel_path),
-                "varuna_output": str(self.model_lens_path),
-                "model_metadata": str(self.model_metadata_path),
-                "feature_metadata": str(self.feature_metadata_path),
-                "mitra_source_files": signal_sentinel.get("source_files", {}),
-                "varuna_source_files": model_lens.get("source_files", {}),
-            },
+        mitra_summary = {
+            "overall_risk_level": mitra.get("overall_risk_level"),
+            "overall_risk_explanation": mitra.get("overall_risk_explanation"),
+            "risk_assessment": mitra.get("risk_assessment", {}),
+            "high_drift_features": mitra.get("high_drift_features", []),
+            "medium_drift_features": mitra.get("medium_drift_features", []),
+            "cluster_findings": mitra.get("cluster_findings", []),
+            "recommended_checks": mitra.get("recommended_checks", []),
+        }
+        varuna_summary = {
+            "agent": varuna.get("agent", "Varuna"),
+            "reference_model_type": varuna.get("reference_model_type"),
+            "explanation_method": varuna.get("explanation_method"),
+            "explainability_reliability": varuna.get("explainability_reliability", {}),
+            "overfitting_check": varuna.get("overfitting_check", {}),
+            "multicollinearity_findings": varuna.get("multicollinearity_findings", []),
+            "warnings": varuna.get("warnings", []),
+        }
+        high_risk_features = self._risk_rows(feature_risk, "final_risk", {"High"})
+        key_findings = self._derive_key_findings(mitra, varuna, feature_risk, prediction_drift)
+        limitations = [
+            "Synthetic demo data only",
+            "Not validated for production use",
+            "No real customer or financial data used",
+        ]
+        source_files = {name: str(path) for name, path in self.paths.items() if name != "output"}
+
+        self.packet = {
+            "run_id": run_id,
+            "timestamp": timestamp,
+            "config_version": config_version,
             "model_metadata": model_metadata,
             "feature_metadata": feature_metadata,
-            "signal_sentinel_summary": self._signal_summary(signal_sentinel),
-            "model_lens_summary": self._model_lens_summary(model_lens),
-            "key_findings": self._derive_key_findings(signal_sentinel, model_lens),
-            "available_plots": plots,
+            "source_files": source_files,
+            "mitra_summary": mitra_summary,
+            "varuna_summary": varuna_summary,
+            "data_quality_summary": {
+                "issue_counts": data_quality.get("issue_level", pd.Series(dtype=str)).value_counts().to_dict(),
+                "findings": data_quality.to_dict(orient="records"),
+            },
+            "feature_drift_summary": {
+                "high_drift_features": self._risk_rows(drift, "drift_level", {"High"}),
+                "medium_drift_features": self._risk_rows(drift, "drift_level", {"Medium"}),
+                "all_features": drift.to_dict(orient="records"),
+            },
+            "prediction_drift_summary": prediction_drift,
+            "top_model_drivers": varuna.get("top_model_drivers", varuna.get("top_global_drivers", [])),
+            "high_risk_features": high_risk_features,
+            "feature_risk_matrix": feature_risk.to_dict(orient="records"),
+            "model_diagnostics": model_diagnostics,
+            "key_findings": key_findings,
+            "recommended_actions": self._recommended_actions(
+                mitra,
+                varuna,
+                feature_risk,
+                data_quality,
+                prediction_drift,
+            ),
+            "plots_available": plots_available,
+            "visuals_available": visuals_available,
+            "recommended_report_visuals": recommended_report_visuals,
+            "limitations": limitations,
+            # Backward-compatible aliases for earlier narrative utilities.
+            "signal_sentinel_summary": {
+                **mitra_summary,
+                "data_health_summary": mitra.get("data_health_summary", {}),
+                "high_drift_feature_count": len(mitra.get("high_drift_features", [])),
+                "medium_drift_feature_count": len(mitra.get("medium_drift_features", [])),
+                "prediction_drift_summary": prediction_drift,
+            },
+            "model_lens_summary": {
+                **varuna_summary,
+                "top_global_drivers": varuna.get("top_model_drivers", varuna.get("top_global_drivers", [])),
+                "high_risk_feature_matrix": feature_risk.to_dict(orient="records"),
+            },
+            "available_plots": plots_available,
             "business_context": {
                 "business_use_case": model_metadata.get("business_use_case"),
                 "decision_supported": model_metadata.get("decision_supported"),
@@ -195,24 +286,39 @@ class EvidencePacketBuilder:
                 "training_window": model_metadata.get("training_window"),
                 "current_window": model_metadata.get("current_window"),
             },
-            "limitations": [
-                "Synthetic sample data only",
-                "LLM narrative should not be treated as production validation",
-                "Metrics are simulated for MVP demonstration",
-            ],
         }
+        return self.packet
 
     def save(self) -> Path:
-        """Write the evidence packet to disk."""
-        REPORTS_DIR.mkdir(parents=True, exist_ok=True)
-        packet = self.build_packet()
-        self.output_path.write_text(json.dumps(packet, indent=2), encoding="utf-8")
+        """Write evidence_packet.json and return its path."""
+        self.output_path.parent.mkdir(parents=True, exist_ok=True)
+        self.output_path.write_text(json.dumps(self.build_packet(), indent=2), encoding="utf-8")
         return self.output_path
+
+    def run(self, state: dict[str, Any] | None = None) -> dict[str, Any]:
+        """Build evidence as a future LangGraph-compatible state transformation."""
+        next_state = dict(state or {})
+        output_path = self.save()
+        next_state["evidence_packet"] = self.packet
+        next_state["evidence_packet_path"] = str(output_path)
+        return next_state
+
+
+# Backward-compatible alias used by earlier pipeline and tests.
+EvidencePacketBuilder = EvidenceStoreBuilder
+
+
+def parse_args() -> argparse.Namespace:
+    """Parse Evidence Store CLI arguments."""
+    parser = argparse.ArgumentParser(description="Build deterministic AxionAI evidence packet.")
+    parser.add_argument("--use_case", choices=["fraud", "purchase"], help="Optional configured report folder.")
+    return parser.parse_args()
 
 
 def main() -> None:
-    """Build and save the deterministic evidence packet."""
-    output_path = EvidencePacketBuilder().save()
+    """Build and save reports/evidence_packet.json."""
+    args = parse_args()
+    output_path = EvidenceStoreBuilder(paths=default_paths(args.use_case)).save()
     print(f"Saved evidence packet to {output_path}")
 
 
