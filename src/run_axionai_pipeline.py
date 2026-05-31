@@ -19,6 +19,7 @@ if __package__ in {None, ""}:
 from src.agents.evidence_store import EvidencePacketBuilder
 from src.agents.executive_synthesis_agent import ExecutiveSynthesisAgent
 from src.agents.model_lens_agent import ModelLensAgent
+from src.agents.samanvaya_agent import SamanvayaAgent
 from src.agents.signal_sentinel_agent import SignalSentinelAgent
 from src.generate_sample_artifacts import main as generate_sample_artifacts
 from src.utils.artifact_validation import ArtifactValidationError, validate_input_contract
@@ -28,6 +29,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = PROJECT_ROOT / "data"
 MODELS_DIR = PROJECT_ROOT / "models"
 REPORTS_DIR = PROJECT_ROOT / "reports"
+CONFIGS_DIR = PROJECT_ROOT / "configs"
 
 
 class PipelineExecutionError(RuntimeError):
@@ -72,6 +74,7 @@ def run_generate_sample_artifacts() -> list[Path]:
     return [
         DATA_DIR / "train_features_sample.csv",
         DATA_DIR / "current_features_sample.csv",
+        DATA_DIR / "train_predictions_sample.csv",
         DATA_DIR / "current_predictions_sample.csv",
         MODELS_DIR / "model_metadata.json",
         MODELS_DIR / "feature_metadata.json",
@@ -89,7 +92,29 @@ def run_validate_artifacts() -> list[Path]:
     )
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
     validation_path = REPORTS_DIR / "artifact_validation.json"
-    validation_path.write_text(json.dumps({"status": "passed", **summary}, indent=2), encoding="utf-8")
+    config_path = CONFIGS_DIR / "calibration_config_v1.json"
+    config_version = "unknown"
+    if config_path.exists():
+        config_version = json.loads(config_path.read_text(encoding="utf-8")).get("config_version", "unknown")
+    validation_path.write_text(
+        json.dumps(
+            {
+                "status": "passed",
+                "config_version": config_version,
+                "source_files": {
+                    "train_features": str(DATA_DIR / "train_features_sample.csv"),
+                    "current_features": str(DATA_DIR / "current_features_sample.csv"),
+                    "current_predictions": str(DATA_DIR / "current_predictions_sample.csv"),
+                    "model_metadata": str(MODELS_DIR / "model_metadata.json"),
+                    "feature_metadata": str(MODELS_DIR / "feature_metadata.json"),
+                    "calibration_config": str(config_path) if config_path.exists() else None,
+                },
+                **summary,
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
     return [validation_path]
 
 
@@ -116,20 +141,29 @@ def archive_current_run(run_id: str) -> list[Path]:
     artifacts = [
         DATA_DIR / "train_features_sample.csv",
         DATA_DIR / "current_features_sample.csv",
+        DATA_DIR / "train_predictions_sample.csv",
         DATA_DIR / "current_predictions_sample.csv",
         MODELS_DIR / "model_metadata.json",
         MODELS_DIR / "feature_metadata.json",
         REPORTS_DIR / "artifact_validation.json",
+        REPORTS_DIR / "mitra_output.json",
         REPORTS_DIR / "signal_sentinel_output.json",
+        REPORTS_DIR / "data_quality_report.csv",
+        REPORTS_DIR / "prediction_drift_report.json",
         REPORTS_DIR / "drift_report.csv",
         REPORTS_DIR / "cluster_shift_report.csv",
+        REPORTS_DIR / "varuna_output.json",
         REPORTS_DIR / "model_lens_output.json",
         REPORTS_DIR / "shap_global_importance.csv",
         REPORTS_DIR / "vif_report.csv",
         REPORTS_DIR / "evidence_packet.json",
         REPORTS_DIR / "executive_model_report.json",
         REPORTS_DIR / "executive_model_report.md",
+        REPORTS_DIR / "samanvaya_recommendations.json",
+        REPORTS_DIR / "config_change_log.json",
         REPORTS_DIR / "figures",
+        CONFIGS_DIR / "calibration_config_v1.json",
+        CONFIGS_DIR / "calibration_config_v2.json",
     ]
     return [archive_run(run_id, artifacts)]
 
@@ -175,6 +209,8 @@ def main() -> None:
         run_step(f"{step_number}. Run Evidence Store builder", lambda: [EvidencePacketBuilder().save()])
         step_number += 1
         run_step(f"{step_number}. Run Agent 03: Aryaman", lambda: ExecutiveSynthesisAgent().save_outputs())
+        step_number += 1
+        run_step(f"{step_number}. Run Agent 04: Samanvaya", lambda: SamanvayaAgent().save_outputs())
         step_number += 1
         run_step(f"{step_number}. Archive timestamped run", lambda: archive_current_run(run_id))
     except PipelineExecutionError as error:

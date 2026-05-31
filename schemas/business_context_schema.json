@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AxionAI Business Context",
+  "type": "object",
+  "required": ["business_use_case", "decision_supported", "stakeholder_audience"],
+  "properties": {
+    "business_use_case": {
+      "type": "string",
+      "minLength": 1
+    },
+    "decision_supported": {
+      "type": "string",
+      "minLength": 1
+    },
+    "stakeholder_audience": {
+      "type": "string",
+      "enum": ["client", "executive", "risk_governance", "data_science", "mixed"]
+    },
+    "industry_context": {
+      "type": "string"
+    },
+    "report_profile": {
+      "type": "string",
+      "enum": ["purchase_model_intelligence", "risk_governance_model_health", "general_model_health"]
+    },
+    "recommended_tone": {
+      "type": "string",
+      "enum": ["client_ready", "governance_ready", "technical", "executive"]
+    },
+    "decision_risk": {
+      "type": "string"
+    },
+    "review_cadence": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}

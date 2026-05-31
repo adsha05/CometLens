@@ -2,6 +2,15 @@
   "evidence": {
     "model_lens": {
       "agent_name": "Agent 02: Varuna",
+      "config_version": "v1",
+      "source_files": {
+        "train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+        "current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+        "current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+        "model_metadata": "/Users/adityasharma/Desktop/CometLens/models/model_metadata.json",
+        "feature_metadata": "/Users/adityasharma/Desktop/CometLens/models/feature_metadata.json",
+        "mitra_output": "/Users/adityasharma/Desktop/CometLens/reports/mitra_output.json"
+      },
       "model_name": "qsr_purchase_predictor_v3",
       "explainability_reliability": {
         "status": "unreliable",
@@ -78,128 +87,155 @@
           "shap_rank": 2,
           "mean_abs_shap_value": 0.508556067943573,
           "drift_level": "High",
+          "drift_level_reason": "High because PSI 0.5649 is at or above configured high threshold 0.2500.",
           "vif": 1.0263186579908101,
           "vif_warning": "Low",
-          "combined_risk": "High"
+          "combined_risk": "High",
+          "combined_risk_reason": "High because feature has high drift and is a top-5 SHAP driver."
         },
         {
           "feature": "weekend_dining_frequency",
           "shap_rank": 8,
           "mean_abs_shap_value": 0.08141425251960754,
           "drift_level": "High",
+          "drift_level_reason": "High because PSI 0.3144 is at or above configured high threshold 0.2500.",
           "vif": 1.047225528065608,
           "vif_warning": "Low",
-          "combined_risk": "Medium"
+          "combined_risk": "Medium",
+          "combined_risk_reason": "Medium because feature has drift or medium VIF warning."
         },
         {
           "feature": "qsr_txn_count_30d",
           "shap_rank": 1,
           "mean_abs_shap_value": 0.5763269066810608,
           "drift_level": "Low",
+          "drift_level_reason": "Low because feature did not cross Mitra drift thresholds.",
           "vif": 4.377448566599988,
           "vif_warning": "Low",
-          "combined_risk": "Low"
+          "combined_risk": "Low",
+          "combined_risk_reason": "Low because feature did not cross combined SHAP, drift, or VIF risk rules."
         },
         {
           "feature": "grocery_spend_30d",
           "shap_rank": 3,
           "mean_abs_shap_value": 0.46509280800819397,
           "drift_level": "Low",
+          "drift_level_reason": "Low because feature did not cross Mitra drift thresholds.",
           "vif": 1.0357654414275415,
           "vif_warning": "Low",
-          "combined_risk": "Low"
+          "combined_risk": "Low",
+          "combined_risk_reason": "Low because feature did not cross combined SHAP, drift, or VIF risk rules."
         },
         {
           "feature": "qsr_recency_days",
           "shap_rank": 4,
           "mean_abs_shap_value": 0.23915597796440125,
           "drift_level": "Low",
+          "drift_level_reason": "Low because feature did not cross Mitra drift thresholds.",
           "vif": 1.0452640010850327,
           "vif_warning": "Low",
-          "combined_risk": "Low"
+          "combined_risk": "Low",
+          "combined_risk_reason": "Low because feature did not cross combined SHAP, drift, or VIF risk rules."
         },
         {
           "feature": "qsr_spend_30d",
           "shap_rank": 5,
           "mean_abs_shap_value": 0.21993398666381836,
           "drift_level": "Low",
+          "drift_level_reason": "Low because feature did not cross Mitra drift thresholds.",
           "vif": 4.381871553669761,
           "vif_warning": "Low",
-          "combined_risk": "Low"
+          "combined_risk": "Low",
+          "combined_risk_reason": "Low because feature did not cross combined SHAP, drift, or VIF risk rules."
         },
         {
           "feature": "fuel_spend_30d",
           "shap_rank": 6,
           "mean_abs_shap_value": 0.21283723413944244,
           "drift_level": "Low",
+          "drift_level_reason": "Low because feature did not cross Mitra drift thresholds.",
           "vif": 1.045793262156066,
           "vif_warning": "Low",
-          "combined_risk": "Low"
+          "combined_risk": "Low",
+          "combined_risk_reason": "Low because feature did not cross combined SHAP, drift, or VIF risk rules."
         },
         {
           "feature": "competitor_qsr_share_90d",
           "shap_rank": 7,
           "mean_abs_shap_value": 0.11285369843244553,
           "drift_level": "Low",
+          "drift_level_reason": "Low because feature did not cross Mitra drift thresholds.",
           "vif": 1.0350657264975056,
           "vif_warning": "Low",
-          "combined_risk": "Low"
+          "combined_risk": "Low",
+          "combined_risk_reason": "Low because feature did not cross combined SHAP, drift, or VIF risk rules."
         },
         {
           "feature": "campaign_exposed",
           "shap_rank": 9,
           "mean_abs_shap_value": 0.02812393754720688,
           "drift_level": "Low",
+          "drift_level_reason": "Low because feature did not cross Mitra drift thresholds.",
           "vif": 1.0118711283711297,
           "vif_warning": "Low",
-          "combined_risk": "Low"
+          "combined_risk": "Low",
+          "combined_risk_reason": "Low because feature did not cross combined SHAP, drift, or VIF risk rules."
         }
       ],
       "multicollinearity_findings": [
         {
           "feature": "qsr_spend_30d",
           "vif": 4.381871553669761,
-          "vif_level": "Low"
+          "vif_level": "Low",
+          "vif_level_reason": "Low because VIF 4.38 is below threshold 5.00."
         },
         {
           "feature": "qsr_txn_count_30d",
           "vif": 4.377448566599988,
-          "vif_level": "Low"
+          "vif_level": "Low",
+          "vif_level_reason": "Low because VIF 4.38 is below threshold 5.00."
         },
         {
           "feature": "weekend_dining_frequency",
           "vif": 1.047225528065608,
-          "vif_level": "Low"
+          "vif_level": "Low",
+          "vif_level_reason": "Low because VIF 1.05 is below threshold 5.00."
         },
         {
           "feature": "fuel_spend_30d",
           "vif": 1.045793262156066,
-          "vif_level": "Low"
+          "vif_level": "Low",
+          "vif_level_reason": "Low because VIF 1.05 is below threshold 5.00."
         },
         {
           "feature": "qsr_recency_days",
           "vif": 1.0452640010850327,
-          "vif_level": "Low"
+          "vif_level": "Low",
+          "vif_level_reason": "Low because VIF 1.05 is below threshold 5.00."
         },
         {
           "feature": "grocery_spend_30d",
           "vif": 1.0357654414275415,
-          "vif_level": "Low"
+          "vif_level": "Low",
+          "vif_level_reason": "Low because VIF 1.04 is below threshold 5.00."
         },
         {
           "feature": "competitor_qsr_share_90d",
           "vif": 1.0350657264975056,
-          "vif_level": "Low"
+          "vif_level": "Low",
+          "vif_level_reason": "Low because VIF 1.04 is below threshold 5.00."
         },
         {
           "feature": "merchant_novelty_rate",
           "vif": 1.0263186579908101,
-          "vif_level": "Low"
+          "vif_level": "Low",
+          "vif_level_reason": "Low because VIF 1.03 is below threshold 5.00."
         },
         {
           "feature": "campaign_exposed",
           "vif": 1.0118711283711297,
-          "vif_level": "Low"
+          "vif_level": "Low",
+          "vif_level_reason": "Low because VIF 1.01 is below threshold 5.00."
         }
       ],
       "overfitting_check": {
@@ -207,16 +243,50 @@
         "train_auc": 0.812,
         "validation_auc": 0.776,
         "delta": 0.03600000000000003,
-        "risk_level": "Medium"
+        "risk_level": "Medium",
+        "risk_level_reason": "Medium because train-validation delta 0.0360 is at or above threshold 0.0300."
       },
       "plots_generated": {
-        "shap_global_bar": "/Users/adityasharma/Desktop/CometLens/reports/figures/shap_global_bar.png",
-        "shap_beeswarm": "/Users/adityasharma/Desktop/CometLens/reports/figures/shap_beeswarm.png"
+        "shap_bar": "/Users/adityasharma/Desktop/CometLens/reports/figures/shap_bar.png",
+        "shap_beeswarm": "/Users/adityasharma/Desktop/CometLens/reports/figures/shap_beeswarm.png",
+        "shap_global_bar": "/Users/adityasharma/Desktop/CometLens/reports/figures/shap_global_bar.png"
       }
     },
     "signal_sentinel": {
       "agent_name": "Agent 01: Mitra",
+      "config_version": "v1",
+      "source_files": {
+        "train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+        "current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+        "train_predictions": "/Users/adityasharma/Desktop/CometLens/data/train_predictions_sample.csv",
+        "current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+        "model_metadata": "/Users/adityasharma/Desktop/CometLens/models/model_metadata.json",
+        "feature_metadata": "/Users/adityasharma/Desktop/CometLens/models/feature_metadata.json",
+        "calibration_config": "/Users/adityasharma/Desktop/CometLens/configs/calibration_config_v1.json"
+      },
       "overall_risk_level": "High",
+      "overall_risk_explanation": "2 high-drift feature(s) detected.",
+      "risk_assessment": {
+        "overall_risk_level": "High",
+        "primary_reason": "2 high-drift feature(s) detected.",
+        "triggered_rules": [
+          "2 high-drift feature(s) detected.",
+          "Prediction drift level is High."
+        ],
+        "rule_hierarchy": [
+          "High if any high-severity data-quality issue exists.",
+          "High if two or more high-drift features exist.",
+          "High if max absolute cluster share shift is at or above 10.00 percentage points.",
+          "High if prediction drift level is High.",
+          "Medium if any medium-severity data-quality issue exists.",
+          "Medium if one high-drift feature exists.",
+          "Medium if two or more medium-drift features exist.",
+          "Medium if max absolute cluster share shift is at or above 5.00 percentage points.",
+          "Medium if prediction drift level is Medium.",
+          "Low if none of the configured High or Medium rules fire."
+        ],
+        "config_version": "v1"
+      },
       "artifact_contract": {
         "target": "purchase_qsr_next_30d",
         "entity_id": "consumer_token",
@@ -227,6 +297,448 @@
         "train_rows": 200,
         "current_rows": 200,
         "feature_count": 9,
+        "required_feature_count": 9,
+        "data_quality_issue_counts": {
+          "Low": 25,
+          "Medium": 4
+        },
+        "data_quality_findings": [
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "required_columns_present",
+            "dataset": "train_features",
+            "feature": NaN,
+            "train_value": null,
+            "current_value": null,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "All required columns are present.",
+            "issue_reason": "Low because all required columns are present."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "required_columns_present",
+            "dataset": "current_features",
+            "feature": NaN,
+            "train_value": null,
+            "current_value": null,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "All required columns are present.",
+            "issue_reason": "Low because all required columns are present."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "required_columns_present",
+            "dataset": "current_predictions",
+            "feature": NaN,
+            "train_value": null,
+            "current_value": null,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "All required columns are present.",
+            "issue_reason": "Low because all required columns are present."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "required_columns_present",
+            "dataset": "train_predictions",
+            "feature": NaN,
+            "train_value": null,
+            "current_value": null,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "All required columns are present.",
+            "issue_reason": "Low because all required columns are present."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "duplicate_entity_rate",
+            "dataset": "train_features",
+            "feature": "consumer_token",
+            "train_value": null,
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Duplicate entity rate is 0.00%.",
+            "issue_reason": "Low because no issue was observed."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "duplicate_entity_rate",
+            "dataset": "current_features",
+            "feature": "consumer_token",
+            "train_value": null,
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Duplicate entity rate is 0.00%.",
+            "issue_reason": "Low because no issue was observed."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "duplicate_entity_rate",
+            "dataset": "current_predictions",
+            "feature": "consumer_token",
+            "train_value": null,
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Duplicate entity rate is 0.00%.",
+            "issue_reason": "Low because no issue was observed."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "duplicate_entity_rate",
+            "dataset": "train_predictions",
+            "feature": "consumer_token",
+            "train_value": 0.0,
+            "current_value": null,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Duplicate entity rate is 0.00%.",
+            "issue_reason": "Low because no issue was observed."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "missing_rate_change_pct_points",
+            "dataset": "current_features",
+            "feature": "qsr_txn_count_30d",
+            "train_value": 0.0,
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Missing rate changed by +0.00 percentage points.",
+            "issue_reason": "Low because missing-rate shift did not cross configured thresholds."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "boundary_violation_rate",
+            "dataset": "current_features",
+            "feature": "qsr_txn_count_30d",
+            "train_value": "[0, 9]",
+            "current_value": 0.005,
+            "change_value": 0.005,
+            "issue_level": "Medium",
+            "message": "Current values outside training/metadata bounds: 0.50%.",
+            "issue_reason": "Medium because boundary violation rate 0.50% is above configured medium threshold 0.00%."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "missing_rate_change_pct_points",
+            "dataset": "current_features",
+            "feature": "qsr_spend_30d",
+            "train_value": 0.0,
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Missing rate changed by +0.00 percentage points.",
+            "issue_reason": "Low because missing-rate shift did not cross configured thresholds."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "boundary_violation_rate",
+            "dataset": "current_features",
+            "feature": "qsr_spend_30d",
+            "train_value": "[0, 182.69]",
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Current values outside training/metadata bounds: 0.00%.",
+            "issue_reason": "Low because no boundary violations crossed configured thresholds."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "missing_rate_change_pct_points",
+            "dataset": "current_features",
+            "feature": "qsr_recency_days",
+            "train_value": 0.0,
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Missing rate changed by +0.00 percentage points.",
+            "issue_reason": "Low because missing-rate shift did not cross configured thresholds."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "boundary_violation_rate",
+            "dataset": "current_features",
+            "feature": "qsr_recency_days",
+            "train_value": "[1, 45]",
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Current values outside training/metadata bounds: 0.00%.",
+            "issue_reason": "Low because no boundary violations crossed configured thresholds."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "missing_rate_change_pct_points",
+            "dataset": "current_features",
+            "feature": "competitor_qsr_share_90d",
+            "train_value": 0.0,
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Missing rate changed by +0.00 percentage points.",
+            "issue_reason": "Low because missing-rate shift did not cross configured thresholds."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "boundary_violation_rate",
+            "dataset": "current_features",
+            "feature": "competitor_qsr_share_90d",
+            "train_value": "[0.0166, 0.8993]",
+            "current_value": 0.005,
+            "change_value": 0.005,
+            "issue_level": "Medium",
+            "message": "Current values outside training/metadata bounds: 0.50%.",
+            "issue_reason": "Medium because boundary violation rate 0.50% is above configured medium threshold 0.00%."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "missing_rate_change_pct_points",
+            "dataset": "current_features",
+            "feature": "grocery_spend_30d",
+            "train_value": 0.0,
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Missing rate changed by +0.00 percentage points.",
+            "issue_reason": "Low because missing-rate shift did not cross configured thresholds."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "boundary_violation_rate",
+            "dataset": "current_features",
+            "feature": "grocery_spend_30d",
+            "train_value": "[7.52, 347.46]",
+            "current_value": 0.005,
+            "change_value": 0.005,
+            "issue_level": "Medium",
+            "message": "Current values outside training/metadata bounds: 0.50%.",
+            "issue_reason": "Medium because boundary violation rate 0.50% is above configured medium threshold 0.00%."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "missing_rate_change_pct_points",
+            "dataset": "current_features",
+            "feature": "fuel_spend_30d",
+            "train_value": 0.0,
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Missing rate changed by +0.00 percentage points.",
+            "issue_reason": "Low because missing-rate shift did not cross configured thresholds."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "boundary_violation_rate",
+            "dataset": "current_features",
+            "feature": "fuel_spend_30d",
+            "train_value": "[1.23, 238.64]",
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Current values outside training/metadata bounds: 0.00%.",
+            "issue_reason": "Low because no boundary violations crossed configured thresholds."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "missing_rate_change_pct_points",
+            "dataset": "current_features",
+            "feature": "weekend_dining_frequency",
+            "train_value": 0.0,
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Missing rate changed by +0.00 percentage points.",
+            "issue_reason": "Low because missing-rate shift did not cross configured thresholds."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "boundary_violation_rate",
+            "dataset": "current_features",
+            "feature": "weekend_dining_frequency",
+            "train_value": "[0, 6]",
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Current values outside training/metadata bounds: 0.00%.",
+            "issue_reason": "Low because no boundary violations crossed configured thresholds."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "missing_rate_change_pct_points",
+            "dataset": "current_features",
+            "feature": "merchant_novelty_rate",
+            "train_value": 0.0,
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Missing rate changed by +0.00 percentage points.",
+            "issue_reason": "Low because missing-rate shift did not cross configured thresholds."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "boundary_violation_rate",
+            "dataset": "current_features",
+            "feature": "merchant_novelty_rate",
+            "train_value": "[0.0094, 0.7254]",
+            "current_value": 0.03,
+            "change_value": 0.03,
+            "issue_level": "Medium",
+            "message": "Current values outside training/metadata bounds: 3.00%.",
+            "issue_reason": "Medium because boundary violation rate 3.00% is above configured medium threshold 0.00%."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "missing_rate_change_pct_points",
+            "dataset": "current_features",
+            "feature": "campaign_exposed",
+            "train_value": 0.0,
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Missing rate changed by +0.00 percentage points.",
+            "issue_reason": "Low because missing-rate shift did not cross configured thresholds."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "boundary_violation_rate",
+            "dataset": "current_features",
+            "feature": "campaign_exposed",
+            "train_value": "[0, 1]",
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Current values outside training/metadata bounds: 0.00%.",
+            "issue_reason": "Low because no boundary violations crossed configured thresholds."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "prediction_score_out_of_range_rate",
+            "dataset": "current_predictions",
+            "feature": "propensity_score",
+            "train_value": "[0, 1]",
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Prediction scores outside [0, 1]: 0.00%.",
+            "issue_reason": "Low because no issue was observed."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "prediction_score_out_of_range_rate",
+            "dataset": "train_predictions",
+            "feature": "propensity_score",
+            "train_value": 0.0,
+            "current_value": null,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Prediction scores outside [0, 1]: 0.00%.",
+            "issue_reason": "Low because no issue was observed."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "label_availability",
+            "dataset": "current_predictions",
+            "feature": "purchase_qsr_next_30d",
+            "train_value": null,
+            "current_value": true,
+            "change_value": NaN,
+            "issue_level": "Low",
+            "message": "Current labels are available.",
+            "issue_reason": "Low because current labels are available."
+          }
+        ],
         "missing_value_findings": [
           {
             "feature": "qsr_txn_count_30d",
@@ -286,57 +798,117 @@
       },
       "high_drift_features": [
         {
+          "config_version": "v1",
+          "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+          "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
           "feature": "merchant_novelty_rate",
+          "feature_type": "numeric",
           "train_mean": 0.262197,
           "current_mean": 0.36184550000000004,
           "mean_change_pct": 38.005202195295915,
+          "train_missing_rate": 0.0,
+          "current_missing_rate": 0.0,
+          "missing_rate_change_pct_points": 0.0,
           "psi": 0.5648547367215196,
           "ks_statistic": 0.26000000000000006,
           "ks_pvalue": 1.8819204313595185e-06,
           "wasserstein_distance": 0.0996485,
-          "drift_level": "High"
+          "drift_level": "High",
+          "drift_level_reason": "High because PSI 0.5649 is at or above configured high threshold 0.2500.",
+          "recommended_action": "Review feature lineage and business context before relying on current-window scoring."
         },
         {
+          "config_version": "v1",
+          "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+          "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
           "feature": "weekend_dining_frequency",
+          "feature_type": "numeric",
           "train_mean": 1.51,
           "current_mean": 1.125,
           "mean_change_pct": -25.496688741721858,
+          "train_missing_rate": 0.0,
+          "current_missing_rate": 0.0,
+          "missing_rate_change_pct_points": 0.0,
           "psi": 0.31444621273115303,
           "ks_statistic": 0.20000000000000007,
           "ks_pvalue": 0.0005551927328074649,
           "wasserstein_distance": 0.45499999999999996,
-          "drift_level": "High"
+          "drift_level": "High",
+          "drift_level_reason": "High because PSI 0.3144 is at or above configured high threshold 0.2500.",
+          "recommended_action": "Review feature lineage and business context before relying on current-window scoring."
         }
       ],
       "medium_drift_features": [],
       "prediction_drift_summary": {
         "available": true,
-        "row_count": 200,
-        "score_mean": 0.40314833499999997,
-        "score_std": 0.17052763658789752,
-        "score_min": 0.093389,
-        "score_max": 0.851676,
-        "score_p10": 0.2082639,
-        "score_p50": 0.383158,
-        "score_p90": 0.6520653,
-        "predicted_positive_rate": 0.245,
+        "config_version": "v1",
+        "source_files": {
+          "train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+          "current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+          "train_predictions": "/Users/adityasharma/Desktop/CometLens/data/train_predictions_sample.csv",
+          "current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+          "model_metadata": "/Users/adityasharma/Desktop/CometLens/models/model_metadata.json",
+          "feature_metadata": "/Users/adityasharma/Desktop/CometLens/models/feature_metadata.json",
+          "calibration_config": "/Users/adityasharma/Desktop/CometLens/configs/calibration_config_v1.json"
+        },
+        "reference_available": true,
+        "current_row_count": 200,
+        "current_score_mean": 0.385141335,
+        "current_score_std": 0.17612365524467888,
+        "current_score_min": 0.090651,
+        "current_score_max": 0.853214,
+        "current_score_p10": 0.1665728,
+        "current_score_p50": 0.354324,
+        "current_score_p90": 0.6523636,
+        "reference_row_count": 200,
+        "reference_score_mean": 0.4232919949999999,
+        "reference_score_std": 0.17116296619716553,
+        "reference_score_min": 0.092987,
+        "reference_score_max": 0.941473,
+        "reference_score_p10": 0.2171887,
+        "reference_score_p50": 0.4052875,
+        "reference_score_p90": 0.6674379999999999,
+        "score_mean_change_pct": -9.012847030097971,
+        "score_psi": 0.10483092874758906,
+        "score_ks_statistic": 0.16499999999999998,
+        "score_ks_pvalue": 0.0075681147556985184,
+        "score_wasserstein_distance": 0.038471729999999996,
+        "prediction_drift_level": "High",
+        "prediction_drift_reason": "High because KS p-value 0.007568 is below configured high threshold 0.01.",
+        "reference_predicted_positive_rate": 0.31,
+        "current_predicted_positive_rate": 0.25,
+        "predicted_positive_rate": 0.25,
+        "predicted_positive_rate_change_pct_points": -6.0,
+        "reference_actual_positive_rate": 0.43,
         "actual_positive_rate": 0.38,
-        "prediction_actual_rate_gap": -0.135
+        "current_actual_positive_rate": 0.38,
+        "actual_positive_rate_change_pct_points": -4.999999999999999,
+        "prediction_actual_rate_gap": -0.13,
+        "recommended_action": "Review score distribution movement before using current-window model decisions."
       },
       "cluster_findings": [
         {
+          "config_version": "v1",
+          "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+          "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
           "cluster": 0,
           "train_share_pct": 49.0,
           "current_share_pct": 40.5,
           "share_change_pct_points": -8.5
         },
         {
+          "config_version": "v1",
+          "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+          "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
           "cluster": 1,
           "train_share_pct": 23.5,
           "current_share_pct": 33.0,
           "share_change_pct_points": 9.5
         },
         {
+          "config_version": "v1",
+          "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+          "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
           "cluster": 2,
           "train_share_pct": 27.500000000000004,
           "current_share_pct": 26.5,
@@ -346,7 +918,8 @@
       "recommended_checks": [
         "Review high-drift features for data pipeline or behavior-shift explanations.",
         "Compare prediction score distribution against the model training baseline when train predictions are available.",
-        "Inspect cluster share movement for population-mix changes before high-impact business use."
+        "Inspect cluster share movement for population-mix changes before high-impact business use.",
+        "Review prediction score drift against decision thresholds and downstream actions."
       ]
     },
     "executive_synthesis": {
@@ -363,6 +936,928 @@
         "No LLM-generated metrics.",
         "Current report is a runnable placeholder."
       ]
+    },
+    "mitra": {
+      "agent_name": "Agent 01: Mitra",
+      "config_version": "v1",
+      "source_files": {
+        "train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+        "current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+        "train_predictions": "/Users/adityasharma/Desktop/CometLens/data/train_predictions_sample.csv",
+        "current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+        "model_metadata": "/Users/adityasharma/Desktop/CometLens/models/model_metadata.json",
+        "feature_metadata": "/Users/adityasharma/Desktop/CometLens/models/feature_metadata.json",
+        "calibration_config": "/Users/adityasharma/Desktop/CometLens/configs/calibration_config_v1.json"
+      },
+      "overall_risk_level": "High",
+      "overall_risk_explanation": "2 high-drift feature(s) detected.",
+      "risk_assessment": {
+        "overall_risk_level": "High",
+        "primary_reason": "2 high-drift feature(s) detected.",
+        "triggered_rules": [
+          "2 high-drift feature(s) detected.",
+          "Prediction drift level is High."
+        ],
+        "rule_hierarchy": [
+          "High if any high-severity data-quality issue exists.",
+          "High if two or more high-drift features exist.",
+          "High if max absolute cluster share shift is at or above 10.00 percentage points.",
+          "High if prediction drift level is High.",
+          "Medium if any medium-severity data-quality issue exists.",
+          "Medium if one high-drift feature exists.",
+          "Medium if two or more medium-drift features exist.",
+          "Medium if max absolute cluster share shift is at or above 5.00 percentage points.",
+          "Medium if prediction drift level is Medium.",
+          "Low if none of the configured High or Medium rules fire."
+        ],
+        "config_version": "v1"
+      },
+      "artifact_contract": {
+        "target": "purchase_qsr_next_30d",
+        "entity_id": "consumer_token",
+        "prediction_column": "propensity_score",
+        "feature_count": 9
+      },
+      "data_health_summary": {
+        "train_rows": 200,
+        "current_rows": 200,
+        "feature_count": 9,
+        "required_feature_count": 9,
+        "data_quality_issue_counts": {
+          "Low": 25,
+          "Medium": 4
+        },
+        "data_quality_findings": [
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "required_columns_present",
+            "dataset": "train_features",
+            "feature": NaN,
+            "train_value": null,
+            "current_value": null,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "All required columns are present.",
+            "issue_reason": "Low because all required columns are present."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "required_columns_present",
+            "dataset": "current_features",
+            "feature": NaN,
+            "train_value": null,
+            "current_value": null,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "All required columns are present.",
+            "issue_reason": "Low because all required columns are present."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "required_columns_present",
+            "dataset": "current_predictions",
+            "feature": NaN,
+            "train_value": null,
+            "current_value": null,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "All required columns are present.",
+            "issue_reason": "Low because all required columns are present."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "required_columns_present",
+            "dataset": "train_predictions",
+            "feature": NaN,
+            "train_value": null,
+            "current_value": null,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "All required columns are present.",
+            "issue_reason": "Low because all required columns are present."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "duplicate_entity_rate",
+            "dataset": "train_features",
+            "feature": "consumer_token",
+            "train_value": null,
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Duplicate entity rate is 0.00%.",
+            "issue_reason": "Low because no issue was observed."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "duplicate_entity_rate",
+            "dataset": "current_features",
+            "feature": "consumer_token",
+            "train_value": null,
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Duplicate entity rate is 0.00%.",
+            "issue_reason": "Low because no issue was observed."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "duplicate_entity_rate",
+            "dataset": "current_predictions",
+            "feature": "consumer_token",
+            "train_value": null,
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Duplicate entity rate is 0.00%.",
+            "issue_reason": "Low because no issue was observed."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "duplicate_entity_rate",
+            "dataset": "train_predictions",
+            "feature": "consumer_token",
+            "train_value": 0.0,
+            "current_value": null,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Duplicate entity rate is 0.00%.",
+            "issue_reason": "Low because no issue was observed."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "missing_rate_change_pct_points",
+            "dataset": "current_features",
+            "feature": "qsr_txn_count_30d",
+            "train_value": 0.0,
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Missing rate changed by +0.00 percentage points.",
+            "issue_reason": "Low because missing-rate shift did not cross configured thresholds."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "boundary_violation_rate",
+            "dataset": "current_features",
+            "feature": "qsr_txn_count_30d",
+            "train_value": "[0, 9]",
+            "current_value": 0.005,
+            "change_value": 0.005,
+            "issue_level": "Medium",
+            "message": "Current values outside training/metadata bounds: 0.50%.",
+            "issue_reason": "Medium because boundary violation rate 0.50% is above configured medium threshold 0.00%."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "missing_rate_change_pct_points",
+            "dataset": "current_features",
+            "feature": "qsr_spend_30d",
+            "train_value": 0.0,
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Missing rate changed by +0.00 percentage points.",
+            "issue_reason": "Low because missing-rate shift did not cross configured thresholds."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "boundary_violation_rate",
+            "dataset": "current_features",
+            "feature": "qsr_spend_30d",
+            "train_value": "[0, 182.69]",
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Current values outside training/metadata bounds: 0.00%.",
+            "issue_reason": "Low because no boundary violations crossed configured thresholds."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "missing_rate_change_pct_points",
+            "dataset": "current_features",
+            "feature": "qsr_recency_days",
+            "train_value": 0.0,
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Missing rate changed by +0.00 percentage points.",
+            "issue_reason": "Low because missing-rate shift did not cross configured thresholds."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "boundary_violation_rate",
+            "dataset": "current_features",
+            "feature": "qsr_recency_days",
+            "train_value": "[1, 45]",
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Current values outside training/metadata bounds: 0.00%.",
+            "issue_reason": "Low because no boundary violations crossed configured thresholds."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "missing_rate_change_pct_points",
+            "dataset": "current_features",
+            "feature": "competitor_qsr_share_90d",
+            "train_value": 0.0,
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Missing rate changed by +0.00 percentage points.",
+            "issue_reason": "Low because missing-rate shift did not cross configured thresholds."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "boundary_violation_rate",
+            "dataset": "current_features",
+            "feature": "competitor_qsr_share_90d",
+            "train_value": "[0.0166, 0.8993]",
+            "current_value": 0.005,
+            "change_value": 0.005,
+            "issue_level": "Medium",
+            "message": "Current values outside training/metadata bounds: 0.50%.",
+            "issue_reason": "Medium because boundary violation rate 0.50% is above configured medium threshold 0.00%."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "missing_rate_change_pct_points",
+            "dataset": "current_features",
+            "feature": "grocery_spend_30d",
+            "train_value": 0.0,
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Missing rate changed by +0.00 percentage points.",
+            "issue_reason": "Low because missing-rate shift did not cross configured thresholds."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "boundary_violation_rate",
+            "dataset": "current_features",
+            "feature": "grocery_spend_30d",
+            "train_value": "[7.52, 347.46]",
+            "current_value": 0.005,
+            "change_value": 0.005,
+            "issue_level": "Medium",
+            "message": "Current values outside training/metadata bounds: 0.50%.",
+            "issue_reason": "Medium because boundary violation rate 0.50% is above configured medium threshold 0.00%."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "missing_rate_change_pct_points",
+            "dataset": "current_features",
+            "feature": "fuel_spend_30d",
+            "train_value": 0.0,
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Missing rate changed by +0.00 percentage points.",
+            "issue_reason": "Low because missing-rate shift did not cross configured thresholds."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "boundary_violation_rate",
+            "dataset": "current_features",
+            "feature": "fuel_spend_30d",
+            "train_value": "[1.23, 238.64]",
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Current values outside training/metadata bounds: 0.00%.",
+            "issue_reason": "Low because no boundary violations crossed configured thresholds."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "missing_rate_change_pct_points",
+            "dataset": "current_features",
+            "feature": "weekend_dining_frequency",
+            "train_value": 0.0,
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Missing rate changed by +0.00 percentage points.",
+            "issue_reason": "Low because missing-rate shift did not cross configured thresholds."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "boundary_violation_rate",
+            "dataset": "current_features",
+            "feature": "weekend_dining_frequency",
+            "train_value": "[0, 6]",
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Current values outside training/metadata bounds: 0.00%.",
+            "issue_reason": "Low because no boundary violations crossed configured thresholds."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "missing_rate_change_pct_points",
+            "dataset": "current_features",
+            "feature": "merchant_novelty_rate",
+            "train_value": 0.0,
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Missing rate changed by +0.00 percentage points.",
+            "issue_reason": "Low because missing-rate shift did not cross configured thresholds."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "boundary_violation_rate",
+            "dataset": "current_features",
+            "feature": "merchant_novelty_rate",
+            "train_value": "[0.0094, 0.7254]",
+            "current_value": 0.03,
+            "change_value": 0.03,
+            "issue_level": "Medium",
+            "message": "Current values outside training/metadata bounds: 3.00%.",
+            "issue_reason": "Medium because boundary violation rate 3.00% is above configured medium threshold 0.00%."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "missing_rate_change_pct_points",
+            "dataset": "current_features",
+            "feature": "campaign_exposed",
+            "train_value": 0.0,
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Missing rate changed by +0.00 percentage points.",
+            "issue_reason": "Low because missing-rate shift did not cross configured thresholds."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "boundary_violation_rate",
+            "dataset": "current_features",
+            "feature": "campaign_exposed",
+            "train_value": "[0, 1]",
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Current values outside training/metadata bounds: 0.00%.",
+            "issue_reason": "Low because no boundary violations crossed configured thresholds."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "prediction_score_out_of_range_rate",
+            "dataset": "current_predictions",
+            "feature": "propensity_score",
+            "train_value": "[0, 1]",
+            "current_value": 0.0,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Prediction scores outside [0, 1]: 0.00%.",
+            "issue_reason": "Low because no issue was observed."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "prediction_score_out_of_range_rate",
+            "dataset": "train_predictions",
+            "feature": "propensity_score",
+            "train_value": 0.0,
+            "current_value": null,
+            "change_value": 0.0,
+            "issue_level": "Low",
+            "message": "Prediction scores outside [0, 1]: 0.00%.",
+            "issue_reason": "Low because no issue was observed."
+          },
+          {
+            "config_version": "v1",
+            "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+            "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+            "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+            "check_type": "label_availability",
+            "dataset": "current_predictions",
+            "feature": "purchase_qsr_next_30d",
+            "train_value": null,
+            "current_value": true,
+            "change_value": NaN,
+            "issue_level": "Low",
+            "message": "Current labels are available.",
+            "issue_reason": "Low because current labels are available."
+          }
+        ],
+        "missing_value_findings": [
+          {
+            "feature": "qsr_txn_count_30d",
+            "train_missing_rate": 0.0,
+            "current_missing_rate": 0.0,
+            "missing_rate_change_pct_points": 0.0
+          },
+          {
+            "feature": "qsr_spend_30d",
+            "train_missing_rate": 0.0,
+            "current_missing_rate": 0.0,
+            "missing_rate_change_pct_points": 0.0
+          },
+          {
+            "feature": "qsr_recency_days",
+            "train_missing_rate": 0.0,
+            "current_missing_rate": 0.0,
+            "missing_rate_change_pct_points": 0.0
+          },
+          {
+            "feature": "competitor_qsr_share_90d",
+            "train_missing_rate": 0.0,
+            "current_missing_rate": 0.0,
+            "missing_rate_change_pct_points": 0.0
+          },
+          {
+            "feature": "grocery_spend_30d",
+            "train_missing_rate": 0.0,
+            "current_missing_rate": 0.0,
+            "missing_rate_change_pct_points": 0.0
+          },
+          {
+            "feature": "fuel_spend_30d",
+            "train_missing_rate": 0.0,
+            "current_missing_rate": 0.0,
+            "missing_rate_change_pct_points": 0.0
+          },
+          {
+            "feature": "weekend_dining_frequency",
+            "train_missing_rate": 0.0,
+            "current_missing_rate": 0.0,
+            "missing_rate_change_pct_points": 0.0
+          },
+          {
+            "feature": "merchant_novelty_rate",
+            "train_missing_rate": 0.0,
+            "current_missing_rate": 0.0,
+            "missing_rate_change_pct_points": 0.0
+          },
+          {
+            "feature": "campaign_exposed",
+            "train_missing_rate": 0.0,
+            "current_missing_rate": 0.0,
+            "missing_rate_change_pct_points": 0.0
+          }
+        ]
+      },
+      "high_drift_features": [
+        {
+          "config_version": "v1",
+          "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+          "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+          "feature": "merchant_novelty_rate",
+          "feature_type": "numeric",
+          "train_mean": 0.262197,
+          "current_mean": 0.36184550000000004,
+          "mean_change_pct": 38.005202195295915,
+          "train_missing_rate": 0.0,
+          "current_missing_rate": 0.0,
+          "missing_rate_change_pct_points": 0.0,
+          "psi": 0.5648547367215196,
+          "ks_statistic": 0.26000000000000006,
+          "ks_pvalue": 1.8819204313595185e-06,
+          "wasserstein_distance": 0.0996485,
+          "drift_level": "High",
+          "drift_level_reason": "High because PSI 0.5649 is at or above configured high threshold 0.2500.",
+          "recommended_action": "Review feature lineage and business context before relying on current-window scoring."
+        },
+        {
+          "config_version": "v1",
+          "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+          "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+          "feature": "weekend_dining_frequency",
+          "feature_type": "numeric",
+          "train_mean": 1.51,
+          "current_mean": 1.125,
+          "mean_change_pct": -25.496688741721858,
+          "train_missing_rate": 0.0,
+          "current_missing_rate": 0.0,
+          "missing_rate_change_pct_points": 0.0,
+          "psi": 0.31444621273115303,
+          "ks_statistic": 0.20000000000000007,
+          "ks_pvalue": 0.0005551927328074649,
+          "wasserstein_distance": 0.45499999999999996,
+          "drift_level": "High",
+          "drift_level_reason": "High because PSI 0.3144 is at or above configured high threshold 0.2500.",
+          "recommended_action": "Review feature lineage and business context before relying on current-window scoring."
+        }
+      ],
+      "medium_drift_features": [],
+      "prediction_drift_summary": {
+        "available": true,
+        "config_version": "v1",
+        "source_files": {
+          "train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+          "current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+          "train_predictions": "/Users/adityasharma/Desktop/CometLens/data/train_predictions_sample.csv",
+          "current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+          "model_metadata": "/Users/adityasharma/Desktop/CometLens/models/model_metadata.json",
+          "feature_metadata": "/Users/adityasharma/Desktop/CometLens/models/feature_metadata.json",
+          "calibration_config": "/Users/adityasharma/Desktop/CometLens/configs/calibration_config_v1.json"
+        },
+        "reference_available": true,
+        "current_row_count": 200,
+        "current_score_mean": 0.385141335,
+        "current_score_std": 0.17612365524467888,
+        "current_score_min": 0.090651,
+        "current_score_max": 0.853214,
+        "current_score_p10": 0.1665728,
+        "current_score_p50": 0.354324,
+        "current_score_p90": 0.6523636,
+        "reference_row_count": 200,
+        "reference_score_mean": 0.4232919949999999,
+        "reference_score_std": 0.17116296619716553,
+        "reference_score_min": 0.092987,
+        "reference_score_max": 0.941473,
+        "reference_score_p10": 0.2171887,
+        "reference_score_p50": 0.4052875,
+        "reference_score_p90": 0.6674379999999999,
+        "score_mean_change_pct": -9.012847030097971,
+        "score_psi": 0.10483092874758906,
+        "score_ks_statistic": 0.16499999999999998,
+        "score_ks_pvalue": 0.0075681147556985184,
+        "score_wasserstein_distance": 0.038471729999999996,
+        "prediction_drift_level": "High",
+        "prediction_drift_reason": "High because KS p-value 0.007568 is below configured high threshold 0.01.",
+        "reference_predicted_positive_rate": 0.31,
+        "current_predicted_positive_rate": 0.25,
+        "predicted_positive_rate": 0.25,
+        "predicted_positive_rate_change_pct_points": -6.0,
+        "reference_actual_positive_rate": 0.43,
+        "actual_positive_rate": 0.38,
+        "current_actual_positive_rate": 0.38,
+        "actual_positive_rate_change_pct_points": -4.999999999999999,
+        "prediction_actual_rate_gap": -0.13,
+        "recommended_action": "Review score distribution movement before using current-window model decisions."
+      },
+      "cluster_findings": [
+        {
+          "config_version": "v1",
+          "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+          "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+          "cluster": 0,
+          "train_share_pct": 49.0,
+          "current_share_pct": 40.5,
+          "share_change_pct_points": -8.5
+        },
+        {
+          "config_version": "v1",
+          "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+          "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+          "cluster": 1,
+          "train_share_pct": 23.5,
+          "current_share_pct": 33.0,
+          "share_change_pct_points": 9.5
+        },
+        {
+          "config_version": "v1",
+          "source_train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+          "source_current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+          "cluster": 2,
+          "train_share_pct": 27.500000000000004,
+          "current_share_pct": 26.5,
+          "share_change_pct_points": -1.0000000000000036
+        }
+      ],
+      "recommended_checks": [
+        "Review high-drift features for data pipeline or behavior-shift explanations.",
+        "Compare prediction score distribution against the model training baseline when train predictions are available.",
+        "Inspect cluster share movement for population-mix changes before high-impact business use.",
+        "Review prediction score drift against decision thresholds and downstream actions."
+      ]
+    },
+    "varuna": {
+      "agent_name": "Agent 02: Varuna",
+      "config_version": "v1",
+      "source_files": {
+        "train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+        "current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+        "current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+        "model_metadata": "/Users/adityasharma/Desktop/CometLens/models/model_metadata.json",
+        "feature_metadata": "/Users/adityasharma/Desktop/CometLens/models/feature_metadata.json",
+        "mitra_output": "/Users/adityasharma/Desktop/CometLens/reports/mitra_output.json"
+      },
+      "model_name": "qsr_purchase_predictor_v3",
+      "explainability_reliability": {
+        "status": "unreliable",
+        "gate_mode": "flag",
+        "should_skip": false,
+        "severe_psi_threshold": 0.5,
+        "severe_ks_pvalue_threshold": 0.001,
+        "severe_drift_features": [
+          {
+            "feature": "merchant_novelty_rate",
+            "psi": 0.5648547367215196,
+            "ks_pvalue": 1.8819204313595185e-06,
+            "reason": "PSI or KS p-value crossed severe drift gate"
+          },
+          {
+            "feature": "weekend_dining_frequency",
+            "psi": 0.31444621273115303,
+            "ks_pvalue": 0.0005551927328074649,
+            "reason": "PSI or KS p-value crossed severe drift gate"
+          }
+        ],
+        "message": "SHAP outputs are flagged as unreliable because Mitra found severe input drift."
+      },
+      "top_global_drivers": [
+        {
+          "feature": "qsr_txn_count_30d",
+          "mean_abs_shap_value": 0.5763269066810608,
+          "shap_rank": 1
+        },
+        {
+          "feature": "merchant_novelty_rate",
+          "mean_abs_shap_value": 0.508556067943573,
+          "shap_rank": 2
+        },
+        {
+          "feature": "grocery_spend_30d",
+          "mean_abs_shap_value": 0.46509280800819397,
+          "shap_rank": 3
+        },
+        {
+          "feature": "qsr_recency_days",
+          "mean_abs_shap_value": 0.23915597796440125,
+          "shap_rank": 4
+        },
+        {
+          "feature": "qsr_spend_30d",
+          "mean_abs_shap_value": 0.21993398666381836,
+          "shap_rank": 5
+        },
+        {
+          "feature": "fuel_spend_30d",
+          "mean_abs_shap_value": 0.21283723413944244,
+          "shap_rank": 6
+        },
+        {
+          "feature": "competitor_qsr_share_90d",
+          "mean_abs_shap_value": 0.11285369843244553,
+          "shap_rank": 7
+        },
+        {
+          "feature": "weekend_dining_frequency",
+          "mean_abs_shap_value": 0.08141425251960754,
+          "shap_rank": 8
+        },
+        {
+          "feature": "campaign_exposed",
+          "mean_abs_shap_value": 0.02812393754720688,
+          "shap_rank": 9
+        }
+      ],
+      "high_risk_feature_matrix": [
+        {
+          "feature": "merchant_novelty_rate",
+          "shap_rank": 2,
+          "mean_abs_shap_value": 0.508556067943573,
+          "drift_level": "High",
+          "drift_level_reason": "High because PSI 0.5649 is at or above configured high threshold 0.2500.",
+          "vif": 1.0263186579908101,
+          "vif_warning": "Low",
+          "combined_risk": "High",
+          "combined_risk_reason": "High because feature has high drift and is a top-5 SHAP driver."
+        },
+        {
+          "feature": "weekend_dining_frequency",
+          "shap_rank": 8,
+          "mean_abs_shap_value": 0.08141425251960754,
+          "drift_level": "High",
+          "drift_level_reason": "High because PSI 0.3144 is at or above configured high threshold 0.2500.",
+          "vif": 1.047225528065608,
+          "vif_warning": "Low",
+          "combined_risk": "Medium",
+          "combined_risk_reason": "Medium because feature has drift or medium VIF warning."
+        },
+        {
+          "feature": "qsr_txn_count_30d",
+          "shap_rank": 1,
+          "mean_abs_shap_value": 0.5763269066810608,
+          "drift_level": "Low",
+          "drift_level_reason": "Low because feature did not cross Mitra drift thresholds.",
+          "vif": 4.377448566599988,
+          "vif_warning": "Low",
+          "combined_risk": "Low",
+          "combined_risk_reason": "Low because feature did not cross combined SHAP, drift, or VIF risk rules."
+        },
+        {
+          "feature": "grocery_spend_30d",
+          "shap_rank": 3,
+          "mean_abs_shap_value": 0.46509280800819397,
+          "drift_level": "Low",
+          "drift_level_reason": "Low because feature did not cross Mitra drift thresholds.",
+          "vif": 1.0357654414275415,
+          "vif_warning": "Low",
+          "combined_risk": "Low",
+          "combined_risk_reason": "Low because feature did not cross combined SHAP, drift, or VIF risk rules."
+        },
+        {
+          "feature": "qsr_recency_days",
+          "shap_rank": 4,
+          "mean_abs_shap_value": 0.23915597796440125,
+          "drift_level": "Low",
+          "drift_level_reason": "Low because feature did not cross Mitra drift thresholds.",
+          "vif": 1.0452640010850327,
+          "vif_warning": "Low",
+          "combined_risk": "Low",
+          "combined_risk_reason": "Low because feature did not cross combined SHAP, drift, or VIF risk rules."
+        },
+        {
+          "feature": "qsr_spend_30d",
+          "shap_rank": 5,
+          "mean_abs_shap_value": 0.21993398666381836,
+          "drift_level": "Low",
+          "drift_level_reason": "Low because feature did not cross Mitra drift thresholds.",
+          "vif": 4.381871553669761,
+          "vif_warning": "Low",
+          "combined_risk": "Low",
+          "combined_risk_reason": "Low because feature did not cross combined SHAP, drift, or VIF risk rules."
+        },
+        {
+          "feature": "fuel_spend_30d",
+          "shap_rank": 6,
+          "mean_abs_shap_value": 0.21283723413944244,
+          "drift_level": "Low",
+          "drift_level_reason": "Low because feature did not cross Mitra drift thresholds.",
+          "vif": 1.045793262156066,
+          "vif_warning": "Low",
+          "combined_risk": "Low",
+          "combined_risk_reason": "Low because feature did not cross combined SHAP, drift, or VIF risk rules."
+        },
+        {
+          "feature": "competitor_qsr_share_90d",
+          "shap_rank": 7,
+          "mean_abs_shap_value": 0.11285369843244553,
+          "drift_level": "Low",
+          "drift_level_reason": "Low because feature did not cross Mitra drift thresholds.",
+          "vif": 1.0350657264975056,
+          "vif_warning": "Low",
+          "combined_risk": "Low",
+          "combined_risk_reason": "Low because feature did not cross combined SHAP, drift, or VIF risk rules."
+        },
+        {
+          "feature": "campaign_exposed",
+          "shap_rank": 9,
+          "mean_abs_shap_value": 0.02812393754720688,
+          "drift_level": "Low",
+          "drift_level_reason": "Low because feature did not cross Mitra drift thresholds.",
+          "vif": 1.0118711283711297,
+          "vif_warning": "Low",
+          "combined_risk": "Low",
+          "combined_risk_reason": "Low because feature did not cross combined SHAP, drift, or VIF risk rules."
+        }
+      ],
+      "multicollinearity_findings": [
+        {
+          "feature": "qsr_spend_30d",
+          "vif": 4.381871553669761,
+          "vif_level": "Low",
+          "vif_level_reason": "Low because VIF 4.38 is below threshold 5.00."
+        },
+        {
+          "feature": "qsr_txn_count_30d",
+          "vif": 4.377448566599988,
+          "vif_level": "Low",
+          "vif_level_reason": "Low because VIF 4.38 is below threshold 5.00."
+        },
+        {
+          "feature": "weekend_dining_frequency",
+          "vif": 1.047225528065608,
+          "vif_level": "Low",
+          "vif_level_reason": "Low because VIF 1.05 is below threshold 5.00."
+        },
+        {
+          "feature": "fuel_spend_30d",
+          "vif": 1.045793262156066,
+          "vif_level": "Low",
+          "vif_level_reason": "Low because VIF 1.05 is below threshold 5.00."
+        },
+        {
+          "feature": "qsr_recency_days",
+          "vif": 1.0452640010850327,
+          "vif_level": "Low",
+          "vif_level_reason": "Low because VIF 1.05 is below threshold 5.00."
+        },
+        {
+          "feature": "grocery_spend_30d",
+          "vif": 1.0357654414275415,
+          "vif_level": "Low",
+          "vif_level_reason": "Low because VIF 1.04 is below threshold 5.00."
+        },
+        {
+          "feature": "competitor_qsr_share_90d",
+          "vif": 1.0350657264975056,
+          "vif_level": "Low",
+          "vif_level_reason": "Low because VIF 1.04 is below threshold 5.00."
+        },
+        {
+          "feature": "merchant_novelty_rate",
+          "vif": 1.0263186579908101,
+          "vif_level": "Low",
+          "vif_level_reason": "Low because VIF 1.03 is below threshold 5.00."
+        },
+        {
+          "feature": "campaign_exposed",
+          "vif": 1.0118711283711297,
+          "vif_level": "Low",
+          "vif_level_reason": "Low because VIF 1.01 is below threshold 5.00."
+        }
+      ],
+      "overfitting_check": {
+        "metric_name": "auc",
+        "train_auc": 0.812,
+        "validation_auc": 0.776,
+        "delta": 0.03600000000000003,
+        "risk_level": "Medium",
+        "risk_level_reason": "Medium because train-validation delta 0.0360 is at or above threshold 0.0300."
+      },
+      "plots_generated": {
+        "shap_bar": "/Users/adityasharma/Desktop/CometLens/reports/figures/shap_bar.png",
+        "shap_beeswarm": "/Users/adityasharma/Desktop/CometLens/reports/figures/shap_beeswarm.png",
+        "shap_global_bar": "/Users/adityasharma/Desktop/CometLens/reports/figures/shap_global_bar.png"
+      }
     }
   }
 }

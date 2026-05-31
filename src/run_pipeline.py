@@ -37,6 +37,7 @@ class PipelineRunner:
             PipelineStep("Run Agent 02: Varuna", [self.python, "src/agents/model_lens_agent.py"]),
             PipelineStep("Build evidence packet", [self.python, "src/agents/evidence_store.py"]),
             PipelineStep("Run Agent 03: Aryaman", [self.python, "src/agents/executive_synthesis_agent.py"]),
+            PipelineStep("Run Agent 04: Samanvaya", [self.python, "src/agents/samanvaya_agent.py"]),
         ]
         if self.include_narrative:
             steps.append(PipelineStep("Preview optional LLM prompt", [self.python, "src/llm/narrative_writer.py"]))

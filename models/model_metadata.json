@@ -17,6 +17,7 @@
     "campaign_exposed"
   ],
   "business_use_case": "QSR audience targeting and campaign optimization",
+  "decision_supported": "prioritize, suppress, or recalibrate synthetic QSR audience activation",
   "entity_id": "consumer_token",
   "prediction_column": "propensity_score",
   "training_window": "2026-01-01_to_2026-03-31_synthetic",

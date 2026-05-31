@@ -40,8 +40,8 @@ class EvidencePacketBuilder:
 
     def __init__(
         self,
-        signal_sentinel_path: Path = REPORTS_DIR / "signal_sentinel_output.json",
-        model_lens_path: Path = REPORTS_DIR / "model_lens_output.json",
+        signal_sentinel_path: Path = REPORTS_DIR / "mitra_output.json",
+        model_lens_path: Path = REPORTS_DIR / "varuna_output.json",
         model_metadata_path: Path = MODELS_DIR / "model_metadata.json",
         feature_metadata_path: Path = MODELS_DIR / "feature_metadata.json",
         output_path: Path = DEFAULT_PACKET_PATH,
@@ -54,11 +54,12 @@ class EvidencePacketBuilder:
         self.output_path = Path(output_path)
 
     @staticmethod
-    def _load_json(path: Path) -> dict[str, Any]:
+    def _load_json(path: Path, fallback_path: Path | None = None) -> dict[str, Any]:
         """Load a required JSON artifact."""
-        if not path.exists():
+        selected_path = path if path.exists() else fallback_path
+        if selected_path is None or not selected_path.exists():
             raise FileNotFoundError(f"Required evidence input not found: {path}")
-        return json.loads(path.read_text(encoding="utf-8"))
+        return json.loads(selected_path.read_text(encoding="utf-8"))
 
     @staticmethod
     def _feature_direction(row: dict[str, Any]) -> str:
@@ -115,6 +116,11 @@ class EvidencePacketBuilder:
             findings.append(f"{top_driver['feature']} is the top global model driver")
 
         prediction_summary = signal_sentinel.get("prediction_drift_summary", {})
+        prediction_drift_level = prediction_summary.get("prediction_drift_level")
+        if prediction_drift_level and prediction_drift_level != "Unknown":
+            findings.append(f"prediction score drift is {str(prediction_drift_level).lower()}")
+        if "score_psi" in prediction_summary:
+            findings.append(f"prediction score PSI is {float(prediction_summary['score_psi']):.3f}")
         if "prediction_actual_rate_gap" in prediction_summary:
             gap = float(prediction_summary["prediction_actual_rate_gap"])
             findings.append(f"predicted-positive rate differs from actual-positive rate by {gap:+.3f}")
@@ -126,6 +132,8 @@ class EvidencePacketBuilder:
         """Extract a compact Mitra summary."""
         return {
             "overall_risk_level": signal_sentinel.get("overall_risk_level"),
+            "overall_risk_explanation": signal_sentinel.get("overall_risk_explanation"),
+            "risk_assessment": signal_sentinel.get("risk_assessment", {}),
             "data_health_summary": signal_sentinel.get("data_health_summary", {}),
             "high_drift_feature_count": len(signal_sentinel.get("high_drift_features", [])),
             "medium_drift_feature_count": len(signal_sentinel.get("medium_drift_features", [])),
@@ -147,8 +155,14 @@ class EvidencePacketBuilder:
 
     def build_packet(self) -> dict[str, Any]:
         """Build the full evidence packet."""
-        signal_sentinel = self._load_json(self.signal_sentinel_path)
-        model_lens = self._load_json(self.model_lens_path)
+        signal_sentinel = self._load_json(
+            self.signal_sentinel_path,
+            fallback_path=REPORTS_DIR / "signal_sentinel_output.json",
+        )
+        model_lens = self._load_json(
+            self.model_lens_path,
+            fallback_path=REPORTS_DIR / "model_lens_output.json",
+        )
         model_metadata = self._load_json(self.model_metadata_path)
         feature_metadata = self._load_json(self.feature_metadata_path)
         plots = {
@@ -157,6 +171,15 @@ class EvidencePacketBuilder:
         }
 
         return {
+            "config_version": signal_sentinel.get("config_version", model_lens.get("config_version", "unknown")),
+            "source_files": {
+                "mitra_output": str(self.signal_sentinel_path),
+                "varuna_output": str(self.model_lens_path),
+                "model_metadata": str(self.model_metadata_path),
+                "feature_metadata": str(self.feature_metadata_path),
+                "mitra_source_files": signal_sentinel.get("source_files", {}),
+                "varuna_source_files": model_lens.get("source_files", {}),
+            },
             "model_metadata": model_metadata,
             "feature_metadata": feature_metadata,
             "signal_sentinel_summary": self._signal_summary(signal_sentinel),
@@ -165,6 +188,7 @@ class EvidencePacketBuilder:
             "available_plots": plots,
             "business_context": {
                 "business_use_case": model_metadata.get("business_use_case"),
+                "decision_supported": model_metadata.get("decision_supported"),
                 "target": model_metadata.get("target"),
                 "entity_id": model_metadata.get("entity_id"),
                 "prediction_column": model_metadata.get("prediction_column"),

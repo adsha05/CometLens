@@ -10,6 +10,8 @@ from pydantic import BaseModel, Field
 class ExecutiveModelReport(BaseModel):
     """Structured consulting-style model intelligence brief."""
 
+    config_version: str = Field(default="unknown", description="Calibration config version used for source evidence.")
+    source_files: dict[str, object] = Field(default_factory=dict, description="Source artifact paths used for the report.")
     report_title: str = Field(description="Title of the model intelligence report.")
     model_health_status: str = Field(description="Overall model health or risk status.")
     executive_summary: str = Field(description="Concise executive summary.")
@@ -39,6 +41,7 @@ def executive_report_to_markdown(report: ExecutiveModelReport) -> str:
         f"# {report.report_title}",
         "",
         f"**Model health status:** {report.model_health_status}",
+        f"**Config version:** {report.config_version}",
         "",
         "## Executive Summary",
         "",
@@ -55,6 +58,11 @@ def executive_report_to_markdown(report: ExecutiveModelReport) -> str:
     lines.extend(_bullet_section("Questions For The Team", report.questions_for_team))
     lines.extend(["## Client-Safe Summary", "", report.client_safe_summary, ""])
     lines.extend(_bullet_section("Limitations", report.limitations))
+    if report.source_files:
+        lines.extend(["## Source Files", ""])
+        for name, path in report.source_files.items():
+            lines.append(f"- `{name}`: `{path}`")
+        lines.append("")
     return "\n".join(lines)
 
 

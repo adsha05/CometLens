@@ -93,27 +93,28 @@ def build_feature_frame(seed: int, rows: int = ROW_COUNT, drift: bool = False) -
     )
 
 
-def build_current_predictions(current_features: pd.DataFrame, seed: int) -> pd.DataFrame:
-    """Create current-period synthetic prediction scores and labels."""
+def build_predictions(features: pd.DataFrame, seed: int, score_shift: float = 0.0) -> pd.DataFrame:
+    """Create synthetic prediction scores and labels for one artifact window."""
     rng = np.random.default_rng(seed)
     logits = (
         -1.1
-        + 0.19 * current_features["qsr_txn_count_30d"]
-        + 0.010 * current_features["qsr_spend_30d"]
-        - 0.021 * current_features["qsr_recency_days"]
-        - 0.75 * current_features["competitor_qsr_share_90d"]
-        + 0.22 * current_features["weekend_dining_frequency"]
-        + 0.38 * current_features["campaign_exposed"]
-        - 0.26 * current_features["merchant_novelty_rate"]
-        + rng.normal(0, 0.18, len(current_features))
+        + 0.19 * features["qsr_txn_count_30d"]
+        + 0.010 * features["qsr_spend_30d"]
+        - 0.021 * features["qsr_recency_days"]
+        - 0.75 * features["competitor_qsr_share_90d"]
+        + 0.22 * features["weekend_dining_frequency"]
+        + 0.38 * features["campaign_exposed"]
+        - 0.26 * features["merchant_novelty_rate"]
+        + score_shift
+        + rng.normal(0, 0.18, len(features))
     )
     propensity_score = sigmoid(logits)
     return pd.DataFrame(
         {
-            ENTITY_ID: current_features[ENTITY_ID],
+            ENTITY_ID: features[ENTITY_ID],
             "propensity_score": propensity_score.round(6),
             "predicted_label": (propensity_score >= 0.5).astype(int),
-            "actual_label": current_features[TARGET],
+            "actual_label": features[TARGET],
         }
     )
 
@@ -129,6 +130,7 @@ def model_metadata() -> dict:
         "target": TARGET,
         "feature_columns": FEATURE_COLUMNS,
         "business_use_case": "QSR audience targeting and campaign optimization",
+        "decision_supported": "prioritize, suppress, or recalibrate synthetic QSR audience activation",
         "entity_id": ENTITY_ID,
         "prediction_column": "propensity_score",
         "training_window": "2026-01-01_to_2026-03-31_synthetic",
@@ -183,11 +185,13 @@ def main() -> None:
 
     train_features = build_feature_frame(RANDOM_SEED, drift=False)
     current_features = build_feature_frame(RANDOM_SEED + 1, drift=True)
-    current_predictions = build_current_predictions(current_features, RANDOM_SEED + 2)
+    train_predictions = build_predictions(train_features, RANDOM_SEED + 2)
+    current_predictions = build_predictions(current_features, RANDOM_SEED + 3, score_shift=-0.08)
 
     output_paths = {
         "train_features": DATA_DIR / "train_features_sample.csv",
         "current_features": DATA_DIR / "current_features_sample.csv",
+        "train_predictions": DATA_DIR / "train_predictions_sample.csv",
         "current_predictions": DATA_DIR / "current_predictions_sample.csv",
         "model_metadata": MODELS_DIR / "model_metadata.json",
         "feature_metadata": MODELS_DIR / "feature_metadata.json",
@@ -195,6 +199,7 @@ def main() -> None:
 
     train_features.to_csv(output_paths["train_features"], index=False)
     current_features.to_csv(output_paths["current_features"], index=False)
+    train_predictions.to_csv(output_paths["train_predictions"], index=False)
     current_predictions.to_csv(output_paths["current_predictions"], index=False)
     write_json(output_paths["model_metadata"], model_metadata())
     write_json(output_paths["feature_metadata"], feature_metadata())
@@ -203,6 +208,7 @@ def main() -> None:
     print("- profile: qsr_purchase_propensity_sample")
     print(f"- {output_paths['train_features']} shape={train_features.shape}")
     print(f"- {output_paths['current_features']} shape={current_features.shape}")
+    print(f"- {output_paths['train_predictions']} shape={train_predictions.shape}")
     print(f"- {output_paths['current_predictions']} shape={current_predictions.shape}")
     print(f"- {output_paths['model_metadata']}")
     print(f"- {output_paths['feature_metadata']}")

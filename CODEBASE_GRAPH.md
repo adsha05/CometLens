@@ -25,6 +25,7 @@ flowchart TD
         TF["data/train_features_sample.csv<br/>Training feature table"]
         CF["data/current_features_sample.csv<br/>Current feature table"]
         PR["data/current_predictions_sample.csv<br/>Current model outputs"]
+        TRP["data/train_predictions_sample.csv<br/>Optional reference model outputs"]
         MM["models/model_metadata.json<br/>Target, entity, prediction, features, metrics"]
         FM["models/feature_metadata.json<br/>Feature definitions"]
     end
@@ -35,10 +36,11 @@ flowchart TD
         AR["src/utils/run_archive.py<br/>Timestamped run archive"]
     end
 
-    subgraph Agents["Three-Agent Model Intelligence Workflow"]
+    subgraph Agents["Four-Agent Model Intelligence Workflow"]
         M["Agent 01: Mitra<br/>src/agents/signal_sentinel_agent.py<br/>Drift, missingness, prediction summary, cluster shift"]
         V["Agent 02: Varuna<br/>src/agents/model_lens_agent.py<br/>SHAP, VIF, reviewer model, overfitting delta"]
         A["Agent 03: Aryaman<br/>src/agents/executive_synthesis_agent.py<br/>Executive model health brief"]
+        S["Agent 04: Samanvaya<br/>src/agents/samanvaya_agent.py<br/>Feedback review and calibration recommendations"]
     end
 
     subgraph Evidence["Evidence Layer"]
@@ -47,15 +49,18 @@ flowchart TD
     end
 
     subgraph Reports["Generated Outputs"]
-        SO["reports/signal_sentinel_output.json"]
+        SO["reports/mitra_output.json"]
+        DQ["reports/data_quality_report.csv"]
+        PD["reports/prediction_drift_report.json"]
         DR["reports/drift_report.csv"]
         CR["reports/cluster_shift_report.csv"]
         DF["reports/figures/drift_top_features.png"]
-        LO["reports/model_lens_output.json"]
+        LO["reports/varuna_output.json"]
         SH["reports/shap_global_importance.csv"]
         VF["reports/vif_report.csv"]
-        SF["reports/figures/shap_global_bar.png<br/>reports/figures/shap_beeswarm.png"]
+        SF["reports/figures/shap_bar.png<br/>reports/figures/shap_beeswarm.png"]
         XO["reports/executive_model_report.json<br/>reports/executive_model_report.md"]
+        SA["reports/samanvaya_recommendations.json<br/>reports/config_change_log.json<br/>configs/calibration_config_v2.json"]
     end
 
     subgraph Presentation["Presentation"]
@@ -70,6 +75,7 @@ flowchart TD
     G --> TF
     G --> CF
     G --> PR
+    G --> TRP
     G --> MM
     G --> FM
     TF --> VAL
@@ -83,9 +89,12 @@ flowchart TD
     TF --> M
     CF --> M
     PR --> M
+    TRP --> M
     MM --> M
     FM --> M
     M --> SO
+    M --> DQ
+    M --> PD
     M --> DR
     M --> CR
     M --> DF
@@ -113,6 +122,10 @@ flowchart TD
     P --> A
     EP --> A
     A --> XO
+    P --> S
+    UI --> FB
+    FB --> S
+    S --> SA
 
     SO --> UI
     LO --> UI
@@ -120,7 +133,6 @@ flowchart TD
     XO --> UI
     DF --> UI
     SF --> UI
-    UI --> FB
 
     SO --> RS
     LO --> RS
@@ -139,9 +151,10 @@ flowchart TD
 
 | Agent | File | Responsibility | Main Outputs |
 | --- | --- | --- | --- |
-| Agent 01: Mitra | `src/agents/signal_sentinel_agent.py` | Detect signal drift, prediction drift, missing-value shifts, and cluster/context movement. | `signal_sentinel_output.json`, `drift_report.csv`, `cluster_shift_report.csv`, `drift_top_features.png` |
-| Agent 02: Varuna | `src/agents/model_lens_agent.py` | Explain model behavior and identify feature-level model risks using SHAP, VIF, and train-validation metric delta. Flags SHAP reliability when Mitra finds severe drift. | `model_lens_output.json`, `shap_global_importance.csv`, `vif_report.csv`, SHAP plots |
+| Agent 01: Mitra | `src/agents/signal_sentinel_agent.py` | Detect signal drift, prediction score drift, missing-value shifts, data-quality failures, and cluster/context movement. | `mitra_output.json`, `data_quality_report.csv`, `prediction_drift_report.json`, `drift_report.csv`, `cluster_shift_report.csv`, `drift_top_features.png` |
+| Agent 02: Varuna | `src/agents/model_lens_agent.py` | Explain model behavior and identify feature-level model risks using SHAP, VIF, and train-validation metric delta. Flags SHAP reliability when Mitra finds severe drift. | `varuna_output.json`, `shap_global_importance.csv`, `vif_report.csv`, SHAP plots |
 | Agent 03: Aryaman | `src/agents/executive_synthesis_agent.py` | Convert verified evidence into a concise executive model health brief. | `executive_model_report.json`, `executive_model_report.md` |
+| Agent 04: Samanvaya | `src/agents/samanvaya_agent.py` | Read dashboard feedback and propose config changes for human review without mutating runtime behavior. | `samanvaya_recommendations.json`, `config_change_log.json`, `calibration_config_v2.json` |
 
 ## Workflow Framework
 
@@ -155,6 +168,7 @@ run_axionai_pipeline.py
   -> Run Agent 02: Varuna with Mitra drift reliability gate
   -> Build evidence packet
   -> Run Agent 03: Aryaman
+  -> Run Agent 04: Samanvaya
   -> Archive timestamped run
 ```
 

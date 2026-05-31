@@ -4,14 +4,18 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import sys
 from typing import Any
 
 import pandas as pd
 import streamlit as st
 
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 from src.agents.feedback_store import append_feedback, load_feedback
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
 MODELS_DIR = PROJECT_ROOT / "models"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 FIGURES_DIR = REPORTS_DIR / "figures"
@@ -21,6 +25,7 @@ python src/agents/signal_sentinel_agent.py
 python src/agents/model_lens_agent.py
 python src/agents/evidence_store.py
 python src/agents/executive_synthesis_agent.py
+python src/agents/samanvaya_agent.py
 streamlit run app/streamlit_app.py"""
 
 
@@ -29,6 +34,13 @@ def load_json(path: Path) -> dict[str, Any]:
     if not path.exists():
         return {}
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def load_json_with_fallback(path: Path, fallback_path: Path) -> dict[str, Any]:
+    """Load a preferred JSON file, falling back to a legacy path."""
+    if path.exists():
+        return load_json(path)
+    return load_json(fallback_path)
 
 
 def records_to_frame(records: list[dict[str, Any]]) -> pd.DataFrame:
@@ -62,12 +74,13 @@ def overview_section() -> None:
         "auditable model-health evidence. The bundled QSR profile is only a demo; the agents "
         "use metadata-defined target, entity, prediction, and feature columns."
     )
-    st.subheader("3-Agent Architecture")
+    st.subheader("4-Agent Architecture")
     st.markdown(
         """
         - **Agent 01: Mitra** detects feature drift, prediction drift, missing-value shifts, and cluster/context movement.
         - **Agent 02: Varuna** explains model behavior with a small local XGBoost reviewer model, SHAP, VIF, and overfitting checks.
         - **Agent 03: Aryaman** converts verified evidence into a consulting-style model health brief.
+        - **Agent 04: Samanvaya** reads feedback and proposes calibration changes for human review.
         """
     )
     with st.expander("Run Order"):
@@ -106,8 +119,8 @@ def model_metadata_section() -> None:
 def signal_sentinel_section() -> None:
     """Render Mitra outputs."""
     st.header("3. Agent 01: Mitra")
-    path = REPORTS_DIR / "signal_sentinel_output.json"
-    signal = load_json(path)
+    path = REPORTS_DIR / "mitra_output.json"
+    signal = load_json_with_fallback(path, REPORTS_DIR / "signal_sentinel_output.json")
     if not signal:
         missing_file_message(path, "Agent 01: Mitra output")
         return
@@ -115,11 +128,40 @@ def signal_sentinel_section() -> None:
     high_drift = signal.get("high_drift_features", [])
     cluster_findings = signal.get("cluster_findings", [])
     prediction_summary = signal.get("prediction_drift_summary", {})
+    data_health = signal.get("data_health_summary", {})
 
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
     col1.metric("Risk Level", signal.get("overall_risk_level", "unknown"))
     col2.metric("High Drift Features", len(high_drift))
     col3.metric("Prediction Gap", f"{prediction_summary.get('prediction_actual_rate_gap', 0):+.3f}")
+    quality_counts = data_health.get("data_quality_issue_counts", {})
+    col4.metric(
+        "Data Quality Issues",
+        int(quality_counts.get("High", 0)) + int(quality_counts.get("Medium", 0)),
+        help="Count of high and medium data-quality checks.",
+    )
+    if signal.get("overall_risk_explanation"):
+        st.caption(f"Risk explanation: {signal['overall_risk_explanation']}")
+    if signal.get("risk_assessment"):
+        with st.expander("Mitra risk rule hierarchy", expanded=False):
+            st.json(signal["risk_assessment"])
+
+    st.subheader("Data Quality Gate")
+    data_quality_path = REPORTS_DIR / "data_quality_report.csv"
+    if data_quality_path.exists():
+        data_quality_df = pd.read_csv(data_quality_path)
+        issue_filter = st.multiselect(
+            "Filter data quality issue level",
+            options=["High", "Medium", "Low"],
+            default=["High", "Medium"],
+        )
+        filtered_quality_df = data_quality_df.loc[data_quality_df["issue_level"].isin(issue_filter)]
+        if filtered_quality_df.empty:
+            st.success("No selected data quality issues.")
+        else:
+            st.dataframe(filtered_quality_df, width="stretch")
+    else:
+        st.info("Data quality report is missing. Run the pipeline to generate `reports/data_quality_report.csv`.")
 
     st.subheader("High Drift Features")
     high_drift_df = records_to_frame(high_drift)
@@ -127,6 +169,34 @@ def signal_sentinel_section() -> None:
         st.success("No high-drift features reported.")
     else:
         st.dataframe(high_drift_df, width="stretch")
+
+    st.subheader("Feature Drift Report")
+    drift_path = REPORTS_DIR / "drift_report.csv"
+    if drift_path.exists():
+        drift_df = pd.read_csv(drift_path)
+        st.dataframe(drift_df, width="stretch")
+    else:
+        st.info("Drift report is missing. Run the pipeline to generate `reports/drift_report.csv`.")
+
+    st.subheader("Prediction Drift")
+    prediction_drift_path = REPORTS_DIR / "prediction_drift_report.json"
+    prediction_drift = load_json(prediction_drift_path) or prediction_summary
+    if prediction_drift:
+        pred_col1, pred_col2, pred_col3, pred_col4 = st.columns(4)
+        pred_col1.metric("Score Drift", prediction_drift.get("prediction_drift_level", "Unknown"))
+        pred_col2.metric("Score PSI", f"{prediction_drift.get('score_psi', 0):.3f}")
+        pred_col3.metric(
+            "Score Mean Change",
+            f"{prediction_drift.get('score_mean_change_pct', 0):+.1f}%",
+        )
+        pred_col4.metric(
+            "Predicted Positive Shift",
+            f"{prediction_drift.get('predicted_positive_rate_change_pct_points', 0):+.1f} pp",
+        )
+        with st.expander("Prediction drift details", expanded=False):
+            st.json(prediction_drift)
+    else:
+        st.info("Prediction drift report is missing. Run the pipeline to generate `reports/prediction_drift_report.json`.")
 
     st.subheader("Cluster Findings")
     cluster_df = records_to_frame(cluster_findings)
@@ -142,8 +212,8 @@ def signal_sentinel_section() -> None:
 def model_lens_section() -> None:
     """Render Varuna outputs."""
     st.header("4. Agent 02: Varuna")
-    path = REPORTS_DIR / "model_lens_output.json"
-    lens = load_json(path)
+    path = REPORTS_DIR / "varuna_output.json"
+    lens = load_json_with_fallback(path, REPORTS_DIR / "model_lens_output.json")
     if not lens:
         missing_file_message(path, "Agent 02: Varuna output")
         return
@@ -190,7 +260,7 @@ def model_lens_section() -> None:
     st.subheader("SHAP Plots")
     col1, col2 = st.columns(2)
     with col1:
-        show_image_if_available(FIGURES_DIR / "shap_global_bar.png", "SHAP global bar plot")
+        show_image_if_available(FIGURES_DIR / "shap_bar.png", "SHAP global bar plot")
     with col2:
         show_image_if_available(FIGURES_DIR / "shap_beeswarm.png", "SHAP beeswarm plot")
 
@@ -237,6 +307,18 @@ def feedback_section() -> None:
             st.dataframe(feedback.tail(10), width="stretch")
 
 
+def samanvaya_section() -> None:
+    """Render Samanvaya recommendations when available."""
+    st.header("8. Agent 04: Samanvaya")
+    path = REPORTS_DIR / "samanvaya_recommendations.json"
+    recommendations = load_json(path)
+    if not recommendations:
+        missing_file_message(path, "Agent 04: Samanvaya output")
+        return
+    st.write(recommendations.get("summary", "No Samanvaya summary available."))
+    st.json(recommendations)
+
+
 def main() -> None:
     """Render the complete AxionAI dashboard."""
     st.set_page_config(page_title="AxionAI MVP", layout="wide")
@@ -250,6 +332,7 @@ def main() -> None:
     executive_synthesis_section()
     evidence_packet_section()
     feedback_section()
+    samanvaya_section()
 
 
 if __name__ == "__main__":

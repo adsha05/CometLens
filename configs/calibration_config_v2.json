@@ -1,0 +1,51 @@
+{
+  "config_version": "v2",
+  "status": "proposed_pending_human_approval",
+  "description": "Default AxionAI calibration thresholds for synthetic MVP runs.",
+  "mitra": {
+    "psi_medium": 0.1,
+    "psi_high": 0.25,
+    "ks_pvalue_high": 0.01,
+    "ks_pvalue_medium": 0.05,
+    "missing_rate_change_pct_points": 5.0,
+    "missing_rate_high_pct_points": 20.0,
+    "boundary_violation_medium_rate": 0.0,
+    "boundary_violation_high_rate": 0.05,
+    "cluster_shift_medium_pct_points": 5.0,
+    "cluster_shift_high_pct_points": 10.0
+  },
+  "varuna": {
+    "severe_psi_threshold": 0.5,
+    "severe_ks_pvalue_threshold": 0.001,
+    "drift_gate_mode": "flag",
+    "vif_medium": 5.0,
+    "vif_high": 10.0,
+    "overfit_delta_medium": 0.03,
+    "overfit_delta_high": 0.07
+  },
+  "aryaman": {
+    "default_report_profile": "general_model_health",
+    "purchase_keywords": [
+      "purchase",
+      "qsr",
+      "campaign",
+      "merchant",
+      "audience"
+    ],
+    "risk_governance_keywords": [
+      "fraud",
+      "risk",
+      "credit",
+      "bank",
+      "approve",
+      "decline",
+      "transaction"
+    ]
+  },
+  "samanvaya": {
+    "false_positive_threshold_for_review": 2,
+    "useful_signal_threshold_for_keep": 3,
+    "max_threshold_adjustment_pct": 10
+  },
+  "source": "Agent 04: Samanvaya recommendations"
+}

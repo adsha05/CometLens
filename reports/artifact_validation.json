@@ -1,8 +1,19 @@
 {
   "status": "passed",
+  "config_version": "v1",
+  "source_files": {
+    "train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
+    "current_features": "/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv",
+    "current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
+    "model_metadata": "/Users/adityasharma/Desktop/CometLens/models/model_metadata.json",
+    "feature_metadata": "/Users/adityasharma/Desktop/CometLens/models/feature_metadata.json",
+    "calibration_config": "/Users/adityasharma/Desktop/CometLens/configs/calibration_config_v1.json"
+  },
   "model_name": "qsr_purchase_predictor_v3",
   "target": "purchase_qsr_next_30d",
   "entity_id": "consumer_token",
   "prediction_column": "propensity_score",
+  "business_use_case": "QSR audience targeting and campaign optimization",
+  "decision_supported": "prioritize, suppress, or recalibrate synthetic QSR audience activation",
   "feature_count": 9
 }

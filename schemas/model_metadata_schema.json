@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AxionAI Model Metadata",
+  "type": "object",
+  "required": [
+    "model_name",
+    "model_type",
+    "target",
+    "prediction_column",
+    "entity_id",
+    "business_use_case",
+    "decision_supported",
+    "feature_columns"
+  ],
+  "properties": {
+    "model_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "model_type": {
+      "type": "string",
+      "enum": ["classification", "regression", "ranking"]
+    },
+    "target": {
+      "type": "string",
+      "minLength": 1
+    },
+    "prediction_column": {
+      "type": "string",
+      "minLength": 1
+    },
+    "entity_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "business_use_case": {
+      "type": "string",
+      "minLength": 1
+    },
+    "decision_supported": {
+      "type": "string"
+    },
+    "feature_columns": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "training_window": {
+      "type": "string"
+    },
+    "current_window": {
+      "type": "string"
+    },
+    "metric_name": {
+      "type": "string"
+    },
+    "train_auc": {
+      "type": "number"
+    },
+    "validation_auc": {
+      "type": "number"
+    },
+    "current_auc": {
+      "type": "number"
+    },
+    "train_metric": {
+      "type": "number"
+    },
+    "validation_metric": {
+      "type": "number"
+    },
+    "current_metric": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": true
+}

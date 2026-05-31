@@ -49,7 +49,16 @@ def validate_input_contract(
     feature_metadata = load_json_object(feature_metadata_path)
     require_keys(
         model_metadata,
-        ["model_name", "model_type", "target", "entity_id", "prediction_column", "feature_columns"],
+        [
+            "model_name",
+            "model_type",
+            "target",
+            "entity_id",
+            "prediction_column",
+            "business_use_case",
+            "decision_supported",
+            "feature_columns",
+        ],
         model_metadata_path,
     )
 
@@ -102,5 +111,7 @@ def validate_input_contract(
         "target": target,
         "entity_id": entity_id,
         "prediction_column": prediction_column,
+        "business_use_case": model_metadata["business_use_case"],
+        "decision_supported": model_metadata["decision_supported"],
         "feature_count": len(feature_columns),
     }

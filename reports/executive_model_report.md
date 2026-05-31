@@ -1,6 +1,7 @@
-# Agent 03: Aryaman Executive Model Health Brief
+# Agent 03: Aryaman Client-Ready Purchase Model Intelligence Brief
 
 **Model health status:** Medium Risk
+**Config version:** v1
 
 ## Executive Summary
 
@@ -11,12 +12,12 @@ qsr_purchase_predictor_v3 supports QSR audience targeting and campaign optimizat
 - merchant_novelty_rate is high drift and has combined risk High.
 - weekend_dining_frequency is high drift and has combined risk Medium.
 - Cluster mix shifted materially; largest movement is 9.5 percentage points.
-- Prediction-positive rate differs from actual-positive rate by -0.135.
+- Prediction-positive rate differs from actual-positive rate by -0.130.
 - Varuna SHAP outputs are flagged as unreliable due to severe Mitra drift.
 
 ## Why It Matters
 
-Production model decisions depend on stable inputs, interpretable drivers, and consistent population context. When important features drift or segment mix changes, model scores can become less aligned with the current operating environment, increasing the risk of poor prioritization, inefficient resource allocation, or weak stakeholder trust.
+Purchase and audience decisioning depend on stable behavioral signals. When important features drift or segment mix changes, scores can become less aligned with current consumer behavior, increasing the risk of poor prioritization, inefficient spend, or weak client trust.
 
 ## Top Model Drivers
 
@@ -48,7 +49,7 @@ Production model decisions depend on stable inputs, interpretable drivers, and c
 
 ## Plots To Include
 
-- /Users/adityasharma/Desktop/CometLens/reports/figures/shap_global_bar.png
+- /Users/adityasharma/Desktop/CometLens/reports/figures/shap_bar.png
 - /Users/adityasharma/Desktop/CometLens/reports/figures/shap_beeswarm.png
 - /Users/adityasharma/Desktop/CometLens/reports/figures/drift_top_features.png
 
@@ -67,3 +68,13 @@ The model review is rated Medium Risk based on synthetic MVP evidence. The main 
 - Synthetic sample data only
 - LLM narrative should not be treated as production validation
 - Metrics are simulated for MVP demonstration
+
+## Source Files
+
+- `evidence_packet`: `/Users/adityasharma/Desktop/CometLens/reports/evidence_packet.json`
+- `mitra_output`: `/Users/adityasharma/Desktop/CometLens/reports/mitra_output.json`
+- `varuna_output`: `/Users/adityasharma/Desktop/CometLens/reports/varuna_output.json`
+- `model_metadata`: `/Users/adityasharma/Desktop/CometLens/models/model_metadata.json`
+- `feature_metadata`: `/Users/adityasharma/Desktop/CometLens/models/feature_metadata.json`
+- `mitra_source_files`: `{'train_features': '/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv', 'current_features': '/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv', 'train_predictions': '/Users/adityasharma/Desktop/CometLens/data/train_predictions_sample.csv', 'current_predictions': '/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv', 'model_metadata': '/Users/adityasharma/Desktop/CometLens/models/model_metadata.json', 'feature_metadata': '/Users/adityasharma/Desktop/CometLens/models/feature_metadata.json', 'calibration_config': '/Users/adityasharma/Desktop/CometLens/configs/calibration_config_v1.json'}`
+- `varuna_source_files`: `{'train_features': '/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv', 'current_features': '/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv', 'current_predictions': '/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv', 'model_metadata': '/Users/adityasharma/Desktop/CometLens/models/model_metadata.json', 'feature_metadata': '/Users/adityasharma/Desktop/CometLens/models/feature_metadata.json', 'mitra_output': '/Users/adityasharma/Desktop/CometLens/reports/mitra_output.json'}`

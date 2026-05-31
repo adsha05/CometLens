@@ -109,6 +109,21 @@ class ExecutiveSynthesisAgent:
             return "review high-drift drivers and run a validation refresh"
         return "continue monitoring with the next synthetic current-period snapshot"
 
+    def report_profile(self) -> str:
+        """Infer report language profile from business context."""
+        metadata = self.evidence.get("model_metadata", {})
+        context = " ".join(
+            str(metadata.get(key, ""))
+            for key in ["business_use_case", "decision_supported", "domain", "model_name"]
+        ).lower()
+        risk_terms = {"fraud", "risk", "credit", "bank", "approve", "decline", "transaction", "governance"}
+        purchase_terms = {"purchase", "qsr", "campaign", "merchant", "audience", "consumer"}
+        if any(term in context for term in risk_terms):
+            return "risk_governance_model_health"
+        if any(term in context for term in purchase_terms):
+            return "purchase_model_intelligence"
+        return "general_model_health"
+
     def build_executive_summary(self, status: str) -> str:
         """Create concise executive summary text."""
         metadata = self.evidence.get("model_metadata", {})
@@ -150,6 +165,20 @@ class ExecutiveSynthesisAgent:
 
     def build_why_it_matters(self) -> str:
         """Translate technical findings into business impact."""
+        profile = self.report_profile()
+        if profile == "risk_governance_model_health":
+            return (
+                "Risk and governance decisions depend on stable inputs, calibrated scores, and clear model "
+                "evidence. When important features drift or population context changes, decision policies "
+                "such as approve, decline, or challenge can become less aligned with current risk, increasing "
+                "operational, compliance, and customer-impact risk."
+            )
+        if profile == "purchase_model_intelligence":
+            return (
+                "Purchase and audience decisioning depend on stable behavioral signals. When important "
+                "features drift or segment mix changes, scores can become less aligned with current consumer "
+                "behavior, increasing the risk of poor prioritization, inefficient spend, or weak client trust."
+            )
         return (
             "Production model decisions depend on stable inputs, interpretable drivers, and consistent "
             "population context. When important features drift or segment mix changes, model scores can "
@@ -220,7 +249,7 @@ class ExecutiveSynthesisAgent:
     def build_plots_to_include(self) -> list[str]:
         """Select required plot artifacts for the report."""
         selected = [
-            REPORTS_DIR / "figures" / "shap_global_bar.png",
+            REPORTS_DIR / "figures" / "shap_bar.png",
             REPORTS_DIR / "figures" / "shap_beeswarm.png",
             REPORTS_DIR / "figures" / "drift_top_features.png",
         ]
@@ -240,8 +269,19 @@ class ExecutiveSynthesisAgent:
             self.load_evidence()
         status = self.determine_model_health_status()
         limitations = self.evidence.get("limitations", [])
+        profile = self.report_profile()
+        title_by_profile = {
+            "purchase_model_intelligence": "Agent 03: Aryaman Client-Ready Purchase Model Intelligence Brief",
+            "risk_governance_model_health": "Agent 03: Aryaman Risk/Governance Model Health Brief",
+            "general_model_health": "Agent 03: Aryaman Executive Model Health Brief",
+        }
         return ExecutiveModelReport(
-            report_title="Agent 03: Aryaman Executive Model Health Brief",
+            config_version=self.evidence.get("config_version", "unknown"),
+            source_files={
+                "evidence_packet": str(self.evidence_packet_path),
+                **self.evidence.get("source_files", {}),
+            },
+            report_title=title_by_profile[profile],
             model_health_status=status,
             executive_summary=self.build_executive_summary(status),
             what_changed=self.build_what_changed(),

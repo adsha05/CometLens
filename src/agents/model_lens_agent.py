@@ -48,7 +48,7 @@ class ModelLensAgent:
         predictions_path: Path = DATA_DIR / "current_predictions_sample.csv",
         model_metadata_path: Path = MODELS_DIR / "model_metadata.json",
         feature_metadata_path: Path = MODELS_DIR / "feature_metadata.json",
-        signal_sentinel_path: Path = REPORTS_DIR / "signal_sentinel_output.json",
+        signal_sentinel_path: Path = REPORTS_DIR / "mitra_output.json",
     ) -> None:
         """Configure input and output artifact paths."""
         self.train_features_path = Path(train_features_path)
@@ -250,7 +250,8 @@ class ModelLensAgent:
         if self.shap_importance.empty:
             self.compute_shap_importance()
         FIGURES_DIR.mkdir(parents=True, exist_ok=True)
-        bar_path = FIGURES_DIR / "shap_global_bar.png"
+        bar_path = FIGURES_DIR / "shap_bar.png"
+        legacy_bar_path = FIGURES_DIR / "shap_global_bar.png"
         beeswarm_path = FIGURES_DIR / "shap_beeswarm.png"
 
         top_features = self.shap_importance.head(10).sort_values("mean_abs_shap_value")
@@ -260,6 +261,7 @@ class ModelLensAgent:
         plt.title("Global SHAP Feature Importance")
         plt.tight_layout()
         plt.savefig(bar_path, dpi=160, bbox_inches="tight")
+        plt.savefig(legacy_bar_path, dpi=160, bbox_inches="tight")
         plt.close()
 
         shap.summary_plot(
@@ -272,7 +274,7 @@ class ModelLensAgent:
         plt.tight_layout()
         plt.savefig(beeswarm_path, dpi=160, bbox_inches="tight")
         plt.close()
-        return {"shap_global_bar": bar_path, "shap_beeswarm": beeswarm_path}
+        return {"shap_bar": bar_path, "shap_beeswarm": beeswarm_path, "shap_global_bar": legacy_bar_path}
 
     @staticmethod
     def _vif_level(vif: float) -> str:
@@ -282,6 +284,15 @@ class ModelLensAgent:
         if vif >= 5:
             return "Medium"
         return "Low"
+
+    @staticmethod
+    def _vif_level_reason(vif: float) -> str:
+        """Explain VIF severity."""
+        if vif >= 10:
+            return f"High because VIF {vif:.2f} is at or above threshold 10.00."
+        if vif >= 5:
+            return f"Medium because VIF {vif:.2f} is at or above threshold 5.00."
+        return f"Low because VIF {vif:.2f} is below threshold 5.00."
 
     def calculate_vif(self) -> pd.DataFrame:
         """Calculate VIF for numeric model features using linear-regression R-squared."""
@@ -302,7 +313,14 @@ class ModelLensAgent:
                 model.fit(others, y)
                 r_squared = float(model.score(others, y))
                 vif = float("inf") if r_squared >= 0.999999 else 1.0 / (1.0 - r_squared)
-            rows.append({"feature": feature, "vif": vif, "vif_level": self._vif_level(vif)})
+            rows.append(
+                {
+                    "feature": feature,
+                    "vif": vif,
+                    "vif_level": self._vif_level(vif),
+                    "vif_level_reason": self._vif_level_reason(vif),
+                }
+            )
         self.vif_report = pd.DataFrame(rows).sort_values("vif", ascending=False).reset_index(drop=True)
         return self.vif_report
 
@@ -314,6 +332,15 @@ class ModelLensAgent:
         if delta >= 0.03:
             return "Medium"
         return "Low"
+
+    @staticmethod
+    def _overfitting_level_reason(delta: float) -> str:
+        """Explain train-validation overfitting risk."""
+        if delta >= 0.07:
+            return f"High because train-validation delta {delta:.4f} is at or above threshold 0.0700."
+        if delta >= 0.03:
+            return f"Medium because train-validation delta {delta:.4f} is at or above threshold 0.0300."
+        return f"Low because train-validation delta {delta:.4f} is below threshold 0.0300."
 
     def calculate_overfitting_check(self) -> dict[str, Any]:
         """Calculate train-validation metric delta from metadata when available."""
@@ -332,6 +359,7 @@ class ModelLensAgent:
             "validation_auc": validation_auc,
             "delta": delta,
             "risk_level": self._overfitting_level(delta),
+            "risk_level_reason": self._overfitting_level_reason(delta),
         }
 
     def build_high_risk_feature_matrix(self) -> pd.DataFrame:
@@ -349,8 +377,15 @@ class ModelLensAgent:
             row["feature"]: row.get("drift_level", "Low")
             for row in drift_rows
         }
+        drift_reason_by_feature = {
+            row["feature"]: row.get("drift_level_reason", "Low because feature did not cross Mitra drift thresholds.")
+            for row in drift_rows
+        }
         matrix = self.shap_importance.merge(self.vif_report, on="feature", how="left")
         matrix["drift_level"] = matrix["feature"].map(drift_by_feature).fillna("Low")
+        matrix["drift_level_reason"] = matrix["feature"].map(drift_reason_by_feature).fillna(
+            "Low because feature did not cross Mitra drift thresholds."
+        )
         matrix["vif_warning"] = matrix["vif_level"].fillna("Low")
 
         def combined_risk(row: pd.Series) -> str:
@@ -363,15 +398,29 @@ class ModelLensAgent:
             return "Low"
 
         matrix["combined_risk"] = matrix.apply(combined_risk, axis=1)
+        matrix["combined_risk_reason"] = matrix.apply(
+            lambda row: (
+                "High because feature has high drift and is a top-5 SHAP driver."
+                if row["drift_level"] == "High" and row["shap_rank"] <= 5
+                else "High because feature has high VIF and is a top-5 SHAP driver."
+                if row["vif_warning"] == "High" and row["shap_rank"] <= 5
+                else "Medium because feature has drift or medium VIF warning."
+                if row["drift_level"] in {"High", "Medium"} or row["vif_warning"] == "Medium"
+                else "Low because feature did not cross combined SHAP, drift, or VIF risk rules."
+            ),
+            axis=1,
+        )
         self.high_risk_feature_matrix = matrix[
             [
                 "feature",
                 "shap_rank",
                 "mean_abs_shap_value",
                 "drift_level",
+                "drift_level_reason",
                 "vif",
                 "vif_warning",
                 "combined_risk",
+                "combined_risk_reason",
             ]
         ].sort_values(["combined_risk", "shap_rank"], ascending=[True, True])
         risk_order = {"High": 0, "Medium": 1, "Low": 2}
@@ -390,9 +439,20 @@ class ModelLensAgent:
         if self.train_features is None:
             self.load_inputs()
         reliability = self.assess_explainability_reliability()
+        config_version = self.signal_sentinel.get("config_version", "unknown")
+        source_files = {
+            "train_features": str(self.train_features_path),
+            "current_features": str(self.current_features_path),
+            "current_predictions": str(self.predictions_path),
+            "model_metadata": str(self.model_metadata_path),
+            "feature_metadata": str(self.feature_metadata_path),
+            "mitra_output": str(self.signal_sentinel_path),
+        }
         if reliability.get("should_skip"):
             self.output = {
                 "agent_name": "Agent 02: Varuna",
+                "config_version": config_version,
+                "source_files": source_files,
                 "model_name": self.model_metadata.get("model_name"),
                 "explainability_reliability": reliability,
                 "top_global_drivers": [],
@@ -416,6 +476,8 @@ class ModelLensAgent:
 
         self.output = {
             "agent_name": "Agent 02: Varuna",
+            "config_version": config_version,
+            "source_files": source_files,
             "model_name": self.model_metadata.get("model_name"),
             "explainability_reliability": reliability,
             "top_global_drivers": self.shap_importance.head(10).to_dict(orient="records"),
@@ -431,18 +493,30 @@ class ModelLensAgent:
         output = self.build_output()
         REPORTS_DIR.mkdir(parents=True, exist_ok=True)
         FIGURES_DIR.mkdir(parents=True, exist_ok=True)
-        output_path = REPORTS_DIR / "model_lens_output.json"
+        output_path = REPORTS_DIR / "varuna_output.json"
+        legacy_output_path = REPORTS_DIR / "model_lens_output.json"
         shap_path = REPORTS_DIR / "shap_global_importance.csv"
         vif_path = REPORTS_DIR / "vif_report.csv"
 
         output_path.write_text(json.dumps(output, indent=2), encoding="utf-8")
+        legacy_output_path.write_text(json.dumps(output, indent=2), encoding="utf-8")
+        if not self.shap_importance.empty:
+            self.shap_importance["config_version"] = output.get("config_version", "unknown")
+            self.shap_importance["source_current_features"] = str(self.current_features_path)
+        if not self.vif_report.empty:
+            self.vif_report["config_version"] = output.get("config_version", "unknown")
+            self.vif_report["source_train_features"] = str(self.train_features_path)
         self.shap_importance.to_csv(shap_path, index=False)
         self.vif_report.to_csv(vif_path, index=False)
-        EvidenceStore().save_section("model_lens", output)
+        store = EvidenceStore()
+        store.save_section("varuna", output)
+        store.save_section("model_lens", output)
         return {
             "json": output_path,
+            "legacy_json": legacy_output_path,
             "shap_global_importance": shap_path,
             "vif_report": vif_path,
+            "shap_bar": FIGURES_DIR / "shap_bar.png",
             "shap_global_bar": FIGURES_DIR / "shap_global_bar.png",
             "shap_beeswarm": FIGURES_DIR / "shap_beeswarm.png",
         }

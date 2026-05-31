@@ -108,9 +108,15 @@ Agent 03: Aryaman
 Streamlit Dashboard
   - stakeholder review interface
   - feedback capture
+        |
+        v
+Agent 04: Samanvaya
+  - feedback review
+  - proposed calibration changes
+  - simulated approval log
 ```
 
-## 4. Three-Agent Workflow
+## 4. Four-Agent Workflow
 
 ### Agent 01: Mitra
 
@@ -153,6 +159,16 @@ Aryaman converts deterministic evidence into a concise business report.
 - Recommends next actions
 - Saves JSON and Markdown reports
 
+### Agent 04: Samanvaya
+
+Samanvaya reads dashboard feedback and proposes calibration changes without applying them automatically.
+
+- Reads `reports/feedback_log.csv`
+- Proposes threshold/config changes for human review
+- Writes `reports/samanvaya_recommendations.json`
+- Writes `reports/config_change_log.json`
+- Writes proposed `configs/calibration_config_v2.json`
+
 ## 5. Sample Input Artifacts
 
 To review a different model, replace the sample artifacts while preserving this contract:
@@ -166,6 +182,9 @@ data/current_features_sample.csv
 
 data/current_predictions_sample.csv
   entity id + prediction score + predicted/actual labels when available
+
+data/train_predictions_sample.csv
+  optional reference-window prediction scores used for prediction drift checks
 
 models/model_metadata.json
   model_name, model_type, target, entity_id, prediction_column,
@@ -184,23 +203,30 @@ Running the pipeline creates:
 ```text
 reports/
   artifact_validation.json
-  signal_sentinel_output.json
+  mitra_output.json
+  data_quality_report.csv
+  prediction_drift_report.json
   drift_report.csv
   cluster_shift_report.csv
-  model_lens_output.json
+  varuna_output.json
   shap_global_importance.csv
   vif_report.csv
   evidence_packet.json
   executive_model_report.json
   executive_model_report.md
+  samanvaya_recommendations.json
+  config_change_log.json
+  sample_end_to_end_agent_report.md
   runs/<timestamp>/
     archived copy of the generated evidence and report artifacts
 
 reports/figures/
   drift_top_features.png
-  shap_global_bar.png
+  shap_bar.png
   shap_beeswarm.png
 ```
+
+Every generated report artifact includes, where applicable, the active `config_version`, source file paths, and deterministic explanations for assigned risk levels. Mitra also writes the ordered rule hierarchy used to determine its overall risk level.
 
 Typical demo findings:
 
@@ -210,6 +236,10 @@ Typical demo findings:
 - Material cluster movement
 - SHAP drivers led by synthetic purchase behavior features
 - Recommended validation refresh before high-impact business use
+
+For a full walkthrough of one synthetic run, see:
+
+- [`reports/sample_end_to_end_agent_report.md`](reports/sample_end_to_end_agent_report.md)
 
 ## 7. Screenshots
 

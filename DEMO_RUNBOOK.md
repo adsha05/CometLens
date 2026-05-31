@@ -37,10 +37,13 @@ streamlit run app/streamlit_app.py
 3. Agent 02: Varuna trains a small local XGBoost reviewer model and explains behavior with SHAP.
 4. Evidence Store consolidates deterministic facts into `reports/evidence_packet.json`.
 5. Agent 03: Aryaman produces a consulting-style model health brief.
+6. Agent 04: Samanvaya reads any dashboard feedback and proposes calibration changes for human review.
 
 ## Key Message
 
 AxionAI keeps metrics deterministic and auditable. The executive report is generated from saved evidence only; no external LLM calculates or overrides risk.
+
+Samanvaya does not automatically mutate runtime thresholds. It writes recommendations and a simulated approval log so calibration remains reviewable.
 
 ## Bring Your Own Model Artifacts
 

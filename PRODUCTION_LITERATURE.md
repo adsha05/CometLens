@@ -59,7 +59,9 @@ Implemented checks:
 
 Outputs:
 
-- `reports/signal_sentinel_output.json`
+- `reports/mitra_output.json`
+- `reports/data_quality_report.csv`
+- `reports/prediction_drift_report.json`
 - `reports/drift_report.csv`
 - `reports/cluster_shift_report.csv`
 - `reports/figures/drift_top_features.png`
@@ -83,10 +85,10 @@ Implemented checks:
 
 Outputs:
 
-- `reports/model_lens_output.json`
+- `reports/varuna_output.json`
 - `reports/shap_global_importance.csv`
 - `reports/vif_report.csv`
-- `reports/figures/shap_global_bar.png`
+- `reports/figures/shap_bar.png`
 - `reports/figures/shap_beeswarm.png`
 
 ### 4. Evidence Store
@@ -123,7 +125,21 @@ Outputs:
 - `reports/executive_model_report.json`
 - `reports/executive_model_report.md`
 
-### 6. Feedback And Run Archive Hooks
+### 6. Agent 04: Samanvaya
+
+File: `src/agents/samanvaya_agent.py`
+
+Purpose: read feedback and propose calibration changes without automatically changing runtime behavior.
+
+Outputs:
+
+- `reports/samanvaya_recommendations.json`
+- `reports/config_change_log.json`
+- `configs/calibration_config_v2.json`
+
+Samanvaya is intentionally non-mutating in the MVP. It creates proposals and a simulated approval log, but future runs still use the active calibration config unless a human promotes the proposed config.
+
+### 7. Feedback And Run Archive Hooks
 
 Files:
 
@@ -163,8 +179,8 @@ Key evidence from the bundled QSR demo:
 
 Every business-facing statement in the executive report traces back to deterministic artifacts:
 
-- Drift findings come from `reports/signal_sentinel_output.json` and `reports/drift_report.csv`.
-- SHAP and VIF findings come from `reports/model_lens_output.json`, `reports/shap_global_importance.csv`, and `reports/vif_report.csv`.
+- Drift, prediction drift, and data-quality findings come from `reports/mitra_output.json`, `reports/data_quality_report.csv`, `reports/prediction_drift_report.json`, and `reports/drift_report.csv`.
+- SHAP and VIF findings come from `reports/varuna_output.json`, `reports/shap_global_importance.csv`, and `reports/vif_report.csv`.
 - Executive report content comes from `reports/evidence_packet.json`.
 
 ## Production Guardrails

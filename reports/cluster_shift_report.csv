@@ -1,4 +1,4 @@
-cluster,train_share_pct,current_share_pct,share_change_pct_points
-0,49.0,40.5,-8.5
-1,23.5,33.0,9.5
-2,27.500000000000004,26.5,-1.0000000000000036
+config_version,source_train_features,source_current_features,cluster,train_share_pct,current_share_pct,share_change_pct_points
+v1,/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv,/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv,0,49.0,40.5,-8.5
+v1,/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv,/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv,1,23.5,33.0,9.5
+v1,/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv,/Users/adityasharma/Desktop/CometLens/data/current_features_sample.csv,2,27.500000000000004,26.5,-1.0000000000000036

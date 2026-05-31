@@ -37,6 +37,14 @@ def load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def first_existing(paths: list[Path]) -> Path:
+    """Return the first existing path from an ordered fallback list."""
+    for path in paths:
+        if path.exists():
+            return path
+    raise FileNotFoundError(f"None of these artifacts exist: {', '.join(str(path) for path in paths)}")
+
+
 def save_card(path: Path, title: str, lines: list[str], footer: str) -> None:
     """Save a simple screenshot-style card."""
     fig, ax = plt.subplots(figsize=(12, 7.4))
@@ -94,7 +102,10 @@ def save_card(path: Path, title: str, lines: list[str], footer: str) -> None:
 
 def render_model_health_summary() -> Path:
     """Render a model health summary card."""
-    signal = load_json(REPORTS_DIR / "signal_sentinel_output.json")
+    mitra_path = first_existing(
+        [REPORTS_DIR / "mitra_output.json", REPORTS_DIR / "signal_sentinel_output.json"]
+    )
+    signal = load_json(mitra_path)
     executive_report = load_json(REPORTS_DIR / "executive_model_report.json")
     metadata = load_json(MODELS_DIR / "model_metadata.json")
     prediction_summary = signal.get("prediction_drift_summary", {})
@@ -111,7 +122,7 @@ def render_model_health_summary() -> Path:
         path,
         "Model Health Summary",
         lines,
-        "Generated from reports/signal_sentinel_output.json and reports/executive_model_report.json",
+        f"Generated from {mitra_path.relative_to(PROJECT_ROOT)} and reports/executive_model_report.json",
     )
     return path
 
@@ -141,13 +152,15 @@ def render_drift_report() -> Path:
 def render_shap_feature_importance() -> Path:
     """Copy generated SHAP feature importance chart into README assets."""
     output_path = ASSETS_DIR / "shap_feature_importance.png"
-    shutil.copyfile(FIGURES_DIR / "shap_global_bar.png", output_path)
+    shap_bar = first_existing([FIGURES_DIR / "shap_bar.png", FIGURES_DIR / "shap_global_bar.png"])
+    shutil.copyfile(shap_bar, output_path)
     return output_path
 
 
 def render_high_risk_feature_matrix() -> Path:
     """Render the high-risk feature matrix as a table image."""
-    lens = load_json(REPORTS_DIR / "model_lens_output.json")
+    varuna_path = first_existing([REPORTS_DIR / "varuna_output.json", REPORTS_DIR / "model_lens_output.json"])
+    lens = load_json(varuna_path)
     risk_df = pd.DataFrame(lens.get("high_risk_feature_matrix", []))
     risk_df = risk_df.loc[
         risk_df["combined_risk"].isin(["High", "Medium"]),
