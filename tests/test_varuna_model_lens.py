@@ -30,6 +30,9 @@ def test_varuna_runs_successfully_after_mitra(generated_varuna_outputs: dict[str
     assert generated_varuna_outputs["json"].exists()
     assert generated_varuna_outputs["model_diagnostics"].exists()
     assert generated_varuna_outputs["feature_risk_matrix"].exists()
+    assert generated_varuna_outputs["calibration_report"].exists()
+    assert generated_varuna_outputs["score_decile_report"].exists()
+    assert generated_varuna_outputs["lift_report"].exists()
 
 
 def test_shap_global_importance_contract() -> None:
@@ -54,6 +57,8 @@ def test_model_lens_output_identifies_varuna() -> None:
     """Main JSON output should use the Varuna agent identity."""
     payload = json.loads((REPORTS_DIR / "model_lens_output.json").read_text(encoding="utf-8"))
     assert payload["agent"] == "Varuna"
+    assert payload["performance_diagnostics"]["calibration"]["available"] is True
+    assert payload["performance_diagnostics"]["lift"]["top_decile_lift"] > 1
 
 
 def test_overfitting_thresholds_are_config_driven() -> None:

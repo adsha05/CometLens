@@ -83,6 +83,8 @@ The bundled synthetic QSR propensity demo currently produces:
 | Executive model health | `High Risk` |
 | High-drift features | `merchant_novelty_rate`, `weekend_dining_frequency` |
 | Prediction drift | `High`; score mean changed by approximately `-9.0%` |
+| Calibration diagnostics | Brier score and expected calibration error saved from current-window labels |
+| Lift diagnostics | Top score decile lift saved for audience-quality review |
 | Feature-risk matrix | `merchant_novelty_rate` is a top SHAP driver with high drift |
 | Samanvaya governance | `2` recommendations pending human approval |
 
@@ -95,6 +97,9 @@ reports/
   prediction_drift_report.json
   varuna_output.json
   shap_global_importance.csv
+  score_decile_report.csv
+  calibration_report.csv
+  lift_report.csv
   feature_risk_matrix.csv
   evidence_packet.json
   visuals/
@@ -186,7 +191,7 @@ docs/             Architecture notes, demo walkthrough, and proof assets
 
 ## Current Validation
 
-- `39` pytest tests passed
+- `43` pytest tests passed
 - `11` unittest checks passed
 - Streamlit smoke test passed
 - Python compile check passed
@@ -213,6 +218,7 @@ AxionAI is artifact-driven rather than QSR-specific. The bundled QSR model is a 
 
 - Model-health review before activation
 - Auditable diagnostics and evidence packets
+- Calibration, lift, and score-decile diagnostics
 - Business-facing reporting
 - Human-approved calibration recommendations
 

@@ -1,6 +1,6 @@
 {
-  "run_id": "20260531T192331Z",
-  "timestamp": "2026-05-31T19:23:31.897705+00:00",
+  "run_id": "20260616T190849Z",
+  "timestamp": "2026-06-16T19:08:49.726010+00:00",
   "config_version": "v1",
   "model_metadata": {
     "model_name": "qsr_purchase_predictor_v3",
@@ -102,6 +102,9 @@
     "prediction_drift_report": "/Users/adityasharma/Desktop/CometLens/reports/prediction_drift_report.json",
     "feature_risk_matrix": "/Users/adityasharma/Desktop/CometLens/reports/feature_risk_matrix.csv",
     "model_diagnostics": "/Users/adityasharma/Desktop/CometLens/reports/model_diagnostics.json",
+    "calibration_report": "/Users/adityasharma/Desktop/CometLens/reports/calibration_report.csv",
+    "score_decile_report": "/Users/adityasharma/Desktop/CometLens/reports/score_decile_report.csv",
+    "lift_report": "/Users/adityasharma/Desktop/CometLens/reports/lift_report.csv",
     "vishwakarma_output": "/Users/adityasharma/Desktop/CometLens/reports/visuals/vishwakarma_output.json",
     "model_metadata": "/Users/adityasharma/Desktop/CometLens/models/model_metadata.json",
     "feature_metadata": "/Users/adityasharma/Desktop/CometLens/models/feature_metadata.json",
@@ -1299,8 +1302,8 @@
   ],
   "model_diagnostics": {
     "agent": "Varuna",
-    "run_id": "20260531T192331Z",
-    "timestamp": "2026-05-31T19:23:31.897705+00:00",
+    "run_id": "20260616T190849Z",
+    "timestamp": "2026-06-16T19:08:49.726010+00:00",
     "config_version": "v1",
     "explanation_method": "shap_tree_explainer",
     "explainability_reliability": {
@@ -1333,6 +1336,29 @@
       "reason": "Medium because train-validation AUC delta 0.0360 is at or above configured threshold 0.0300.",
       "risk_level_reason": "Medium because train-validation AUC delta 0.0360 is at or above configured threshold 0.0300."
     },
+    "performance_diagnostics": {
+      "calibration": {
+        "available": true,
+        "prediction_column": "propensity_score",
+        "label_column": "actual_label",
+        "row_count": 200,
+        "brier_score": 0.20710209215264502,
+        "expected_calibration_error": 0.073584165,
+        "mean_predicted_score": 0.385141335,
+        "actual_positive_rate": 0.38
+      },
+      "lift": {
+        "available": true,
+        "prediction_column": "propensity_score",
+        "label_column": "actual_label",
+        "row_count": 200,
+        "baseline_rate": 0.38,
+        "top_decile_lift": 2.1052631578947367,
+        "top_decile_actual_rate": 0.8,
+        "top_decile_capture_rate": 0.21052631578947367
+      },
+      "score_deciles_available": true
+    },
     "warnings": [],
     "source_files": {
       "train_features": "/Users/adityasharma/Desktop/CometLens/data/train_features_sample.csv",
@@ -1345,6 +1371,409 @@
       "calibration_config": "/Users/adityasharma/Desktop/CometLens/configs/calibration_config_v1.json"
     }
   },
+  "model_performance_summary": {
+    "calibration": {
+      "available": true,
+      "prediction_column": "propensity_score",
+      "label_column": "actual_label",
+      "row_count": 200,
+      "brier_score": 0.20710209215264502,
+      "expected_calibration_error": 0.073584165,
+      "mean_predicted_score": 0.385141335,
+      "actual_positive_rate": 0.38
+    },
+    "lift": {
+      "available": true,
+      "prediction_column": "propensity_score",
+      "label_column": "actual_label",
+      "row_count": 200,
+      "baseline_rate": 0.38,
+      "top_decile_lift": 2.1052631578947367,
+      "top_decile_actual_rate": 0.8,
+      "top_decile_capture_rate": 0.21052631578947367
+    },
+    "score_deciles_available": true
+  },
+  "calibration_summary": {
+    "diagnostics": {
+      "available": true,
+      "prediction_column": "propensity_score",
+      "label_column": "actual_label",
+      "row_count": 200,
+      "brier_score": 0.20710209215264502,
+      "expected_calibration_error": 0.073584165,
+      "mean_predicted_score": 0.385141335,
+      "actual_positive_rate": 0.38
+    },
+    "bins": [
+      {
+        "bin": 1,
+        "score_min": 0.090651,
+        "score_max": 0.094298,
+        "count": 2,
+        "avg_predicted_score": 0.0924745,
+        "actual_rate": 0.0,
+        "calibration_gap": 0.0924745,
+        "abs_calibration_gap": 0.0924745
+      },
+      {
+        "bin": 2,
+        "score_min": 0.105807,
+        "score_max": 0.192075,
+        "count": 26,
+        "avg_predicted_score": 0.1558341538461538,
+        "actual_rate": 0.2692307692307692,
+        "calibration_gap": -0.1133966153846153,
+        "abs_calibration_gap": 0.1133966153846153
+      },
+      {
+        "bin": 3,
+        "score_min": 0.205886,
+        "score_max": 0.298217,
+        "count": 45,
+        "avg_predicted_score": 0.2530162222222222,
+        "actual_rate": 0.2666666666666666,
+        "calibration_gap": -0.0136504444444444,
+        "abs_calibration_gap": 0.0136504444444444
+      },
+      {
+        "bin": 4,
+        "score_min": 0.300686,
+        "score_max": 0.398113,
+        "count": 47,
+        "avg_predicted_score": 0.347810829787234,
+        "actual_rate": 0.2127659574468085,
+        "calibration_gap": 0.1350448723404255,
+        "abs_calibration_gap": 0.1350448723404255
+      },
+      {
+        "bin": 5,
+        "score_min": 0.400468,
+        "score_max": 0.49808,
+        "count": 30,
+        "avg_predicted_score": 0.4482903333333333,
+        "actual_rate": 0.4666666666666667,
+        "calibration_gap": -0.0183763333333333,
+        "abs_calibration_gap": 0.0183763333333333
+      },
+      {
+        "bin": 6,
+        "score_min": 0.513508,
+        "score_max": 0.599272,
+        "count": 23,
+        "avg_predicted_score": 0.5439075652173913,
+        "actual_rate": 0.5652173913043478,
+        "calibration_gap": -0.0213098260869565,
+        "abs_calibration_gap": 0.0213098260869565
+      },
+      {
+        "bin": 7,
+        "score_min": 0.602012,
+        "score_max": 0.698302,
+        "count": 13,
+        "avg_predicted_score": 0.6466293076923078,
+        "actual_rate": 0.7692307692307693,
+        "calibration_gap": -0.1226014615384615,
+        "abs_calibration_gap": 0.1226014615384615
+      },
+      {
+        "bin": 8,
+        "score_min": 0.70329,
+        "score_max": 0.787511,
+        "count": 10,
+        "avg_predicted_score": 0.7353533999999999,
+        "actual_rate": 0.8,
+        "calibration_gap": -0.0646466000000001,
+        "abs_calibration_gap": 0.0646466000000001
+      },
+      {
+        "bin": 9,
+        "score_min": 0.812268,
+        "score_max": 0.853214,
+        "count": 4,
+        "avg_predicted_score": 0.8351230000000001,
+        "actual_rate": 0.5,
+        "calibration_gap": 0.335123,
+        "abs_calibration_gap": 0.335123
+      }
+    ]
+  },
+  "lift_summary": {
+    "diagnostics": {
+      "available": true,
+      "prediction_column": "propensity_score",
+      "label_column": "actual_label",
+      "row_count": 200,
+      "baseline_rate": 0.38,
+      "top_decile_lift": 2.1052631578947367,
+      "top_decile_actual_rate": 0.8,
+      "top_decile_capture_rate": 0.21052631578947367
+    },
+    "deciles": [
+      {
+        "decile": 1,
+        "count": 20,
+        "score_min": 0.653854,
+        "score_max": 0.853214,
+        "avg_score": 0.7377893,
+        "positives": 16,
+        "actual_rate": 0.8,
+        "lift": 2.1052631578947367,
+        "cumulative_positives": 16,
+        "cumulative_capture_rate": 0.2105263157894736,
+        "cumulative_lift": 2.1052631578947367
+      },
+      {
+        "decile": 2,
+        "count": 20,
+        "score_min": 0.530398,
+        "score_max": 0.652198,
+        "avg_score": 0.5829685,
+        "positives": 12,
+        "actual_rate": 0.6,
+        "lift": 1.5789473684210529,
+        "cumulative_positives": 28,
+        "cumulative_capture_rate": 0.3684210526315789,
+        "cumulative_lift": 1.8421052631578945
+      },
+      {
+        "decile": 3,
+        "count": 20,
+        "score_min": 0.468972,
+        "score_max": 0.528682,
+        "avg_score": 0.50324675,
+        "positives": 9,
+        "actual_rate": 0.45,
+        "lift": 1.1842105263157894,
+        "cumulative_positives": 37,
+        "cumulative_capture_rate": 0.4868421052631579,
+        "cumulative_lift": 1.6228070175438598
+      },
+      {
+        "decile": 4,
+        "count": 20,
+        "score_min": 0.400468,
+        "score_max": 0.463108,
+        "avg_score": 0.4289349999999999,
+        "positives": 10,
+        "actual_rate": 0.5,
+        "lift": 1.3157894736842106,
+        "cumulative_positives": 47,
+        "cumulative_capture_rate": 0.618421052631579,
+        "cumulative_lift": 1.5460526315789471
+      },
+      {
+        "decile": 5,
+        "count": 20,
+        "score_min": 0.355764,
+        "score_max": 0.398113,
+        "avg_score": 0.378644,
+        "positives": 4,
+        "actual_rate": 0.2,
+        "lift": 0.5263157894736842,
+        "cumulative_positives": 51,
+        "cumulative_capture_rate": 0.6710526315789473,
+        "cumulative_lift": 1.3421052631578947
+      },
+      {
+        "decile": 6,
+        "count": 20,
+        "score_min": 0.317188,
+        "score_max": 0.352884,
+        "avg_score": 0.33102165,
+        "positives": 4,
+        "actual_rate": 0.2,
+        "lift": 0.5263157894736842,
+        "cumulative_positives": 55,
+        "cumulative_capture_rate": 0.7236842105263158,
+        "cumulative_lift": 1.206140350877193
+      },
+      {
+        "decile": 7,
+        "count": 20,
+        "score_min": 0.277446,
+        "score_max": 0.310682,
+        "avg_score": 0.29570375,
+        "positives": 5,
+        "actual_rate": 0.25,
+        "lift": 0.6578947368421053,
+        "cumulative_positives": 60,
+        "cumulative_capture_rate": 0.7894736842105263,
+        "cumulative_lift": 1.1278195488721805
+      },
+      {
+        "decile": 8,
+        "count": 20,
+        "score_min": 0.234445,
+        "score_max": 0.268428,
+        "avg_score": 0.2482011,
+        "positives": 6,
+        "actual_rate": 0.3,
+        "lift": 0.7894736842105263,
+        "cumulative_positives": 66,
+        "cumulative_capture_rate": 0.868421052631579,
+        "cumulative_lift": 1.0855263157894737
+      },
+      {
+        "decile": 9,
+        "count": 20,
+        "score_min": 0.166929,
+        "score_max": 0.234347,
+        "avg_score": 0.20587685,
+        "positives": 7,
+        "actual_rate": 0.35,
+        "lift": 0.9210526315789472,
+        "cumulative_positives": 73,
+        "cumulative_capture_rate": 0.9605263157894736,
+        "cumulative_lift": 1.067251461988304
+      },
+      {
+        "decile": 10,
+        "count": 20,
+        "score_min": 0.090651,
+        "score_max": 0.163367,
+        "avg_score": 0.13902645,
+        "positives": 3,
+        "actual_rate": 0.15,
+        "lift": 0.3947368421052631,
+        "cumulative_positives": 76,
+        "cumulative_capture_rate": 1.0,
+        "cumulative_lift": 1.0
+      }
+    ]
+  },
+  "score_decile_summary": [
+    {
+      "decile": 1,
+      "count": 20,
+      "score_min": 0.653854,
+      "score_max": 0.853214,
+      "avg_score": 0.7377893,
+      "positives": 16,
+      "actual_rate": 0.8,
+      "lift": 2.1052631578947367,
+      "cumulative_positives": 16,
+      "cumulative_capture_rate": 0.2105263157894736,
+      "cumulative_lift": 2.1052631578947367
+    },
+    {
+      "decile": 2,
+      "count": 20,
+      "score_min": 0.530398,
+      "score_max": 0.652198,
+      "avg_score": 0.5829685,
+      "positives": 12,
+      "actual_rate": 0.6,
+      "lift": 1.5789473684210529,
+      "cumulative_positives": 28,
+      "cumulative_capture_rate": 0.3684210526315789,
+      "cumulative_lift": 1.8421052631578945
+    },
+    {
+      "decile": 3,
+      "count": 20,
+      "score_min": 0.468972,
+      "score_max": 0.528682,
+      "avg_score": 0.50324675,
+      "positives": 9,
+      "actual_rate": 0.45,
+      "lift": 1.1842105263157894,
+      "cumulative_positives": 37,
+      "cumulative_capture_rate": 0.4868421052631579,
+      "cumulative_lift": 1.6228070175438598
+    },
+    {
+      "decile": 4,
+      "count": 20,
+      "score_min": 0.400468,
+      "score_max": 0.463108,
+      "avg_score": 0.4289349999999999,
+      "positives": 10,
+      "actual_rate": 0.5,
+      "lift": 1.3157894736842106,
+      "cumulative_positives": 47,
+      "cumulative_capture_rate": 0.618421052631579,
+      "cumulative_lift": 1.5460526315789471
+    },
+    {
+      "decile": 5,
+      "count": 20,
+      "score_min": 0.355764,
+      "score_max": 0.398113,
+      "avg_score": 0.378644,
+      "positives": 4,
+      "actual_rate": 0.2,
+      "lift": 0.5263157894736842,
+      "cumulative_positives": 51,
+      "cumulative_capture_rate": 0.6710526315789473,
+      "cumulative_lift": 1.3421052631578947
+    },
+    {
+      "decile": 6,
+      "count": 20,
+      "score_min": 0.317188,
+      "score_max": 0.352884,
+      "avg_score": 0.33102165,
+      "positives": 4,
+      "actual_rate": 0.2,
+      "lift": 0.5263157894736842,
+      "cumulative_positives": 55,
+      "cumulative_capture_rate": 0.7236842105263158,
+      "cumulative_lift": 1.206140350877193
+    },
+    {
+      "decile": 7,
+      "count": 20,
+      "score_min": 0.277446,
+      "score_max": 0.310682,
+      "avg_score": 0.29570375,
+      "positives": 5,
+      "actual_rate": 0.25,
+      "lift": 0.6578947368421053,
+      "cumulative_positives": 60,
+      "cumulative_capture_rate": 0.7894736842105263,
+      "cumulative_lift": 1.1278195488721805
+    },
+    {
+      "decile": 8,
+      "count": 20,
+      "score_min": 0.234445,
+      "score_max": 0.268428,
+      "avg_score": 0.2482011,
+      "positives": 6,
+      "actual_rate": 0.3,
+      "lift": 0.7894736842105263,
+      "cumulative_positives": 66,
+      "cumulative_capture_rate": 0.868421052631579,
+      "cumulative_lift": 1.0855263157894737
+    },
+    {
+      "decile": 9,
+      "count": 20,
+      "score_min": 0.166929,
+      "score_max": 0.234347,
+      "avg_score": 0.20587685,
+      "positives": 7,
+      "actual_rate": 0.35,
+      "lift": 0.9210526315789472,
+      "cumulative_positives": 73,
+      "cumulative_capture_rate": 0.9605263157894736,
+      "cumulative_lift": 1.067251461988304
+    },
+    {
+      "decile": 10,
+      "count": 20,
+      "score_min": 0.090651,
+      "score_max": 0.163367,
+      "avg_score": 0.13902645,
+      "positives": 3,
+      "actual_rate": 0.15,
+      "lift": 0.3947368421052631,
+      "cumulative_positives": 76,
+      "cumulative_capture_rate": 1.0,
+      "cumulative_lift": 1.0
+    }
+  ],
   "key_findings": [
     "merchant_novelty_rate is high drift and appears in the feature risk matrix.",
     "weekend_dining_frequency is high drift and appears in the feature risk matrix.",
@@ -1372,6 +1801,14 @@
     },
     "shap_global_bar": {
       "path": "/Users/adityasharma/Desktop/CometLens/reports/figures/shap_global_bar.png",
+      "exists": true
+    },
+    "calibration_curve": {
+      "path": "/Users/adityasharma/Desktop/CometLens/reports/figures/calibration_curve.png",
+      "exists": true
+    },
+    "lift_chart": {
+      "path": "/Users/adityasharma/Desktop/CometLens/reports/figures/lift_chart.png",
       "exists": true
     }
   },
@@ -2413,6 +2850,14 @@
     },
     "shap_global_bar": {
       "path": "/Users/adityasharma/Desktop/CometLens/reports/figures/shap_global_bar.png",
+      "exists": true
+    },
+    "calibration_curve": {
+      "path": "/Users/adityasharma/Desktop/CometLens/reports/figures/calibration_curve.png",
+      "exists": true
+    },
+    "lift_chart": {
+      "path": "/Users/adityasharma/Desktop/CometLens/reports/figures/lift_chart.png",
       "exists": true
     }
   },

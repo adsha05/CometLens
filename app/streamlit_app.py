@@ -286,6 +286,48 @@ def model_lens_section() -> None:
         with st.expander("Varuna diagnostics JSON", expanded=False):
             st.json(diagnostics)
 
+    st.subheader("Model Performance Diagnostics")
+    performance = diagnostics.get("performance_diagnostics", {}) if diagnostics else {}
+    calibration = performance.get("calibration", {})
+    lift = performance.get("lift", {})
+    perf_col1, perf_col2, perf_col3 = st.columns(3)
+    perf_col1.metric(
+        "Brier Score",
+        f"{calibration.get('brier_score', 0):.3f}" if calibration.get("brier_score") is not None else "N/A",
+    )
+    perf_col2.metric(
+        "Expected Calibration Error",
+        f"{calibration.get('expected_calibration_error', 0):.3f}"
+        if calibration.get("expected_calibration_error") is not None
+        else "N/A",
+    )
+    perf_col3.metric(
+        "Top Decile Lift",
+        f"{lift.get('top_decile_lift', 0):.2f}x" if lift.get("top_decile_lift") is not None else "N/A",
+    )
+
+    performance_tabs = st.tabs(["Score Deciles", "Calibration", "Lift"])
+    with performance_tabs[0]:
+        score_decile_path = REPORTS_DIR / "score_decile_report.csv"
+        if score_decile_path.exists():
+            st.dataframe(pd.read_csv(score_decile_path), width="stretch")
+        else:
+            st.info("Score decile report is missing. Run Varuna or the full pipeline.")
+    with performance_tabs[1]:
+        calibration_path = REPORTS_DIR / "calibration_report.csv"
+        if calibration_path.exists():
+            st.dataframe(pd.read_csv(calibration_path), width="stretch")
+        else:
+            st.info("Calibration report is missing. Run Varuna or the full pipeline.")
+        show_image_if_available(FIGURES_DIR / "calibration_curve.png", "Calibration curve")
+    with performance_tabs[2]:
+        lift_path = REPORTS_DIR / "lift_report.csv"
+        if lift_path.exists():
+            st.dataframe(pd.read_csv(lift_path), width="stretch")
+        else:
+            st.info("Lift report is missing. Run Varuna or the full pipeline.")
+        show_image_if_available(FIGURES_DIR / "lift_chart.png", "Lift by score decile")
+
     st.subheader("SHAP Plots")
     col1, col2 = st.columns(2)
     with col1:

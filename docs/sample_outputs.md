@@ -11,6 +11,8 @@ AxionAI saves machine-readable evidence and stakeholder-facing summaries. The bu
 | High-drift features | `merchant_novelty_rate`, `weekend_dining_frequency` |
 | Prediction score drift | `High` |
 | Prediction score mean movement | Approximately `-9.0%` |
+| Calibration diagnostics | Brier score, expected calibration error, and calibration bins |
+| Lift diagnostics | Top-decile lift and cumulative capture rate |
 | Leading SHAP driver | `merchant_novelty_rate` |
 | Samanvaya recommendations | `2` pending human approval |
 
@@ -32,6 +34,9 @@ AxionAI saves machine-readable evidence and stakeholder-facing summaries. The bu
 | `reports/shap_global_importance.csv` | Ranked global SHAP importance |
 | `reports/vif_report.csv` | Multicollinearity diagnostics |
 | `reports/model_diagnostics.json` | Overfitting delta and diagnostic metadata |
+| `reports/score_decile_report.csv` | Score-decile performance, lift, and cumulative gains |
+| `reports/calibration_report.csv` | Calibration bins, average predicted score, actual rate, and calibration gap |
+| `reports/lift_report.csv` | Decile lift and cumulative lift report |
 | `reports/feature_risk_matrix.csv` | Combined SHAP, drift, and VIF feature-risk evidence |
 
 ## Evidence And Reporting Outputs
@@ -51,6 +56,13 @@ AxionAI saves machine-readable evidence and stakeholder-facing summaries. The bu
 | `reports/visuals/prediction_distribution_overlay.html` | Interactive reference/current score overlay |
 | `reports/visuals/lineage_graph.svg` | Run-specific architecture and risk lineage |
 | `reports/visuals/vishwakarma_output.json` | Visual manifest with source files and warnings |
+
+## Model Performance Figures
+
+| Artifact | Purpose |
+| --- | --- |
+| `reports/figures/calibration_curve.png` | Visual calibration curve against the ideal diagonal |
+| `reports/figures/lift_chart.png` | Decile lift and cumulative lift chart |
 
 ## Governed Feedback Outputs
 

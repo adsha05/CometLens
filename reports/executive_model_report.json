@@ -41,7 +41,12 @@
   "plots_to_include": [
     "/Users/adityasharma/Desktop/CometLens/reports/figures/shap_bar.png",
     "/Users/adityasharma/Desktop/CometLens/reports/figures/shap_beeswarm.png",
-    "/Users/adityasharma/Desktop/CometLens/reports/figures/shap_global_bar.png"
+    "/Users/adityasharma/Desktop/CometLens/reports/figures/shap_global_bar.png",
+    "/Users/adityasharma/Desktop/CometLens/reports/figures/calibration_curve.png",
+    "/Users/adityasharma/Desktop/CometLens/reports/figures/lift_chart.png",
+    "/Users/adityasharma/Desktop/CometLens/reports/visuals/feature_risk_scatter.html",
+    "/Users/adityasharma/Desktop/CometLens/reports/visuals/prediction_distribution_overlay.html",
+    "/Users/adityasharma/Desktop/CometLens/reports/visuals/lineage_graph.svg"
   ],
   "questions_for_team": [
     "Did any source-system, policy, or population-mix change coincide with this review window?",

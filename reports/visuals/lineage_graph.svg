@@ -6,7 +6,7 @@
 </defs>
 <rect width="1280" height="570" fill="#f8fafc"/>
 <text x="30" y="40" font-family="Arial" font-size="24" font-weight="bold" fill="#0f172a">AxionAI Model Intelligence Lineage</text>
-<text x="30" y="67" font-family="Arial" font-size="14" fill="#475569">Run 20260531T192331Z | Config v1</text>
+<text x="30" y="67" font-family="Arial" font-size="14" fill="#475569">Run 20260616T190849Z | Config v1</text>
 <line x1="115" y1="129" x2="320" y2="129" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
 <line x1="320" y1="129" x2="525" y2="129" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
 <line x1="525" y1="129" x2="730" y2="129" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>

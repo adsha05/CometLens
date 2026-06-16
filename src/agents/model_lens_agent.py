@@ -18,12 +18,14 @@ if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from src.agents.evidence_store import EvidenceStore
+from src.diagnostics.calibration import build_calibration_report, save_calibration_curve
 from src.diagnostics.explainability import (
     compute_shap_importance,
     get_feature_columns,
     save_shap_plots,
     train_reference_model,
 )
+from src.diagnostics.lift import build_score_decile_report, save_lift_chart
 from src.diagnostics.multicollinearity import calculate_vif
 from src.diagnostics.overfitting import calculate_overfitting_delta
 
@@ -112,6 +114,10 @@ class ModelLensAgent:
         self.feature_risk_matrix = pd.DataFrame()
         self.high_risk_feature_matrix = pd.DataFrame()
         self.overfitting_check: dict[str, Any] = {}
+        self.calibration_report = pd.DataFrame()
+        self.score_decile_report = pd.DataFrame()
+        self.lift_report = pd.DataFrame()
+        self.performance_diagnostics: dict[str, Any] = {}
         self.explainability_reliability: dict[str, Any] = {}
         self.explanation_method = "unknown"
         self.plots_generated: dict[str, str] = {}
@@ -258,6 +264,44 @@ class ModelLensAgent:
         self.overfitting_check["risk_level_reason"] = self.overfitting_check["reason"]
         return self.overfitting_check
 
+    def run_performance_diagnostics(self) -> dict[str, Any]:
+        """Calculate current-window calibration, lift, and score-decile diagnostics."""
+        if self.predictions.empty:
+            self.load_inputs()
+        prediction_column = str(self.model_metadata.get("prediction_column", ""))
+        label_column = "actual_label" if "actual_label" in self.predictions.columns else self.target_col
+        self.calibration_report, calibration_summary = build_calibration_report(
+            self.predictions,
+            prediction_column,
+            label_column,
+        )
+        self.score_decile_report, lift_summary = build_score_decile_report(
+            self.predictions,
+            prediction_column,
+            label_column,
+        )
+        self.lift_report = self.score_decile_report.copy()
+        calibration_plot = save_calibration_curve(
+            self.calibration_report,
+            self.figures_dir / "calibration_curve.png",
+        )
+        lift_plot = save_lift_chart(
+            self.lift_report,
+            self.figures_dir / "lift_chart.png",
+        )
+        self.plots_generated["calibration_curve"] = str(calibration_plot)
+        self.plots_generated["lift_chart"] = str(lift_plot)
+        self.performance_diagnostics = {
+            "calibration": calibration_summary,
+            "lift": lift_summary,
+            "score_deciles_available": bool(not self.score_decile_report.empty),
+        }
+        if not calibration_summary.get("available"):
+            self.warnings.append(str(calibration_summary.get("reason")))
+        if not lift_summary.get("available"):
+            self.warnings.append(str(lift_summary.get("reason")))
+        return self.performance_diagnostics
+
     def build_feature_risk_matrix(self) -> pd.DataFrame:
         """Combine SHAP, Mitra drift, VIF, and feature metadata into one risk matrix."""
         if self.shap_importance.empty:
@@ -377,6 +421,8 @@ class ModelLensAgent:
                 self.build_feature_risk_matrix()
         if not self.overfitting_check:
             self.run_overfitting_check()
+        if not self.performance_diagnostics:
+            self.run_performance_diagnostics()
 
         top_drivers = self.shap_importance.head(10).to_dict(orient="records")
         high_risk = self.feature_risk_matrix.to_dict(orient="records")
@@ -395,6 +441,7 @@ class ModelLensAgent:
             "high_risk_feature_matrix": high_risk,
             "multicollinearity_findings": vif_findings,
             "overfitting_check": self.overfitting_check,
+            "performance_diagnostics": self.performance_diagnostics,
             "plots_generated": self.plots_generated,
             "warnings": list(dict.fromkeys(self.warnings)),
             "source_files": self._source_files(),
@@ -413,6 +460,9 @@ class ModelLensAgent:
         vif_path = self.reports_dir / "vif_report.csv"
         diagnostics_path = self.reports_dir / "model_diagnostics.json"
         risk_matrix_path = self.reports_dir / "feature_risk_matrix.csv"
+        calibration_path = self.reports_dir / "calibration_report.csv"
+        score_decile_path = self.reports_dir / "score_decile_report.csv"
+        lift_report_path = self.reports_dir / "lift_report.csv"
 
         output_path.write_text(json.dumps(output, indent=2), encoding="utf-8")
         varuna_path.write_text(json.dumps(output, indent=2), encoding="utf-8")
@@ -426,6 +476,7 @@ class ModelLensAgent:
                     "explanation_method": self.explanation_method,
                     "explainability_reliability": self.explainability_reliability,
                     "overfitting_check": self.overfitting_check,
+                    "performance_diagnostics": self.performance_diagnostics,
                     "warnings": output["warnings"],
                     "source_files": self._source_files(),
                 },
@@ -436,6 +487,9 @@ class ModelLensAgent:
         self.shap_importance.to_csv(shap_path, index=False)
         self.vif_report.to_csv(vif_path, index=False)
         self.feature_risk_matrix.to_csv(risk_matrix_path, index=False)
+        self.calibration_report.to_csv(calibration_path, index=False)
+        self.score_decile_report.to_csv(score_decile_path, index=False)
+        self.lift_report.to_csv(lift_report_path, index=False)
         store = EvidenceStore()
         store.save_section("varuna", output)
         store.save_section("model_lens", output)
@@ -446,8 +500,13 @@ class ModelLensAgent:
             "vif_report": vif_path,
             "model_diagnostics": diagnostics_path,
             "feature_risk_matrix": risk_matrix_path,
+            "calibration_report": calibration_path,
+            "score_decile_report": score_decile_path,
+            "lift_report": lift_report_path,
             "shap_bar": self.figures_dir / "shap_bar.png",
             "shap_beeswarm": self.figures_dir / "shap_beeswarm.png",
+            "calibration_curve": self.figures_dir / "calibration_curve.png",
+            "lift_chart": self.figures_dir / "lift_chart.png",
         }
 
     def run(self, state: dict[str, Any] | None = None) -> dict[str, Any]:

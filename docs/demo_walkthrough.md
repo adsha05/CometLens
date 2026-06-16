@@ -54,9 +54,12 @@ Show:
 - Feature-risk matrix
 - VIF findings
 - Overfitting delta
+- Score decile report
+- Calibration curve
+- Lift chart
 - Reliability warning when severe Mitra drift is present
 
-The key demonstration is the combination of feature importance and drift, not SHAP in isolation.
+The key demonstration is the combination of feature importance, drift, calibration, and lift rather than SHAP in isolation.
 
 ### Evidence Store
 
@@ -99,7 +102,7 @@ python -m compileall -q src app tests scripts
 
 Current validated result:
 
-- `39` pytest tests passed
+- `43` pytest tests passed
 - `11` unittest checks passed
 - Streamlit smoke test passed
 - Python compile check passed

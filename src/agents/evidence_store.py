@@ -30,6 +30,9 @@ def default_paths(use_case: str | None = None) -> dict[str, Path]:
         "prediction_drift_report": reports_dir / "prediction_drift_report.json",
         "feature_risk_matrix": reports_dir / "feature_risk_matrix.csv",
         "model_diagnostics": reports_dir / "model_diagnostics.json",
+        "calibration_report": reports_dir / "calibration_report.csv",
+        "score_decile_report": reports_dir / "score_decile_report.csv",
+        "lift_report": reports_dir / "lift_report.csv",
         "vishwakarma_output": reports_dir / "visuals" / "vishwakarma_output.json",
         "model_metadata": MODELS_DIR / "model_metadata.json",
         "feature_metadata": MODELS_DIR / "feature_metadata.json",
@@ -186,6 +189,9 @@ class EvidenceStoreBuilder:
         prediction_drift = self._load_json(self.paths["prediction_drift_report"])
         feature_risk = self._load_csv(self.paths["feature_risk_matrix"])
         model_diagnostics = self._load_json(self.paths["model_diagnostics"])
+        calibration_report = self._load_csv(self.paths["calibration_report"])
+        score_decile_report = self._load_csv(self.paths["score_decile_report"])
+        lift_report = self._load_csv(self.paths["lift_report"])
         model_metadata = self._load_json(self.paths["model_metadata"])
         feature_metadata = self._load_json(self.paths["feature_metadata"])
         config = self._load_json(self.paths["calibration_config"])
@@ -221,6 +227,10 @@ class EvidenceStoreBuilder:
         }
         high_risk_features = self._risk_rows(feature_risk, "final_risk", {"High"})
         key_findings = self._derive_key_findings(mitra, varuna, feature_risk, prediction_drift)
+        performance_diagnostics = varuna.get(
+            "performance_diagnostics",
+            model_diagnostics.get("performance_diagnostics", {}),
+        )
         limitations = [
             "Synthetic demo data only",
             "Not validated for production use",
@@ -251,6 +261,16 @@ class EvidenceStoreBuilder:
             "high_risk_features": high_risk_features,
             "feature_risk_matrix": feature_risk.to_dict(orient="records"),
             "model_diagnostics": model_diagnostics,
+            "model_performance_summary": performance_diagnostics,
+            "calibration_summary": {
+                "diagnostics": performance_diagnostics.get("calibration", {}),
+                "bins": calibration_report.to_dict(orient="records"),
+            },
+            "lift_summary": {
+                "diagnostics": performance_diagnostics.get("lift", {}),
+                "deciles": lift_report.to_dict(orient="records"),
+            },
+            "score_decile_summary": score_decile_report.to_dict(orient="records"),
             "key_findings": key_findings,
             "recommended_actions": self._recommended_actions(
                 mitra,

@@ -52,7 +52,7 @@ Model decisions depend on stable signals and validated score behavior. Drift in 
 
 - Model: `qsr_purchase_predictor_v3`
 - Config version: `v1`
-- Run ID: `20260531T192330Z`
+- Run ID: `20260616T190849Z`
 - `mitra_output`: `/Users/adityasharma/Desktop/CometLens/reports/mitra_output.json`
 - `varuna_output`: `/Users/adityasharma/Desktop/CometLens/reports/model_lens_output.json`
 - `data_quality_report`: `/Users/adityasharma/Desktop/CometLens/reports/data_quality_report.csv`
@@ -60,6 +60,9 @@ Model decisions depend on stable signals and validated score behavior. Drift in 
 - `prediction_drift_report`: `/Users/adityasharma/Desktop/CometLens/reports/prediction_drift_report.json`
 - `feature_risk_matrix`: `/Users/adityasharma/Desktop/CometLens/reports/feature_risk_matrix.csv`
 - `model_diagnostics`: `/Users/adityasharma/Desktop/CometLens/reports/model_diagnostics.json`
+- `calibration_report`: `/Users/adityasharma/Desktop/CometLens/reports/calibration_report.csv`
+- `score_decile_report`: `/Users/adityasharma/Desktop/CometLens/reports/score_decile_report.csv`
+- `lift_report`: `/Users/adityasharma/Desktop/CometLens/reports/lift_report.csv`
 - `vishwakarma_output`: `/Users/adityasharma/Desktop/CometLens/reports/visuals/vishwakarma_output.json`
 - `model_metadata`: `/Users/adityasharma/Desktop/CometLens/models/model_metadata.json`
 - `feature_metadata`: `/Users/adityasharma/Desktop/CometLens/models/feature_metadata.json`
@@ -67,7 +70,9 @@ Model decisions depend on stable signals and validated score behavior. Drift in 
 
 ### Recommended Visuals
 
-- None flagged
+- feature_risk_scatter
+- prediction_distribution_overlay
+- lineage_graph
 
 ## 10. Limitations
 
