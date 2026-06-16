@@ -170,6 +170,20 @@ python -m compileall -q src app tests scripts
 
 For a demo script and screen-by-screen walkthrough, see [docs/demo_walkthrough.md](docs/demo_walkthrough.md).
 
+## Repository Map
+
+```text
+src/agents/       Deterministic model-intelligence agents
+src/diagnostics/  Reusable SHAP, VIF, and overfitting utilities
+src/graph/        Lineage graph builder and SVG renderer
+src/memory/       Structured feedback storage
+src/reports/      Markdown report rendering helpers
+app/              Streamlit stakeholder dashboard
+configs/          Versioned calibration thresholds and recommendations
+reports/          Generated evidence, diagnostics, reports, and visuals
+docs/             Architecture notes, demo walkthrough, and proof assets
+```
+
 ## Current Validation
 
 - `39` pytest tests passed
