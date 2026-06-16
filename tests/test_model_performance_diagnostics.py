@@ -11,6 +11,7 @@ from src.agents.model_lens_agent import ModelLensAgent
 from src.agents.signal_sentinel_agent import SignalSentinelAgent
 from src.diagnostics.calibration import build_calibration_report, calculate_brier_score
 from src.diagnostics.lift import build_score_decile_report
+from src.diagnostics.segment_performance import build_segment_performance_report
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 REPORTS_DIR = PROJECT_ROOT / "reports"
@@ -57,6 +58,65 @@ def test_missing_labels_return_unavailable_reports() -> None:
     assert lift_summary["available"] is False
 
 
+def test_segment_performance_report_is_config_driven() -> None:
+    """Segment risk thresholds should come from Varuna config."""
+    current_features = pd.DataFrame(
+        {
+            "consumer_token": ["a", "b", "c", "d", "e", "f", "g", "h"],
+            "feature_a": [1, 2, 3, 4, 5, 6, 7, 8],
+        }
+    )
+    predictions = pd.DataFrame(
+        {
+            "consumer_token": ["a", "b", "c", "d", "e", "f", "g", "h"],
+            "score": [0.95, 0.90, 0.85, 0.80, 0.20, 0.15, 0.10, 0.05],
+            "actual_label": [0, 0, 0, 0, 1, 1, 1, 1],
+        }
+    )
+    sensitive = {
+        "varuna": {
+            "segment_performance_thresholds": {
+                "minimum_segment_count": 1,
+                "calibration_gap_medium": 0.05,
+                "calibration_gap_high": 0.10,
+            }
+        }
+    }
+    tolerant = {
+        "varuna": {
+            "segment_performance_thresholds": {
+                "minimum_segment_count": 1,
+                "calibration_gap_medium": 1.0,
+                "calibration_gap_high": 2.0,
+            }
+        }
+    }
+    sensitive_report, sensitive_summary = build_segment_performance_report(
+        current_features,
+        predictions,
+        ["feature_a"],
+        "consumer_token",
+        "score",
+        "actual_label",
+        config=sensitive,
+        bins=2,
+    )
+    tolerant_report, _ = build_segment_performance_report(
+        current_features,
+        predictions,
+        ["feature_a"],
+        "consumer_token",
+        "score",
+        "actual_label",
+        config=tolerant,
+        bins=2,
+    )
+    assert sensitive_summary["available"] is True
+    assert {"feature", "segment", "calibration_gap", "risk_level"}.issubset(sensitive_report.columns)
+    assert "High" in set(sensitive_report["risk_level"])
+    assert set(tolerant_report["risk_level"]) == {"Low"}
+
+
 def test_varuna_writes_model_performance_artifacts() -> None:
     """Varuna should save calibration, lift, and score-decile reports."""
     SignalSentinelAgent().save_outputs()
@@ -64,8 +124,11 @@ def test_varuna_writes_model_performance_artifacts() -> None:
     assert paths["calibration_report"].exists()
     assert paths["score_decile_report"].exists()
     assert paths["lift_report"].exists()
+    assert paths["segment_performance_report"].exists()
     assert paths["calibration_curve"].exists()
     assert paths["lift_chart"].exists()
+    assert paths["segment_performance_heatmap"].exists()
 
     diagnostics = json.loads((REPORTS_DIR / "model_diagnostics.json").read_text(encoding="utf-8"))
     assert "performance_diagnostics" in diagnostics
+    assert "segment_performance" in diagnostics["performance_diagnostics"]

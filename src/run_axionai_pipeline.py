@@ -162,6 +162,7 @@ def archive_current_run(run_id: str) -> list[Path]:
         REPORTS_DIR / "calibration_report.csv",
         REPORTS_DIR / "score_decile_report.csv",
         REPORTS_DIR / "lift_report.csv",
+        REPORTS_DIR / "segment_performance_report.csv",
         REPORTS_DIR / "evidence_packet.json",
         REPORTS_DIR / "visuals",
         REPORTS_DIR / "aryaman_output.json",

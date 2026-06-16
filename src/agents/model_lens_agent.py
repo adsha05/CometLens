@@ -28,6 +28,10 @@ from src.diagnostics.explainability import (
 from src.diagnostics.lift import build_score_decile_report, save_lift_chart
 from src.diagnostics.multicollinearity import calculate_vif
 from src.diagnostics.overfitting import calculate_overfitting_delta
+from src.diagnostics.segment_performance import (
+    build_segment_performance_report,
+    save_segment_performance_heatmap,
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = PROJECT_ROOT / "data"
@@ -117,6 +121,7 @@ class ModelLensAgent:
         self.calibration_report = pd.DataFrame()
         self.score_decile_report = pd.DataFrame()
         self.lift_report = pd.DataFrame()
+        self.segment_performance_report = pd.DataFrame()
         self.performance_diagnostics: dict[str, Any] = {}
         self.explainability_reliability: dict[str, Any] = {}
         self.explanation_method = "unknown"
@@ -265,7 +270,7 @@ class ModelLensAgent:
         return self.overfitting_check
 
     def run_performance_diagnostics(self) -> dict[str, Any]:
-        """Calculate current-window calibration, lift, and score-decile diagnostics."""
+        """Calculate current-window calibration, lift, score-decile, and segment diagnostics."""
         if self.predictions.empty:
             self.load_inputs()
         prediction_column = str(self.model_metadata.get("prediction_column", ""))
@@ -281,6 +286,20 @@ class ModelLensAgent:
             label_column,
         )
         self.lift_report = self.score_decile_report.copy()
+        segment_features = (
+            self.shap_importance["feature"].head(5).tolist()
+            if not self.shap_importance.empty and "feature" in self.shap_importance.columns
+            else self.feature_cols[:5]
+        )
+        self.segment_performance_report, segment_summary = build_segment_performance_report(
+            self.current_features,
+            self.predictions,
+            segment_features,
+            self.entity_id_col,
+            prediction_column,
+            label_column,
+            config=self.config,
+        )
         calibration_plot = save_calibration_curve(
             self.calibration_report,
             self.figures_dir / "calibration_curve.png",
@@ -289,17 +308,25 @@ class ModelLensAgent:
             self.lift_report,
             self.figures_dir / "lift_chart.png",
         )
+        segment_plot = save_segment_performance_heatmap(
+            self.segment_performance_report,
+            self.figures_dir / "segment_performance_heatmap.png",
+        )
         self.plots_generated["calibration_curve"] = str(calibration_plot)
         self.plots_generated["lift_chart"] = str(lift_plot)
+        self.plots_generated["segment_performance_heatmap"] = str(segment_plot)
         self.performance_diagnostics = {
             "calibration": calibration_summary,
             "lift": lift_summary,
+            "segment_performance": segment_summary,
             "score_deciles_available": bool(not self.score_decile_report.empty),
         }
         if not calibration_summary.get("available"):
             self.warnings.append(str(calibration_summary.get("reason")))
         if not lift_summary.get("available"):
             self.warnings.append(str(lift_summary.get("reason")))
+        if not segment_summary.get("available"):
+            self.warnings.append(str(segment_summary.get("reason")))
         return self.performance_diagnostics
 
     def build_feature_risk_matrix(self) -> pd.DataFrame:
@@ -463,6 +490,7 @@ class ModelLensAgent:
         calibration_path = self.reports_dir / "calibration_report.csv"
         score_decile_path = self.reports_dir / "score_decile_report.csv"
         lift_report_path = self.reports_dir / "lift_report.csv"
+        segment_performance_path = self.reports_dir / "segment_performance_report.csv"
 
         output_path.write_text(json.dumps(output, indent=2), encoding="utf-8")
         varuna_path.write_text(json.dumps(output, indent=2), encoding="utf-8")
@@ -490,6 +518,7 @@ class ModelLensAgent:
         self.calibration_report.to_csv(calibration_path, index=False)
         self.score_decile_report.to_csv(score_decile_path, index=False)
         self.lift_report.to_csv(lift_report_path, index=False)
+        self.segment_performance_report.to_csv(segment_performance_path, index=False)
         store = EvidenceStore()
         store.save_section("varuna", output)
         store.save_section("model_lens", output)
@@ -503,10 +532,12 @@ class ModelLensAgent:
             "calibration_report": calibration_path,
             "score_decile_report": score_decile_path,
             "lift_report": lift_report_path,
+            "segment_performance_report": segment_performance_path,
             "shap_bar": self.figures_dir / "shap_bar.png",
             "shap_beeswarm": self.figures_dir / "shap_beeswarm.png",
             "calibration_curve": self.figures_dir / "calibration_curve.png",
             "lift_chart": self.figures_dir / "lift_chart.png",
+            "segment_performance_heatmap": self.figures_dir / "segment_performance_heatmap.png",
         }
 
     def run(self, state: dict[str, Any] | None = None) -> dict[str, Any]:

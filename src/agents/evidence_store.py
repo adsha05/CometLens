@@ -33,6 +33,7 @@ def default_paths(use_case: str | None = None) -> dict[str, Path]:
         "calibration_report": reports_dir / "calibration_report.csv",
         "score_decile_report": reports_dir / "score_decile_report.csv",
         "lift_report": reports_dir / "lift_report.csv",
+        "segment_performance_report": reports_dir / "segment_performance_report.csv",
         "vishwakarma_output": reports_dir / "visuals" / "vishwakarma_output.json",
         "model_metadata": MODELS_DIR / "model_metadata.json",
         "feature_metadata": MODELS_DIR / "feature_metadata.json",
@@ -192,6 +193,7 @@ class EvidenceStoreBuilder:
         calibration_report = self._load_csv(self.paths["calibration_report"])
         score_decile_report = self._load_csv(self.paths["score_decile_report"])
         lift_report = self._load_csv(self.paths["lift_report"])
+        segment_performance_report = self._load_csv(self.paths["segment_performance_report"])
         model_metadata = self._load_json(self.paths["model_metadata"])
         feature_metadata = self._load_json(self.paths["feature_metadata"])
         config = self._load_json(self.paths["calibration_config"])
@@ -271,6 +273,10 @@ class EvidenceStoreBuilder:
                 "deciles": lift_report.to_dict(orient="records"),
             },
             "score_decile_summary": score_decile_report.to_dict(orient="records"),
+            "segment_performance_summary": {
+                "diagnostics": performance_diagnostics.get("segment_performance", {}),
+                "segments": segment_performance_report.to_dict(orient="records"),
+            },
             "key_findings": key_findings,
             "recommended_actions": self._recommended_actions(
                 mitra,

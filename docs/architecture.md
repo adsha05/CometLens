@@ -45,7 +45,7 @@ Samanvaya reads structured dashboard feedback and creates a pending `calibration
 | --- | --- | --- |
 | Artifact generator or external drop | Validator, Mitra, Varuna | Train/current features, predictions, model metadata, feature metadata |
 | Mitra | Varuna, Evidence Store, dashboard | Data quality, drift, prediction movement, cluster movement |
-| Varuna | Evidence Store, dashboard | SHAP, VIF, overfitting delta, calibration, lift, score deciles, feature-risk matrix, reliability status |
+| Varuna | Evidence Store, dashboard | SHAP, VIF, overfitting delta, calibration, lift, score deciles, segment performance, feature-risk matrix, reliability status |
 | Evidence Store | Vishwakarma, Aryaman | Single verified evidence packet |
 | Vishwakarma | Evidence Store refresh, dashboard | Same-run visual manifest, interactive charts, lineage SVG |
 | Aryaman | Dashboard, stakeholders | Executive Markdown and JSON model-health brief |

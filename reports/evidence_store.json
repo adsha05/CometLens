@@ -3,8 +3,8 @@
     "model_lens": {
       "agent": "Varuna",
       "agent_name": "Agent 02: Varuna",
-      "run_id": "20260616T190849Z",
-      "timestamp": "2026-06-16T19:08:49.726010+00:00",
+      "run_id": "20260616T202949Z",
+      "timestamp": "2026-06-16T20:29:49.015868+00:00",
       "config_version": "v1",
       "reference_model_type": "XGBoostClassifier",
       "explanation_method": "shap_tree_explainer",
@@ -427,6 +427,23 @@
           "top_decile_actual_rate": 0.8,
           "top_decile_capture_rate": 0.21052631578947367
         },
+        "segment_performance": {
+          "available": true,
+          "prediction_column": "propensity_score",
+          "label_column": "actual_label",
+          "row_count": 200,
+          "features_evaluated": [
+            "merchant_novelty_rate",
+            "qsr_txn_count_30d",
+            "grocery_spend_30d",
+            "qsr_spend_30d",
+            "qsr_recency_days"
+          ],
+          "minimum_segment_count": 10,
+          "high_risk_segments": 0,
+          "medium_risk_segments": 3,
+          "max_abs_calibration_gap": 0.11291947222222226
+        },
         "score_deciles_available": true
       },
       "plots_generated": {
@@ -434,7 +451,8 @@
         "shap_beeswarm": "/Users/adityasharma/Desktop/CometLens/reports/figures/shap_beeswarm.png",
         "shap_global_bar": "/Users/adityasharma/Desktop/CometLens/reports/figures/shap_global_bar.png",
         "calibration_curve": "/Users/adityasharma/Desktop/CometLens/reports/figures/calibration_curve.png",
-        "lift_chart": "/Users/adityasharma/Desktop/CometLens/reports/figures/lift_chart.png"
+        "lift_chart": "/Users/adityasharma/Desktop/CometLens/reports/figures/lift_chart.png",
+        "segment_performance_heatmap": "/Users/adityasharma/Desktop/CometLens/reports/figures/segment_performance_heatmap.png"
       },
       "warnings": [],
       "source_files": {
@@ -507,7 +525,7 @@
             "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
             "check_type": "required_columns_present",
             "dataset": "train_features",
-            "feature": NaN,
+            "feature": null,
             "train_value": null,
             "current_value": null,
             "change_value": 0.0,
@@ -522,7 +540,7 @@
             "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
             "check_type": "required_columns_present",
             "dataset": "current_features",
-            "feature": NaN,
+            "feature": null,
             "train_value": null,
             "current_value": null,
             "change_value": 0.0,
@@ -537,7 +555,7 @@
             "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
             "check_type": "required_columns_present",
             "dataset": "current_predictions",
-            "feature": NaN,
+            "feature": null,
             "train_value": null,
             "current_value": null,
             "change_value": 0.0,
@@ -552,7 +570,7 @@
             "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
             "check_type": "required_columns_present",
             "dataset": "train_predictions",
-            "feature": NaN,
+            "feature": null,
             "train_value": null,
             "current_value": null,
             "change_value": 0.0,
@@ -1192,7 +1210,7 @@
             "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
             "check_type": "required_columns_present",
             "dataset": "train_features",
-            "feature": NaN,
+            "feature": null,
             "train_value": null,
             "current_value": null,
             "change_value": 0.0,
@@ -1207,7 +1225,7 @@
             "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
             "check_type": "required_columns_present",
             "dataset": "current_features",
-            "feature": NaN,
+            "feature": null,
             "train_value": null,
             "current_value": null,
             "change_value": 0.0,
@@ -1222,7 +1240,7 @@
             "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
             "check_type": "required_columns_present",
             "dataset": "current_predictions",
-            "feature": NaN,
+            "feature": null,
             "train_value": null,
             "current_value": null,
             "change_value": 0.0,
@@ -1237,7 +1255,7 @@
             "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
             "check_type": "required_columns_present",
             "dataset": "train_predictions",
-            "feature": NaN,
+            "feature": null,
             "train_value": null,
             "current_value": null,
             "change_value": 0.0,
@@ -1807,8 +1825,8 @@
     "varuna": {
       "agent": "Varuna",
       "agent_name": "Agent 02: Varuna",
-      "run_id": "20260616T190849Z",
-      "timestamp": "2026-06-16T19:08:49.726010+00:00",
+      "run_id": "20260616T202949Z",
+      "timestamp": "2026-06-16T20:29:49.015868+00:00",
       "config_version": "v1",
       "reference_model_type": "XGBoostClassifier",
       "explanation_method": "shap_tree_explainer",
@@ -2231,6 +2249,23 @@
           "top_decile_actual_rate": 0.8,
           "top_decile_capture_rate": 0.21052631578947367
         },
+        "segment_performance": {
+          "available": true,
+          "prediction_column": "propensity_score",
+          "label_column": "actual_label",
+          "row_count": 200,
+          "features_evaluated": [
+            "merchant_novelty_rate",
+            "qsr_txn_count_30d",
+            "grocery_spend_30d",
+            "qsr_spend_30d",
+            "qsr_recency_days"
+          ],
+          "minimum_segment_count": 10,
+          "high_risk_segments": 0,
+          "medium_risk_segments": 3,
+          "max_abs_calibration_gap": 0.11291947222222226
+        },
         "score_deciles_available": true
       },
       "plots_generated": {
@@ -2238,7 +2273,8 @@
         "shap_beeswarm": "/Users/adityasharma/Desktop/CometLens/reports/figures/shap_beeswarm.png",
         "shap_global_bar": "/Users/adityasharma/Desktop/CometLens/reports/figures/shap_global_bar.png",
         "calibration_curve": "/Users/adityasharma/Desktop/CometLens/reports/figures/calibration_curve.png",
-        "lift_chart": "/Users/adityasharma/Desktop/CometLens/reports/figures/lift_chart.png"
+        "lift_chart": "/Users/adityasharma/Desktop/CometLens/reports/figures/lift_chart.png",
+        "segment_performance_heatmap": "/Users/adityasharma/Desktop/CometLens/reports/figures/segment_performance_heatmap.png"
       },
       "warnings": [],
       "source_files": {

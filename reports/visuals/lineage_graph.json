@@ -1,6 +1,6 @@
 {
   "graph_name": "AxionAI Model Intelligence Lineage",
-  "run_id": "20260616T190849Z",
+  "run_id": "20260616T202949Z",
   "config_version": "v1",
   "model_name": "qsr_purchase_predictor_v3",
   "nodes": [
@@ -202,6 +202,7 @@
     "calibration_report": "/Users/adityasharma/Desktop/CometLens/reports/calibration_report.csv",
     "score_decile_report": "/Users/adityasharma/Desktop/CometLens/reports/score_decile_report.csv",
     "lift_report": "/Users/adityasharma/Desktop/CometLens/reports/lift_report.csv",
+    "segment_performance_report": "/Users/adityasharma/Desktop/CometLens/reports/segment_performance_report.csv",
     "vishwakarma_output": "/Users/adityasharma/Desktop/CometLens/reports/visuals/vishwakarma_output.json",
     "model_metadata": "/Users/adityasharma/Desktop/CometLens/models/model_metadata.json",
     "feature_metadata": "/Users/adityasharma/Desktop/CometLens/models/feature_metadata.json",

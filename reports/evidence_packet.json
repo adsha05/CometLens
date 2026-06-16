@@ -1,6 +1,6 @@
 {
-  "run_id": "20260616T190849Z",
-  "timestamp": "2026-06-16T19:08:49.726010+00:00",
+  "run_id": "20260616T202949Z",
+  "timestamp": "2026-06-16T20:29:49.015868+00:00",
   "config_version": "v1",
   "model_metadata": {
     "model_name": "qsr_purchase_predictor_v3",
@@ -105,6 +105,7 @@
     "calibration_report": "/Users/adityasharma/Desktop/CometLens/reports/calibration_report.csv",
     "score_decile_report": "/Users/adityasharma/Desktop/CometLens/reports/score_decile_report.csv",
     "lift_report": "/Users/adityasharma/Desktop/CometLens/reports/lift_report.csv",
+    "segment_performance_report": "/Users/adityasharma/Desktop/CometLens/reports/segment_performance_report.csv",
     "vishwakarma_output": "/Users/adityasharma/Desktop/CometLens/reports/visuals/vishwakarma_output.json",
     "model_metadata": "/Users/adityasharma/Desktop/CometLens/models/model_metadata.json",
     "feature_metadata": "/Users/adityasharma/Desktop/CometLens/models/feature_metadata.json",
@@ -1302,8 +1303,8 @@
   ],
   "model_diagnostics": {
     "agent": "Varuna",
-    "run_id": "20260616T190849Z",
-    "timestamp": "2026-06-16T19:08:49.726010+00:00",
+    "run_id": "20260616T202949Z",
+    "timestamp": "2026-06-16T20:29:49.015868+00:00",
     "config_version": "v1",
     "explanation_method": "shap_tree_explainer",
     "explainability_reliability": {
@@ -1357,6 +1358,23 @@
         "top_decile_actual_rate": 0.8,
         "top_decile_capture_rate": 0.21052631578947367
       },
+      "segment_performance": {
+        "available": true,
+        "prediction_column": "propensity_score",
+        "label_column": "actual_label",
+        "row_count": 200,
+        "features_evaluated": [
+          "merchant_novelty_rate",
+          "qsr_txn_count_30d",
+          "grocery_spend_30d",
+          "qsr_spend_30d",
+          "qsr_recency_days"
+        ],
+        "minimum_segment_count": 10,
+        "high_risk_segments": 0,
+        "medium_risk_segments": 3,
+        "max_abs_calibration_gap": 0.11291947222222226
+      },
       "score_deciles_available": true
     },
     "warnings": [],
@@ -1391,6 +1409,23 @@
       "top_decile_lift": 2.1052631578947367,
       "top_decile_actual_rate": 0.8,
       "top_decile_capture_rate": 0.21052631578947367
+    },
+    "segment_performance": {
+      "available": true,
+      "prediction_column": "propensity_score",
+      "label_column": "actual_label",
+      "row_count": 200,
+      "features_evaluated": [
+        "merchant_novelty_rate",
+        "qsr_txn_count_30d",
+        "grocery_spend_30d",
+        "qsr_spend_30d",
+        "qsr_recency_days"
+      ],
+      "minimum_segment_count": 10,
+      "high_risk_segments": 0,
+      "medium_risk_segments": 3,
+      "max_abs_calibration_gap": 0.11291947222222226
     },
     "score_deciles_available": true
   },
@@ -1774,6 +1809,307 @@
       "cumulative_lift": 1.0
     }
   ],
+  "segment_performance_summary": {
+    "diagnostics": {
+      "available": true,
+      "prediction_column": "propensity_score",
+      "label_column": "actual_label",
+      "row_count": 200,
+      "features_evaluated": [
+        "merchant_novelty_rate",
+        "qsr_txn_count_30d",
+        "grocery_spend_30d",
+        "qsr_spend_30d",
+        "qsr_recency_days"
+      ],
+      "minimum_segment_count": 10,
+      "high_risk_segments": 0,
+      "medium_risk_segments": 3,
+      "max_abs_calibration_gap": 0.11291947222222226
+    },
+    "segments": [
+      {
+        "feature": "qsr_txn_count_30d",
+        "segment": "(2.0, 3.0]",
+        "count": 36,
+        "count_share": 0.18,
+        "avg_score": 0.3351416944444444,
+        "actual_rate": 0.2222222222222222,
+        "calibration_gap": 0.1129194722222222,
+        "abs_calibration_gap": 0.1129194722222222,
+        "lift_vs_overall": 0.5847953216374269,
+        "brier_score": 0.1783418392438055,
+        "risk_level": "Medium",
+        "risk_reason": "Medium because absolute calibration gap 0.113 is at or above 0.100."
+      },
+      {
+        "feature": "qsr_spend_30d",
+        "segment": "(31.197, 48.995]",
+        "count": 50,
+        "count_share": 0.25,
+        "avg_score": 0.31131002,
+        "actual_rate": 0.2,
+        "calibration_gap": 0.11131002,
+        "abs_calibration_gap": 0.11131002,
+        "lift_vs_overall": 0.5263157894736842,
+        "brier_score": 0.18303883176954,
+        "risk_level": "Medium",
+        "risk_reason": "Medium because absolute calibration gap 0.111 is at or above 0.100."
+      },
+      {
+        "feature": "qsr_spend_30d",
+        "segment": "(48.995, 72.672]",
+        "count": 50,
+        "count_share": 0.25,
+        "avg_score": 0.39353036,
+        "actual_rate": 0.5,
+        "calibration_gap": -0.1064696399999999,
+        "abs_calibration_gap": 0.1064696399999999,
+        "lift_vs_overall": 1.3157894736842106,
+        "brier_score": 0.25035456561276,
+        "risk_level": "Medium",
+        "risk_reason": "Medium because absolute calibration gap 0.106 is at or above 0.100."
+      },
+      {
+        "feature": "grocery_spend_30d",
+        "segment": "(132.072, 289.62]",
+        "count": 50,
+        "count_share": 0.25,
+        "avg_score": 0.37613242,
+        "actual_rate": 0.28,
+        "calibration_gap": 0.09613242,
+        "abs_calibration_gap": 0.09613242,
+        "lift_vs_overall": 0.736842105263158,
+        "brier_score": 0.16198938163942,
+        "risk_level": "Low",
+        "risk_reason": "Low because segment calibration gap did not cross configured thresholds."
+      },
+      {
+        "feature": "grocery_spend_30d",
+        "segment": "(91.125, 132.072]",
+        "count": 50,
+        "count_share": 0.25,
+        "avg_score": 0.38204344,
+        "actual_rate": 0.46,
+        "calibration_gap": -0.07795656,
+        "abs_calibration_gap": 0.07795656,
+        "lift_vs_overall": 1.2105263157894737,
+        "brier_score": 0.2543408327686,
+        "risk_level": "Low",
+        "risk_reason": "Low because segment calibration gap did not cross configured thresholds."
+      },
+      {
+        "feature": "qsr_recency_days",
+        "segment": "(25.0, 36.0]",
+        "count": 49,
+        "count_share": 0.245,
+        "avg_score": 0.3730324081632652,
+        "actual_rate": 0.4489795918367347,
+        "calibration_gap": -0.0759471836734694,
+        "abs_calibration_gap": 0.0759471836734694,
+        "lift_vs_overall": 1.1815252416756177,
+        "brier_score": 0.2159228859553469,
+        "risk_level": "Low",
+        "risk_reason": "Low because segment calibration gap did not cross configured thresholds."
+      },
+      {
+        "feature": "merchant_novelty_rate",
+        "segment": "(0.237, 0.343]",
+        "count": 50,
+        "count_share": 0.25,
+        "avg_score": 0.37001508,
+        "actual_rate": 0.3,
+        "calibration_gap": 0.07001508,
+        "abs_calibration_gap": 0.07001508,
+        "lift_vs_overall": 0.7894736842105263,
+        "brier_score": 0.19082083396368,
+        "risk_level": "Low",
+        "risk_reason": "Low because segment calibration gap did not cross configured thresholds."
+      },
+      {
+        "feature": "qsr_recency_days",
+        "segment": "(36.0, 45.0]",
+        "count": 49,
+        "count_share": 0.245,
+        "avg_score": 0.2929073469387755,
+        "actual_rate": 0.2244897959183673,
+        "calibration_gap": 0.0684175510204081,
+        "abs_calibration_gap": 0.0684175510204081,
+        "lift_vs_overall": 0.5907626208378088,
+        "brier_score": 0.1681832637381632,
+        "risk_level": "Low",
+        "risk_reason": "Low because segment calibration gap did not cross configured thresholds."
+      },
+      {
+        "feature": "merchant_novelty_rate",
+        "segment": "(0.343, 0.466]",
+        "count": 50,
+        "count_share": 0.25,
+        "avg_score": 0.39230656,
+        "actual_rate": 0.46,
+        "calibration_gap": -0.06769344,
+        "abs_calibration_gap": 0.06769344,
+        "lift_vs_overall": 1.2105263157894737,
+        "brier_score": 0.23879196289528,
+        "risk_level": "Low",
+        "risk_reason": "Low because segment calibration gap did not cross configured thresholds."
+      },
+      {
+        "feature": "qsr_recency_days",
+        "segment": "(13.0, 25.0]",
+        "count": 51,
+        "count_share": 0.255,
+        "avg_score": 0.4461374509803921,
+        "actual_rate": 0.392156862745098,
+        "calibration_gap": 0.0539805882352941,
+        "abs_calibration_gap": 0.0539805882352941,
+        "lift_vs_overall": 1.0319917440660475,
+        "brier_score": 0.2255958920252156,
+        "risk_level": "Low",
+        "risk_reason": "Low because segment calibration gap did not cross configured thresholds."
+      },
+      {
+        "feature": "qsr_txn_count_30d",
+        "segment": "(3.0, 5.0]",
+        "count": 55,
+        "count_share": 0.275,
+        "avg_score": 0.4917737636363636,
+        "actual_rate": 0.5454545454545454,
+        "calibration_gap": -0.0536807818181817,
+        "abs_calibration_gap": 0.0536807818181817,
+        "lift_vs_overall": 1.4354066985645932,
+        "brier_score": 0.2406819617651454,
+        "risk_level": "Low",
+        "risk_reason": "Low because segment calibration gap did not cross configured thresholds."
+      },
+      {
+        "feature": "merchant_novelty_rate",
+        "segment": "(0.0484, 0.237]",
+        "count": 50,
+        "count_share": 0.25,
+        "avg_score": 0.4017209,
+        "actual_rate": 0.36,
+        "calibration_gap": 0.0417209,
+        "abs_calibration_gap": 0.0417209,
+        "lift_vs_overall": 0.9473684210526316,
+        "brier_score": 0.19718995050146,
+        "risk_level": "Low",
+        "risk_reason": "Low because segment calibration gap did not cross configured thresholds."
+      },
+      {
+        "feature": "grocery_spend_30d",
+        "segment": "(2.519, 57.073]",
+        "count": 50,
+        "count_share": 0.25,
+        "avg_score": 0.37831492,
+        "actual_rate": 0.34,
+        "calibration_gap": 0.0383149199999999,
+        "abs_calibration_gap": 0.0383149199999999,
+        "lift_vs_overall": 0.8947368421052632,
+        "brier_score": 0.23477639120344,
+        "risk_level": "Low",
+        "risk_reason": "Low because segment calibration gap did not cross configured thresholds."
+      },
+      {
+        "feature": "grocery_spend_30d",
+        "segment": "(57.073, 91.125]",
+        "count": 50,
+        "count_share": 0.25,
+        "avg_score": 0.40407456,
+        "actual_rate": 0.44,
+        "calibration_gap": -0.0359254399999999,
+        "abs_calibration_gap": 0.0359254399999999,
+        "lift_vs_overall": 1.1578947368421053,
+        "brier_score": 0.1773017629991199,
+        "risk_level": "Low",
+        "risk_reason": "Low because segment calibration gap did not cross configured thresholds."
+      },
+      {
+        "feature": "qsr_txn_count_30d",
+        "segment": "(5.0, 10.0]",
+        "count": 27,
+        "count_share": 0.135,
+        "avg_score": 0.6338315185185186,
+        "actual_rate": 0.6666666666666666,
+        "calibration_gap": -0.032835148148148,
+        "abs_calibration_gap": 0.032835148148148,
+        "lift_vs_overall": 1.7543859649122806,
+        "brier_score": 0.2075121388054444,
+        "risk_level": "Low",
+        "risk_reason": "Low because segment calibration gap did not cross configured thresholds."
+      },
+      {
+        "feature": "qsr_recency_days",
+        "segment": "(0.999, 13.0]",
+        "count": 51,
+        "count_share": 0.255,
+        "avg_score": 0.4243962549019608,
+        "actual_rate": 0.4509803921568627,
+        "calibration_gap": -0.0265841372549019,
+        "abs_calibration_gap": 0.0265841372549019,
+        "lift_vs_overall": 1.186790505675955,
+        "brier_score": 0.2175260118090392,
+        "risk_level": "Low",
+        "risk_reason": "Low because segment calibration gap did not cross configured thresholds."
+      },
+      {
+        "feature": "merchant_novelty_rate",
+        "segment": "(0.466, 0.908]",
+        "count": 50,
+        "count_share": 0.25,
+        "avg_score": 0.3765228,
+        "actual_rate": 0.4,
+        "calibration_gap": -0.0234772,
+        "abs_calibration_gap": 0.0234772,
+        "lift_vs_overall": 1.0526315789473684,
+        "brier_score": 0.20160562125016,
+        "risk_level": "Low",
+        "risk_reason": "Low because segment calibration gap did not cross configured thresholds."
+      },
+      {
+        "feature": "qsr_spend_30d",
+        "segment": "(72.672, 151.4]",
+        "count": 50,
+        "count_share": 0.25,
+        "avg_score": 0.61122768,
+        "actual_rate": 0.6,
+        "calibration_gap": 0.01122768,
+        "abs_calibration_gap": 0.01122768,
+        "lift_vs_overall": 1.5789473684210529,
+        "brier_score": 0.22001809751004,
+        "risk_level": "Low",
+        "risk_reason": "Low because segment calibration gap did not cross configured thresholds."
+      },
+      {
+        "feature": "qsr_txn_count_30d",
+        "segment": "(-0.001, 2.0]",
+        "count": 82,
+        "count_share": 0.41,
+        "avg_score": 0.2536848536585365,
+        "actual_rate": 0.2439024390243902,
+        "calibration_gap": 0.0097824146341463,
+        "abs_calibration_gap": 0.0097824146341463,
+        "lift_vs_overall": 0.6418485237483954,
+        "brier_score": 0.1970704460112439,
+        "risk_level": "Low",
+        "risk_reason": "Low because segment calibration gap did not cross configured thresholds."
+      },
+      {
+        "feature": "qsr_spend_30d",
+        "segment": "(-0.001, 31.197]",
+        "count": 50,
+        "count_share": 0.25,
+        "avg_score": 0.22449728,
+        "actual_rate": 0.22,
+        "calibration_gap": 0.0044972799999999,
+        "abs_calibration_gap": 0.0044972799999999,
+        "lift_vs_overall": 0.5789473684210527,
+        "brier_score": 0.17499687371824,
+        "risk_level": "Low",
+        "risk_reason": "Low because segment calibration gap did not cross configured thresholds."
+      }
+    ]
+  },
   "key_findings": [
     "merchant_novelty_rate is high drift and appears in the feature risk matrix.",
     "weekend_dining_frequency is high drift and appears in the feature risk matrix.",
@@ -1809,6 +2145,10 @@
     },
     "lift_chart": {
       "path": "/Users/adityasharma/Desktop/CometLens/reports/figures/lift_chart.png",
+      "exists": true
+    },
+    "segment_performance_heatmap": {
+      "path": "/Users/adityasharma/Desktop/CometLens/reports/figures/segment_performance_heatmap.png",
       "exists": true
     }
   },
@@ -1955,7 +2295,7 @@
           "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
           "check_type": "required_columns_present",
           "dataset": "train_features",
-          "feature": NaN,
+          "feature": null,
           "train_value": null,
           "current_value": null,
           "change_value": 0.0,
@@ -1970,7 +2310,7 @@
           "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
           "check_type": "required_columns_present",
           "dataset": "current_features",
-          "feature": NaN,
+          "feature": null,
           "train_value": null,
           "current_value": null,
           "change_value": 0.0,
@@ -1985,7 +2325,7 @@
           "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
           "check_type": "required_columns_present",
           "dataset": "current_predictions",
-          "feature": NaN,
+          "feature": null,
           "train_value": null,
           "current_value": null,
           "change_value": 0.0,
@@ -2000,7 +2340,7 @@
           "source_current_predictions": "/Users/adityasharma/Desktop/CometLens/data/current_predictions_sample.csv",
           "check_type": "required_columns_present",
           "dataset": "train_predictions",
-          "feature": NaN,
+          "feature": null,
           "train_value": null,
           "current_value": null,
           "change_value": 0.0,
@@ -2858,6 +3198,10 @@
     },
     "lift_chart": {
       "path": "/Users/adityasharma/Desktop/CometLens/reports/figures/lift_chart.png",
+      "exists": true
+    },
+    "segment_performance_heatmap": {
+      "path": "/Users/adityasharma/Desktop/CometLens/reports/figures/segment_performance_heatmap.png",
       "exists": true
     }
   },

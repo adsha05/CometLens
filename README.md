@@ -40,7 +40,7 @@ The full workflow includes input validation, a same-run evidence refresh after v
 Synthetic or external artifact drop
   -> Validate metadata and feature-table contracts
   -> Mitra: data quality, drift, prediction movement, cluster shift
-  -> Varuna: SHAP, VIF, overfitting delta, feature-risk matrix
+  -> Varuna: SHAP, VIF, calibration, lift, segment performance, feature-risk matrix
   -> Evidence Store: verified machine-readable packet
   -> Vishwakarma: report visuals and lineage SVG
   -> Evidence Store refresh: attach matching-run visual manifest
@@ -58,7 +58,7 @@ For the detailed artifact graph, see [docs/architecture.md](docs/architecture.md
 | Agent | Purpose | Deterministic outputs |
 | --- | --- | --- |
 | **Agent 01: Mitra** | Detect data-quality issues, missing-value movement, feature drift, prediction drift, and cluster/context shifts. | `mitra_output.json`, `drift_report.csv`, `prediction_drift_report.json`, `cluster_shift_report.csv` |
-| **Agent 02: Varuna** | Explain model behavior and detect model-quality risks using SHAP, VIF, and train-validation delta. | `varuna_output.json`, `shap_global_importance.csv`, `vif_report.csv`, `feature_risk_matrix.csv` |
+| **Agent 02: Varuna** | Explain model behavior and detect model-quality risks using SHAP, VIF, calibration, lift, segment performance, and train-validation delta. | `varuna_output.json`, `shap_global_importance.csv`, `vif_report.csv`, `calibration_report.csv`, `lift_report.csv`, `segment_performance_report.csv`, `feature_risk_matrix.csv` |
 | **Agent 03: Aryaman** | Convert verified evidence into a concise business-facing model-health brief. | `aryaman_output.json`, `executive_model_report.json`, `executive_model_report.md` |
 | **Agent 04: Samanvaya** | Analyze structured feedback and propose calibration updates that require human approval. | `samanvaya_output.json`, `calibration_recommendations.json`, `config_change_log.json`, `calibration_config_v2_recommended.json` |
 | **Agent 05: Vishwakarma** | Generate report-ready visual intelligence and a run-specific lineage graph without mutating metrics. | `reports/visuals/*.json`, `reports/visuals/*.html`, `lineage_graph.svg`, `vishwakarma_output.json` |
@@ -85,6 +85,7 @@ The bundled synthetic QSR propensity demo currently produces:
 | Prediction drift | `High`; score mean changed by approximately `-9.0%` |
 | Calibration diagnostics | Brier score and expected calibration error saved from current-window labels |
 | Lift diagnostics | Top score decile lift saved for audience-quality review |
+| Segment diagnostics | Segment-level score, outcome, lift, Brier score, and calibration-gap review |
 | Feature-risk matrix | `merchant_novelty_rate` is a top SHAP driver with high drift |
 | Samanvaya governance | `2` recommendations pending human approval |
 
@@ -100,6 +101,7 @@ reports/
   score_decile_report.csv
   calibration_report.csv
   lift_report.csv
+  segment_performance_report.csv
   feature_risk_matrix.csv
   evidence_packet.json
   visuals/
@@ -191,7 +193,7 @@ docs/             Architecture notes, demo walkthrough, and proof assets
 
 ## Current Validation
 
-- `43` pytest tests passed
+- `44` pytest tests passed
 - `11` unittest checks passed
 - Streamlit smoke test passed
 - Python compile check passed
@@ -219,6 +221,7 @@ AxionAI is artifact-driven rather than QSR-specific. The bundled QSR model is a 
 - Model-health review before activation
 - Auditable diagnostics and evidence packets
 - Calibration, lift, and score-decile diagnostics
+- Segment-level performance diagnostics
 - Business-facing reporting
 - Human-approved calibration recommendations
 

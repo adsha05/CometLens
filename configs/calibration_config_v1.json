@@ -29,6 +29,11 @@
     "overfitting_delta_thresholds": {
       "medium": 0.03,
       "high": 0.07
+    },
+    "segment_performance_thresholds": {
+      "minimum_segment_count": 10,
+      "calibration_gap_medium": 0.1,
+      "calibration_gap_high": 0.2
     }
   },
   "aryaman": {

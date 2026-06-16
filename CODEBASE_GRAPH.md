@@ -38,7 +38,7 @@ flowchart TD
 
     subgraph Agents["Five-Agent Model Intelligence Workflow"]
         M["Agent 01: Mitra<br/>src/agents/signal_sentinel_agent.py<br/>Drift, missingness, prediction summary, cluster shift"]
-        V["Agent 02: Varuna<br/>src/agents/model_lens_agent.py<br/>SHAP, VIF, calibration, lift, overfitting delta"]
+        V["Agent 02: Varuna<br/>src/agents/model_lens_agent.py<br/>SHAP, VIF, calibration, lift, segment performance, overfitting delta"]
         A["Agent 03: Aryaman<br/>src/agents/executive_synthesis_agent.py<br/>Executive model health brief"]
         S["Agent 04: Samanvaya<br/>src/agents/samanvaya_calibration_agent.py<br/>Governed feedback calibration recommendations"]
         W["Agent 05: Vishwakarma<br/>src/agents/vishwakarma_visual_architect.py<br/>Risk visuals and lineage SVG"]
@@ -59,9 +59,9 @@ flowchart TD
         LO["reports/varuna_output.json"]
         SH["reports/shap_global_importance.csv"]
         VF["reports/vif_report.csv"]
-        PERF["reports/score_decile_report.csv<br/>reports/calibration_report.csv<br/>reports/lift_report.csv"]
+        PERF["reports/score_decile_report.csv<br/>reports/calibration_report.csv<br/>reports/lift_report.csv<br/>reports/segment_performance_report.csv"]
         SF["reports/figures/shap_bar.png<br/>reports/figures/shap_beeswarm.png"]
-        PF["reports/figures/calibration_curve.png<br/>reports/figures/lift_chart.png"]
+        PF["reports/figures/calibration_curve.png<br/>reports/figures/lift_chart.png<br/>reports/figures/segment_performance_heatmap.png"]
         XO["reports/aryaman_output.json<br/>reports/executive_model_report.json<br/>reports/executive_model_report.md"]
         SA["reports/samanvaya_output.json<br/>reports/calibration_recommendations.json<br/>reports/config_change_log.json<br/>configs/calibration_config_v2_recommended.json"]
         WV["reports/visuals/<br/>Interactive plots, graph JSON, lineage SVG, visual manifest"]
@@ -163,7 +163,7 @@ flowchart TD
 | Agent | File | Responsibility | Main Outputs |
 | --- | --- | --- | --- |
 | Agent 01: Mitra | `src/agents/signal_sentinel_agent.py` | Detect signal drift, prediction score drift, missing-value shifts, data-quality failures, and cluster/context movement. | `mitra_output.json`, `data_quality_report.csv`, `prediction_drift_report.json`, `drift_report.csv`, `cluster_shift_report.csv`, `drift_top_features.png` |
-| Agent 02: Varuna | `src/agents/model_lens_agent.py` | Explain model behavior and identify feature-level model risks using SHAP, VIF, calibration, lift, score deciles, and train-validation metric delta. Flags SHAP reliability when Mitra finds severe drift. | `varuna_output.json`, `shap_global_importance.csv`, `vif_report.csv`, `score_decile_report.csv`, `calibration_report.csv`, `lift_report.csv`, diagnostic plots |
+| Agent 02: Varuna | `src/agents/model_lens_agent.py` | Explain model behavior and identify feature-level model risks using SHAP, VIF, calibration, lift, score deciles, segment performance, and train-validation metric delta. Flags SHAP reliability when Mitra finds severe drift. | `varuna_output.json`, `shap_global_importance.csv`, `vif_report.csv`, `score_decile_report.csv`, `calibration_report.csv`, `lift_report.csv`, `segment_performance_report.csv`, diagnostic plots |
 | Agent 03: Aryaman | `src/agents/executive_synthesis_agent.py` | Convert only the verified evidence packet into a concise executive model health brief. | `aryaman_output.json`, `executive_model_report.json`, `executive_model_report.md` |
 | Agent 04: Samanvaya | `src/agents/samanvaya_calibration_agent.py` | Read governed dashboard feedback and propose config changes for human review without mutating runtime behavior. | `samanvaya_output.json`, `calibration_recommendations.json`, `config_change_log.json`, `calibration_config_v2_recommended.json` |
 | Agent 05: Vishwakarma | `src/agents/vishwakarma_visual_architect.py` | Convert verified outputs into report-ready visuals and a run-specific lineage map without mutating monitoring metrics. | `reports/visuals/*.json`, `reports/visuals/*.html`, `lineage_graph.svg`, `vishwakarma_output.json` |
@@ -206,7 +206,7 @@ Why this design:
 | Model metadata | Mitra, Varuna, Evidence Store | `target`, `entity_id`, `prediction_column`, `feature_columns`, performance metrics, business use case |
 | Agent 01: Mitra | Evidence Store, Varuna, Dashboard | Feature drift, prediction summary, missingness, cluster share movement |
 | Agent 01: Mitra | Agent 02: Varuna | Drift severity gate that marks SHAP output unreliable when PSI or KS thresholds are severe |
-| Agent 02: Varuna | Evidence Store, Dashboard | SHAP importance, VIF report, train-validation metric delta, calibration diagnostics, lift diagnostics, high-risk feature matrix, explainability reliability status |
+| Agent 02: Varuna | Evidence Store, Dashboard | SHAP importance, VIF report, train-validation metric delta, calibration diagnostics, lift diagnostics, segment performance diagnostics, high-risk feature matrix, explainability reliability status |
 | Evidence Store | Agent 03: Aryaman | Single evidence packet containing deterministic outputs only |
 | Evidence Store | Agent 05: Vishwakarma | Verified monitoring outputs and model context for deterministic visualization |
 | Agent 05: Vishwakarma | Evidence Store, Dashboard, Agent 03: Aryaman | Same-run visual manifest, interactive plots, and lineage SVG |

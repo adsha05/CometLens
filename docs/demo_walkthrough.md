@@ -57,9 +57,10 @@ Show:
 - Score decile report
 - Calibration curve
 - Lift chart
+- Segment performance heatmap
 - Reliability warning when severe Mitra drift is present
 
-The key demonstration is the combination of feature importance, drift, calibration, and lift rather than SHAP in isolation.
+The key demonstration is the combination of feature importance, drift, calibration, lift, and segment-level performance rather than SHAP in isolation.
 
 ### Evidence Store
 
@@ -102,7 +103,7 @@ python -m compileall -q src app tests scripts
 
 Current validated result:
 
-- `43` pytest tests passed
+- `44` pytest tests passed
 - `11` unittest checks passed
 - Streamlit smoke test passed
 - Python compile check passed

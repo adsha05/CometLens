@@ -13,6 +13,7 @@ AxionAI saves machine-readable evidence and stakeholder-facing summaries. The bu
 | Prediction score mean movement | Approximately `-9.0%` |
 | Calibration diagnostics | Brier score, expected calibration error, and calibration bins |
 | Lift diagnostics | Top-decile lift and cumulative capture rate |
+| Segment diagnostics | Cohort-level score, outcome, lift, Brier score, and calibration gap |
 | Leading SHAP driver | `merchant_novelty_rate` |
 | Samanvaya recommendations | `2` pending human approval |
 
@@ -37,6 +38,7 @@ AxionAI saves machine-readable evidence and stakeholder-facing summaries. The bu
 | `reports/score_decile_report.csv` | Score-decile performance, lift, and cumulative gains |
 | `reports/calibration_report.csv` | Calibration bins, average predicted score, actual rate, and calibration gap |
 | `reports/lift_report.csv` | Decile lift and cumulative lift report |
+| `reports/segment_performance_report.csv` | Segment-level model performance by top model driver cohorts |
 | `reports/feature_risk_matrix.csv` | Combined SHAP, drift, and VIF feature-risk evidence |
 
 ## Evidence And Reporting Outputs
@@ -63,6 +65,7 @@ AxionAI saves machine-readable evidence and stakeholder-facing summaries. The bu
 | --- | --- |
 | `reports/figures/calibration_curve.png` | Visual calibration curve against the ideal diagonal |
 | `reports/figures/lift_chart.png` | Decile lift and cumulative lift chart |
+| `reports/figures/segment_performance_heatmap.png` | Heatmap of segment-level calibration gaps |
 
 ## Governed Feedback Outputs
 

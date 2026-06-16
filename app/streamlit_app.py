@@ -305,8 +305,14 @@ def model_lens_section() -> None:
         "Top Decile Lift",
         f"{lift.get('top_decile_lift', 0):.2f}x" if lift.get("top_decile_lift") is not None else "N/A",
     )
+    segment_summary = performance.get("segment_performance", {})
+    if segment_summary:
+        seg_col1, seg_col2, seg_col3 = st.columns(3)
+        seg_col1.metric("Segment Rows", segment_summary.get("row_count", "N/A"))
+        seg_col2.metric("High-Risk Segments", segment_summary.get("high_risk_segments", 0))
+        seg_col3.metric("Medium-Risk Segments", segment_summary.get("medium_risk_segments", 0))
 
-    performance_tabs = st.tabs(["Score Deciles", "Calibration", "Lift"])
+    performance_tabs = st.tabs(["Score Deciles", "Calibration", "Lift", "Segment Performance"])
     with performance_tabs[0]:
         score_decile_path = REPORTS_DIR / "score_decile_report.csv"
         if score_decile_path.exists():
@@ -327,6 +333,13 @@ def model_lens_section() -> None:
         else:
             st.info("Lift report is missing. Run Varuna or the full pipeline.")
         show_image_if_available(FIGURES_DIR / "lift_chart.png", "Lift by score decile")
+    with performance_tabs[3]:
+        segment_path = REPORTS_DIR / "segment_performance_report.csv"
+        if segment_path.exists():
+            st.dataframe(pd.read_csv(segment_path), width="stretch")
+        else:
+            st.info("Segment performance report is missing. Run Varuna or the full pipeline.")
+        show_image_if_available(FIGURES_DIR / "segment_performance_heatmap.png", "Segment performance heatmap")
 
     st.subheader("SHAP Plots")
     col1, col2 = st.columns(2)
