@@ -2,7 +2,9 @@
 
 ## Architecture Level
 
-AxionAI is a **file-backed, deterministic multi-agent workflow** for model intelligence.
+AxionAI is a **file-backed, deterministic multi-agent workflow** for data science model intelligence.
+
+It is positioned around model-review work that data scientists routinely own: validating current-period artifacts, checking population and prediction drift, explaining model behavior, reviewing calibration and lift, identifying weak cohorts, and translating evidence into stakeholder-ready outputs.
 
 The current MVP does **not** use LangGraph, CrewAI, AutoGen, or an external agent runtime. The multi-agent framework is intentionally lightweight:
 

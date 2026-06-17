@@ -1,6 +1,18 @@
 # AxionAI Demo Walkthrough
 
-This walkthrough presents AxionAI as a portfolio-grade local MVP using synthetic data only.
+This walkthrough presents AxionAI as a portfolio-grade local MVP for data science model review using synthetic data only.
+
+## Data Science Talk Track
+
+Frame the demo as a model-review workflow a data scientist could run after receiving feature tables, predictions, labels, and metadata from an existing model pipeline.
+
+The core story:
+
+1. Mitra checks whether the current population still resembles the training or reference population.
+2. Varuna checks whether the model remains interpretable, calibrated, rank-useful, and stable across important cohorts.
+3. Evidence Store freezes the deterministic findings into an auditable packet.
+4. Aryaman translates that packet into stakeholder language without recalculating metrics.
+5. Samanvaya captures feedback for future threshold review without automatically mutating the system.
 
 ## 1. Run The Pipeline
 
@@ -60,7 +72,7 @@ Show:
 - Segment performance heatmap
 - Reliability warning when severe Mitra drift is present
 
-The key demonstration is the combination of feature importance, drift, calibration, lift, and segment-level performance rather than SHAP in isolation.
+The key data science demonstration is the combination of feature importance, drift, calibration, lift, and segment-level performance rather than SHAP in isolation.
 
 ### Evidence Store
 

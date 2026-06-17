@@ -1,6 +1,6 @@
 # AxionAI Architecture
 
-AxionAI is a file-backed, deterministic multi-agent model-intelligence MVP. It reviews model artifacts locally and saves auditable outputs at every stage.
+AxionAI is a file-backed, deterministic multi-agent model-intelligence MVP for data science model review. It reviews model artifacts locally and saves auditable outputs at every stage.
 
 ## Core Workflow
 
@@ -22,6 +22,10 @@ flowchart LR
 ```
 
 ## Design Principles
+
+### Data Science First
+
+The workflow is built around the questions a data scientist has to answer before trusting or presenting a model: did the population move, do important features drift, is the score useful, is it calibrated, which cohorts are weak, and which findings are strong enough to show stakeholders?
 
 ### Deterministic Metrics
 
